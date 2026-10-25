@@ -1,0 +1,26 @@
+{
+  "_descripcion": "Correcciones que extraer_trd.py aplica después de leer los PDF. Se mantienen aquí para que se apliquen igual cada vez que se vuelve a ejecutar el script.",
+  "textos": {
+    "Relacionamie nto": "Relacionamiento",
+    "Relacionamien to": "Relacionamiento",
+    "Infraestructur a": "Infraestructura",
+    "Emprendimien to": "Emprendimiento",
+    "Administració n": "Administración"
+  },
+  "procesos": {
+    "Gestión de instancias de": "Gestión de instancias de concertación y competencias laborales",
+    "Gestión de instancias de concertación y": "Gestión de instancias de concertación y competencias laborales"
+  },
+  "registros": {
+    "11|00.9000.2|42|42.29": {
+      "_motivo": "El PDF repite en las páginas 2 y 3 el texto oculto del procedimiento de la serie 07, que se mezcla con el de esta subserie. Se usa el texto visible de la página 2.",
+      "proceso": null,
+      "procedimiento": "Subserie documental que permite la consolidación de la información general, donde se da cuenta de los logros, metas y procesos de la gestión en un período determinado. El tiempo de retención inicia a partir de la última entrega del informe de gestión en la vigencia. Cumplido el tiempo de retención en el archivo de gestión, se transfiere el soporte original al archivo central, donde, agotado su tiempo total, se elimina, por cuanto la información se consolida en la serie Informes, subserie Informes de Gestión anual Institucional, en la Dirección de Planeación y Direccionamiento Corporativo. La eliminación se realiza atendiendo lo establecido en el procedimiento de Disposición Final a cargo del Grupo Administración de Documentos y previa autorización del Comité Institucional de Gestión y Desempeño o quien haga sus veces. Los documentos en soporte electrónico se destruyen mediante borrado electrónico seguro, atendiendo lo estipulado en el Decreto 1080 de 2015, CAPÍTULO II Evaluación de documentos de archivo, artículo 2.8.2.2.5."
+    },
+    "11|00.9000.2|53|53.39": {
+      "_motivo": "Mismo texto oculto de la serie 07 montado sobre el visible: el proceso y el procedimiento salen ilegibles. Se usa el texto visible de la página 3.",
+      "proceso": "PROCESO GESTIÓN DE FORMACIÓN PROFESIONAL INTEGRAL",
+      "procedimiento": "Subserie documental que evidencia la formación en áreas específicas que no están completamente cubiertas por los programas regulares del SENA. Pueden incluir cursos cortos, seminarios, talleres intensivos u otros tipos de actividades formativas. El tiempo de retención inicia con el reporte de verificación de condiciones mínimas de calidad de ambientes de formación. Cumplido el tiempo de retención en el archivo de gestión, se transfiere el soporte original al archivo central, en donde, agotado su tiempo total, se conserva por cuanto contiene información que permitió ampliar las habilidades técnicas y tecnológicas en áreas específicas, aumentando así su empleabilidad y capacidad de contribuir de manera efectiva al desarrollo económico y social del país a lo largo del tiempo. Para garantizar la disponibilidad, integridad y acceso de la información de esta agrupación, la Oficina de Sistemas tendrá en cuenta el plan de preservación digital a largo plazo adoptado por la entidad, especialmente las estrategias relacionadas con copias de seguridad del Sistema de Gestión de Documentos Electrónicos de Archivo-SGDEA."
+    }
+  }
+}

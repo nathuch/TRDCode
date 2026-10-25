@@ -63,10 +63,13 @@ CREATE TABLE trd_registros (
   UNIQUE KEY uk_trd (version, plantilla, codigo_serie, codigo_subserie)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
+-- grupo: subtítulo bajo el que aparece el tipo en la TRD 11 (por ejemplo la modalidad
+-- de contratación en los contratos, "Modalidad Licitación Pública"); NULL si no tiene.
 CREATE TABLE trd_tipos_documentales (
   id INT AUTO_INCREMENT PRIMARY KEY,
   trd_id INT NOT NULL,
   orden SMALLINT NOT NULL,
+  grupo VARCHAR(150) NULL,
   nombre VARCHAR(300) NOT NULL,
   FOREIGN KEY (trd_id) REFERENCES trd_registros(id) ON DELETE CASCADE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

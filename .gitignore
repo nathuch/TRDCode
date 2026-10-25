@@ -6,6 +6,9 @@ frontend/dist/
 .venv/
 __pycache__/
 
+# Salida de revisión del extractor de TRD (se regenera; lo que se carga es database/trd.sql)
+scripts/salida/
+
 # Credenciales: el .env nunca va al repositorio (va .env.example)
 .env
 
