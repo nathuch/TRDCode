@@ -1,0 +1,22 @@
+# Dependencias y builds
+node_modules/
+frontend/dist/
+
+# Entorno de Python
+.venv/
+__pycache__/
+
+# Credenciales: config.php nunca va al repositorio (va config.example.php)
+api/lib/config.php
+
+# Reporte de OnBase y cualquier Excel: contienen nombres de personas
+datos-prueba/
+*.xlsx
+*.xls
+
+# Paquetes de entrega generados (se adjuntan al Release, no al repositorio)
+TRDCode-v*.zip
+
+# Sistema operativo
+Thumbs.db
+.DS_Store
