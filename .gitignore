@@ -6,8 +6,8 @@ frontend/dist/
 .venv/
 __pycache__/
 
-# Credenciales: config.php nunca va al repositorio (va config.example.php)
-api/lib/config.php
+# Credenciales: el .env nunca va al repositorio (va .env.example)
+.env
 
 # Reporte de OnBase y cualquier Excel: contienen nombres de personas
 datos-prueba/
