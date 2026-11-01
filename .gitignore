@@ -17,6 +17,9 @@ datos-prueba/
 *.xlsx
 *.xls
 
+# Configuración local de VS Code (extensions.json sí va: recomienda las extensiones del proyecto)
+.vscode/settings.json
+
 # Paquetes de entrega generados (se adjuntan al Release, no al repositorio)
 TRDCode-v*.zip
 
