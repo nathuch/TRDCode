@@ -123,6 +123,15 @@ def columna_de(celda, columnas, version):
     return min(columnas, key=lambda c: abs(c[1] - medio))[0]
 
 
+def es_cursiva(pagina, caja):
+    """True si todo el texto dentro de la caja (x0, top, x1, bottom) está en cursiva."""
+    x0, arriba, x1, abajo = caja
+    letras = [c for c in pagina.chars
+              if c["text"].strip() and x0 <= (c["x0"] + c["x1"]) / 2 <= x1
+              and arriba <= (c["top"] + c["bottom"]) / 2 <= abajo]
+    return bool(letras) and all("Italic" in c["fontname"] for c in letras)
+
+
 def es_vineta(objeto):
     """En las TRD 11 las viñetas (g serie, c subserie, a tipo) son letras de la fuente Webdings."""
     return objeto.get("object_type") == "char" and "Webdings" in objeto.get("fontname", "")
@@ -134,6 +143,10 @@ def leer_filas(pagina, version, previas=None):
     En la TRD 11 las viñetas se sacan de la página antes de leer las tablas, para que no se
     mezclen con el texto (en un tipo de dos renglones la viñeta queda entre los dos), y cada
     fila recibe en "_vineta" la que cae dentro de su altura.
+
+    En la TRD 10, una fila sin código cuyo nombre está todo en cursiva es un título de sección
+    ("ARTICULACIÓN CON LA EDUCACIÓN MEDIA") y se marca con "_titulo". Con código, la cursiva
+    es el nombre de la serie ("35 HISTORIAS ACADEMICAS") y se lee como siempre.
     """
     vinetas = []
     if version == "11":
@@ -183,6 +196,11 @@ def leer_filas(pagina, version, previas=None):
             if not v:
                 continue
             dic[col] = f"{dic[col]} {v}" if col in dic else v
+        if version == "10" and "NOMBRE" in dic and "SERIE" not in dic and "SUBSERIE" not in dic:
+            cajas = [c for c, v in fila["celdas"]
+                     if limpiar(v) and columna_de((c[0], c[2]), columnas, version) == "NOMBRE"]
+            if all(es_cursiva(pagina, c) for c in cajas):
+                dic["_titulo"] = True
         if dic:
             dic["_pagina"] = pagina.page_number
             filas.append(dic)
@@ -199,8 +217,8 @@ def tipo_de_fila(fila, version):
     ('tipo', None, nombre), ('continuacion', None, texto), ('grupo', None, subtítulo) o None.
 
     En la TRD 11 las filas sin viñeta son subtítulos que agrupan tipos documentales
-    ("Modalidad Licitación Pública"); en la TRD 10, una fila sin viñeta ni marca es la
-    segunda línea del tipo anterior.
+    ("Modalidad Licitación Pública"); en la TRD 10 los subtítulos son las filas en cursiva
+    ("_titulo"), y una fila sin viñeta ni marca es la segunda línea del tipo anterior.
     """
     nombre = fila.get("NOMBRE", "")
     serie = fila.get("SERIE", "").replace(" ", "")
@@ -217,6 +235,8 @@ def tipo_de_fila(fila, version):
         if nombre and not serie and not subserie:
             return "grupo", None, nombre
         return None
+    if fila.get("_titulo"):
+        return "grupo", None, nombre
     if subserie:
         return "subserie", f"{codigo_dos_digitos(serie)}.{codigo_dos_digitos(subserie)}", nombre
     if serie:
