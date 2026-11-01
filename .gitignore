@@ -22,6 +22,7 @@ datos-prueba/
 
 # Paquetes de entrega generados (se adjuntan al Release, no al repositorio)
 TRDCode-v*.zip
+prototipo/
 
 # Sistema operativo
 Thumbs.db

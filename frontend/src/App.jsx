@@ -1,122 +1,178 @@
-import { useState } from 'react'
-import heroImg from './assets/hero.png'
-import reactLogo from './assets/react.svg'
-import viteLogo from './assets/vite.svg'
-import './App.css'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { obtenerDatos } from './api/cliente.js'
+import Ficha from './components/Ficha.jsx'
+import Filtros from './components/Filtros.jsx'
+import Resumen from './components/Resumen.jsx'
+import TablaResultados from './components/TablaResultados.jsx'
+import { armarIndice, ESTADOS, resumen } from './datos/cruce.js'
+import {
+  aplicarFiltros,
+  cambiarFiltro,
+  ESTADO_INICIAL,
+  opcionesDisponibles,
+  resultadosEnOtraVersion,
+} from './datos/filtros.js'
+import { escribirUrl, leerUrl } from './estadoUrl.js'
+import { exportarExcel } from './utils/exportar.js'
+import { codigoFila, fechaLarga, formatoNumero } from './utils/formato.js'
 
-function App() {
-  const [count, setCount] = useState(0)
+const inicial = leerUrl()
+
+export default function App() {
+  const [datos, setDatos] = useState(null)
+  const [error, setError] = useState(null)
+  const [estado, setEstado] = useState(inicial.estado)
+  const [llaveFicha, setLlaveFicha] = useState(inicial.ficha)
+  const [exportando, setExportando] = useState(false)
+
+  useEffect(() => {
+    obtenerDatos()
+      .then(setDatos)
+      .catch((e) => setError(e.message))
+  }, [])
+
+  useEffect(() => escribirUrl(estado, llaveFicha), [estado, llaveFicha])
+
+  const entradas = useMemo(
+    () => (datos ? armarIndice(datos.trd, datos.dependencias, datos.expedientes) : []),
+    [datos],
+  )
+  const opciones = useMemo(() => (datos ? opcionesDisponibles(estado, entradas, datos) : null), [estado, entradas, datos])
+  const filas = useMemo(() => aplicarFiltros(estado, entradas), [estado, entradas])
+  const totales = useMemo(() => resumen(filas), [filas])
+  const otraVersion = useMemo(
+    () => (filas.length === 0 ? resultadosEnOtraVersion(estado, entradas) : null),
+    [filas, estado, entradas],
+  )
+
+  const nombres = useMemo(() => {
+    const plantillas = new Map((datos?.dependencias ?? []).map((d) => [d.plantilla, d.nombre]))
+    const centros = new Map((datos?.centros ?? []).map((c) => [c.codigo, c.nombre]))
+    const centroDeDependencia = new Map((datos?.dependencias ?? []).map((d) => [d.codigo, d.codigo_centro]))
+    return {
+      nombrePlantilla: (p) => plantillas.get(p) ?? p,
+      nombreCentro: (c) => centros.get(c) ?? c,
+      centroDeDependencia: (d) => centroDeDependencia.get(d),
+      nombreCentroDeDependencia: (d) => centros.get(centroDeDependencia.get(d)) ?? d,
+    }
+  }, [datos])
+
+  const cambiar = useCallback((campo, valor) => setEstado((actual) => cambiarFiltro(actual, campo, valor)), [])
+  const cerrarFicha = useCallback(() => setLlaveFicha(null), [])
+  const ficha = filas.find((f) => f.llave === llaveFicha) ?? null
+  const fueraDeTrd = filas.filter((f) => f.estado === ESTADOS.FUERA)
+  const hayFiltros = JSON.stringify({ ...estado, trd: ESTADO_INICIAL.trd }) !== JSON.stringify(ESTADO_INICIAL)
+
+  const exportar = async (filasAExportar) => {
+    setExportando(true)
+    try {
+      await exportarExcel(filasAExportar, estado, { ...nombres, carga: datos?.carga })
+    } catch (e) {
+      window.alert(`No se pudo generar el Excel: ${e.message}`)
+    } finally {
+      setExportando(false)
+    }
+  }
 
   return (
-    <>
-      <section id="center">
-        <div className="hero">
-          <img src={heroImg} className="base" width="170" height="179" alt="" />
-          <img src={reactLogo} className="framework" alt="React logo" />
-          <img src={viteLogo} className="vite" alt="Vite logo" />
-        </div>
+    <div className="pagina">
+      <header className="encabezado">
         <div>
-          <h1>Get started</h1>
-          <p>
-            Edit <code>src/App.jsx</code> and save to test <code>HMR</code>
+          <h1>Consulta de expedientes por serie y subserie</h1>
+          <p className="encabezado__sub">SENA, Regional Tolima · Centros de Formación</p>
+        </div>
+        {datos?.carga && <span className="sello">Datos al {fechaLarga(datos.carga.fecha_reporte)}</span>}
+      </header>
+
+      {error && (
+        <div className="contenido">
+          <p className="aviso aviso--error" role="alert">
+            No se pudieron cargar los datos: {error} Revise que Apache y MySQL estén encendidos.
           </p>
         </div>
-        <button
-          type="button"
-          className="counter"
-          onClick={() => setCount((count) => count + 1)}
-        >
-          Count is {count}
-        </button>
-      </section>
-
-      <div className="ticks"></div>
-
-      <section id="next-steps">
-        <div id="docs">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#documentation-icon"></use>
-          </svg>
-          <h2>Documentation</h2>
-          <p>Your questions, answered</p>
-          <ul>
-            <li>
-              <a href="https://vite.dev/" target="_blank">
-                <img className="logo" src={viteLogo} alt="" />
-                Explore Vite
-              </a>
-            </li>
-            <li>
-              <a href="https://react.dev/" target="_blank">
-                <img className="button-icon" src={reactLogo} alt="" />
-                Learn more
-              </a>
-            </li>
-          </ul>
+      )}
+      {!datos && !error && (
+        <div className="contenido">
+          <p className="cargando" role="status">
+            Cargando datos…
+          </p>
         </div>
-        <div id="social">
-          <svg className="icon" role="presentation" aria-hidden="true">
-            <use href="/icons.svg#social-icon"></use>
-          </svg>
-          <h2>Connect with us</h2>
-          <p>Join the Vite community</p>
-          <ul>
-            <li>
-              <a href="https://github.com/vitejs/vite" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#github-icon"></use>
-                </svg>
-                GitHub
-              </a>
-            </li>
-            <li>
-              <a href="https://chat.vite.dev/" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#discord-icon"></use>
-                </svg>
-                Discord
-              </a>
-            </li>
-            <li>
-              <a href="https://x.com/vite_js" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#x-icon"></use>
-                </svg>
-                X.com
-              </a>
-            </li>
-            <li>
-              <a href="https://bsky.app/profile/vite.dev" target="_blank">
-                <svg
-                  className="button-icon"
-                  role="presentation"
-                  aria-hidden="true"
-                >
-                  <use href="/icons.svg#bluesky-icon"></use>
-                </svg>
-                Bluesky
-              </a>
-            </li>
-          </ul>
-        </div>
-      </section>
+      )}
 
-      <div className="ticks"></div>
-      <section id="spacer"></section>
-    </>
+      {datos && (
+        <div className="contenido contenido--columnas">
+          <Filtros
+            estado={estado}
+            opciones={opciones}
+            onCambiar={cambiar}
+            onLimpiar={() => setEstado({ ...ESTADO_INICIAL, trd: estado.trd })}
+            hayFiltros={hayFiltros}
+          />
+
+          <main className="resultados">
+            {!datos.carga && (
+              <p className="aviso">Todavía no hay expedientes cargados: se muestra solo la TRD.</p>
+            )}
+            <Resumen totales={totales} />
+
+            {fueraDeTrd.length > 0 && (
+              <div className="aviso aviso--fuera">
+                {fueraDeTrd.map((f) => (
+                  <p key={f.llave}>
+                    La {f.codigo_subserie ? 'subserie' : 'serie'} <strong>{codigoFila(f)}</strong> tiene{' '}
+                    {formatoNumero(f.cantidad)} expedientes en el reporte de OnBase, pero no aparece en la TRD{' '}
+                    {f.version} de {nombres.nombrePlantilla(f.plantilla)}.
+                  </p>
+                ))}
+              </div>
+            )}
+
+            {otraVersion?.cantidad > 0 && (
+              <div className="aviso">
+                <p>
+                  No hay resultados en la TRD {estado.trd}, pero hay {otraVersion.cantidad}{' '}
+                  {otraVersion.cantidad === 1 ? 'resultado' : 'resultados'} en la TRD {otraVersion.version}.
+                </p>
+                <button type="button" className="boton" onClick={() => cambiar('trd', otraVersion.version)}>
+                  Ver en la TRD {otraVersion.version}
+                </button>
+              </div>
+            )}
+
+            <div className="barra">
+              <p className="barra__texto">
+                {formatoNumero(filas.length)} series y subseries · TRD {estado.trd}
+              </p>
+              <button
+                type="button"
+                className="boton boton--primario"
+                onClick={() => exportar(filas)}
+                disabled={exportando || filas.length === 0}
+              >
+                {exportando ? 'Generando…' : 'Exportar a Excel'}
+              </button>
+            </div>
+
+            <TablaResultados
+              filas={filas}
+              nombrePlantilla={nombres.nombrePlantilla}
+              onAbrir={setLlaveFicha}
+              fichaAbierta={llaveFicha}
+            />
+          </main>
+        </div>
+      )}
+
+      {ficha && (
+        <Ficha
+          fila={ficha}
+          nombrePlantilla={nombres.nombrePlantilla}
+          nombreCentroDeDependencia={nombres.nombreCentroDeDependencia}
+          onCerrar={cerrarFicha}
+          onExportar={() => exportar([ficha])}
+          exportando={exportando}
+        />
+      )}
+    </div>
   )
 }
-
-export default App

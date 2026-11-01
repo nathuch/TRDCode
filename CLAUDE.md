@@ -24,8 +24,8 @@ Aplicación de consulta de series y subseries documentales (TRD 2020 y 2025) de 
 - Rutas relativas para que la aplicación funcione en cualquier carpeta del servidor sin volver a compilar: `base: './'` en `frontend/vite.config.js` y llamadas a la API sin barra inicial (`fetch('api/datos.php')`, no `'/api/datos.php'`).
 
 ## Configuración y base de datos
-- La configuración se edita solo en `.env` (plantilla: `.env.example`). `api/lib/config.php` lo lee desde la variable `TRDCODE_ENV` o desde la raíz del proyecto. No mostrar sus valores.
-- El `.env` nunca va al repositorio ni a la carpeta pública del servidor. En producción queda fuera de la carpeta pública y se indica su ruta con `TRDCODE_ENV`.
+- La configuración se edita solo en `.env` (plantilla: `.env.example`). No mostrar sus valores. `api/lib/config.php` lo busca en este orden: la ruta de la variable `TRDCODE_ENV`; junto a la carpeta pública, con el nombre de la carpeta de la aplicación (`C:\xampp\TRDCode.env` para `C:\xampp\htdocs\TRDCode`); y la raíz del proyecto, solo en desarrollo.
+- El `.env` nunca va al repositorio ni a la carpeta pública del servidor. Además, el `.htaccess` de la raíz del paquete bloquea cualquier archivo que empiece con punto.
 - En local, la base es el MySQL 8.0 del equipo (servicio `MySQL80`) y la aplicación se conecta como `root`. En producción se usa un usuario de MySQL propio con permisos solo sobre la base, nunca `root`: así debe quedar en `docs/INSTALACION.md`.
 - `codigo_subserie` vale `''` (cadena vacía) cuando la serie no tiene subseries, nunca `NULL`: la llave única admite varios `NULL` y dejaría pasar duplicados. Vale igual en la base, en la API y en el frontend.
 
@@ -45,4 +45,6 @@ Sirven para las pruebas; no se cambian.
 ## Comandos
 - TRD: `.venv/Scripts/python scripts/extraer_trd.py` genera `database/trd.sql`; las correcciones van en `scripts/correcciones.json`.
 - Usuaria encargada: `C:\xampp\php\php.exe scripts/crear_usuario.php`.
-- Frontend: `npm run dev` y `npm test` en `frontend/`.
+- Frontend: `npm run dev` y `npm test` en `frontend/`. Las pruebas con cifras reales leen `datos-prueba/datos.json` (`C:\xampp\php\php.exe api/datos.php > datos-prueba/datos.json`) y se saltan si no existe.
+- Expedientes del reporte: `.venv/Scripts/python scripts/generar_expedientes_sql.py` escribe `datos-prueba/expedientes.sql` (no va al repositorio).
+- Paquete del prototipo: `powershell -ExecutionPolicy Bypass -File scripts\armar_prototipo.ps1` arma `prototipo/TRDCode/` (ignorado por git); los pasos de instalación están en `scripts/prototipo/LEEME.txt`.
