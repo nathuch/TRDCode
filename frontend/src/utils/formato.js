@@ -77,3 +77,43 @@ export function nombreFila(fila) {
 export function formatoNumero(n) {
   return n.toLocaleString('es-CO')
 }
+
+const PALABRAS_MENORES = new Set(['a', 'al', 'con', 'de', 'del', 'e', 'el', 'en', 'la', 'las', 'los', 'o', 'para', 'por', 'u', 'y'])
+
+/**
+ * 'DERECHOS DE PETICIÓN' -> 'Derechos de Petición'. Solo cambia los nombres que vienen todo
+ * en mayúsculas; las siglas cortas sin vocales (como 'FIC') se dejan igual.
+ */
+export function nombreLegible(nombre) {
+  if (!nombre || nombre !== nombre.toUpperCase()) return nombre
+  return nombre
+    .toLowerCase()
+    .split(' ')
+    .map((palabra, i) => {
+      const original = palabra.toUpperCase()
+      if (original.length >= 2 && original.length <= 4 && !/[AEIOUÁÉÍÓÚ]/.test(original)) return original
+      if (i > 0 && PALABRAS_MENORES.has(palabra)) return palabra
+      return palabra.charAt(0).toUpperCase() + palabra.slice(1)
+    })
+    .join(' ')
+}
+
+const NOMBRE_DISPOSICION = {
+  CT: 'Conservación total',
+  E: 'Eliminación',
+  S: 'Selección',
+  MT: 'Medio tecnológico',
+  M: 'Microfilmar',
+  D: 'Digitalizar',
+}
+
+/** Sigla y nombre de cada disposición: [{ sigla: 'CT', nombre: 'Conservación total' }]. */
+export function disposiciones(codigos) {
+  return (codigos ?? []).map((sigla) => ({ sigla, nombre: NOMBRE_DISPOSICION[sigla] ?? sigla }))
+}
+
+/** 'retención 2 + 8' -> '2 + 8 años'. */
+export function retencionCorta(ag, ac) {
+  if (ag == null && ac == null) return '—'
+  return `${ag ?? '—'} + ${ac ?? '—'} años`
+}

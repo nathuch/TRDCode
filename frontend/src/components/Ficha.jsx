@@ -5,17 +5,20 @@ import {
   fechaCorta,
   formatoNumero,
   nombreFila,
+  nombreLegible,
   textoAcceso,
   textoClasificacion,
-  textoDisposicion,
-  textoRetencion,
   textoSoporte,
 } from '../utils/formato.js'
+import Disposicion from './Disposicion.jsx'
+import { IconoCandado, IconoCerrar, IconoDescarga } from './Iconos.jsx'
 
 const POR_PAGINA = 50
 const TIPOS_VISIBLES = 20
 
-/** Ficha de una serie o subserie (issue #49): datos de la TRD y listado de expedientes. */
+const anios = (n) => (n === 1 ? '1 año' : `${n} años`)
+
+/** Ficha de una serie o subserie: panel lateral con los datos de la TRD y sus expedientes. */
 export default function Ficha({ fila, nombrePlantilla, nombreCentroDeDependencia, onCerrar, onExportar, exportando }) {
   const cerrar = useRef(null)
 
@@ -31,96 +34,99 @@ export default function Ficha({ fila, nombrePlantilla, nombreCentroDeDependencia
     <div className="ficha-fondo" onClick={(e) => e.target === e.currentTarget && onCerrar()}>
       <section className="ficha" role="dialog" aria-modal="true" aria-labelledby="ficha-titulo">
         <header className="ficha__encabezado">
-          <div>
+          <div className="ficha__titulos">
             <p className="ficha__dependencia">
               {nombrePlantilla(fila.plantilla)} · TRD {fila.version}
+              {fila.codigo_subserie && ` · Serie ${fila.codigo_serie} ${nombreLegible(fila.nombre_serie)}`}
             </p>
             <h2 id="ficha-titulo">
-              {codigoFila(fila)} {nombreFila(fila)}
+              <span className="ficha__codigo">{codigoFila(fila)}</span> {nombreLegible(nombreFila(fila))}
             </h2>
           </div>
-          <span className="etiqueta etiqueta--cantidad">{formatoNumero(fila.cantidad)} expedientes</span>
-          <button type="button" className="boton boton--texto" ref={cerrar} onClick={onCerrar}>
-            Cerrar
+          <button type="button" className="boton-icono" ref={cerrar} onClick={onCerrar} aria-label="Cerrar la ficha">
+            <IconoCerrar tamano={20} />
           </button>
         </header>
 
         <div className="ficha__cuerpo">
-          <div className="ficha__datos">
-            {fila.estado === ESTADOS.FUERA ? (
-              <p className="aviso aviso--fuera">
-                Este código está en el reporte de OnBase pero no aparece en la TRD {fila.version} de{' '}
-                {nombrePlantilla(fila.plantilla)}. Se muestra con el nombre que trae el reporte.
-              </p>
-            ) : (
-              <DatosTrd fila={fila} trd={trd} />
-            )}
-          </div>
+          {fila.estado === ESTADOS.FUERA ? (
+            <p className="aviso-ambar">
+              Este código está en el reporte de OnBase pero no aparece en la TRD {fila.version} de{' '}
+              {nombrePlantilla(fila.plantilla)}. Se muestra con el nombre que trae el reporte.
+            </p>
+          ) : (
+            <>
+              <div className="ficha__tarjetas">
+                <div className="tarjeta-dato">
+                  <span className="tarjeta-dato__titulo">Retención</span>
+                  <span className="tarjeta-dato__valor">
+                    {trd.retencion_ag != null && trd.retencion_ac != null
+                      ? `${anios(trd.retencion_ag + trd.retencion_ac)} en total`
+                      : '—'}
+                  </span>
+                  <span className="tarjeta-dato__detalle">
+                    {trd.retencion_ag ?? '—'} {trd.retencion_ag === 1 ? 'año' : 'años'} en gestión +{' '}
+                    {trd.retencion_ac ?? '—'} en archivo central
+                  </span>
+                </div>
+                <div className="tarjeta-dato">
+                  <span className="tarjeta-dato__titulo">Disposición final</span>
+                  <span className="tarjeta-dato__valor">
+                    <Disposicion codigos={trd.disposicion} />
+                  </span>
+                  <span className="tarjeta-dato__detalle">
+                    Soporte: {textoSoporte(trd.soporte)}
+                    {trd.clasificacion.length > 0 && (
+                      <>
+                        <br />
+                        {textoClasificacion(trd.clasificacion)}
+                      </>
+                    )}
+                  </span>
+                </div>
+              </div>
 
-          <aside className="ficha__acciones">
-            <h3>Sacar lo que ves</h3>
-            <button type="button" className="boton boton--primario" onClick={onExportar} disabled={exportando}>
-              {exportando ? 'Generando…' : 'Exportar a Excel'}
-            </button>
-            <p className="ayuda">Incluye esta serie o subserie y sus {formatoNumero(fila.cantidad)} expedientes.</p>
-          </aside>
+              {trd.inicio_retencion && (
+                <section className="ficha__seccion">
+                  <h3>Cuándo empieza a contar</h3>
+                  <p>{trd.inicio_retencion}</p>
+                </section>
+              )}
+
+              <section className="ficha__seccion">
+                <h3>Tipos documentales ({formatoNumero(trd.tipos.length)})</h3>
+                <TiposDocumentales tipos={trd.tipos} />
+              </section>
+
+              {trd.procedimiento && (
+                <details className="ficha__procedimiento">
+                  <summary>Ver el procedimiento de la TRD</summary>
+                  <p>{trd.procedimiento}</p>
+                </details>
+              )}
+            </>
+          )}
+
+          <section className="ficha__seccion">
+            <div className="ficha__seccion-encabezado">
+              <h3>Expedientes ({formatoNumero(fila.cantidad)})</h3>
+              <button type="button" className="boton boton--primario boton--chico" onClick={onExportar} disabled={exportando}>
+                <IconoDescarga />
+                {exportando ? 'Generando…' : 'Exportar a Excel'}
+              </button>
+            </div>
+            <Expedientes key={fila.llave} expedientes={fila.expedientes} centroDe={nombreCentroDeDependencia} />
+          </section>
         </div>
-
-        <Expedientes key={fila.llave} expedientes={fila.expedientes} centroDe={nombreCentroDeDependencia} />
       </section>
     </div>
-  )
-}
-
-function DatosTrd({ fila, trd }) {
-  return (
-    <dl className="datos">
-      {fila.codigo_subserie && (
-        <>
-          <dt>Serie</dt>
-          <dd>
-            {fila.codigo_serie} {fila.nombre_serie}
-          </dd>
-        </>
-      )}
-      <dt>Retención</dt>
-      <dd>
-        {textoRetencion(trd.retencion_ag, trd.retencion_ac)}
-        {trd.inicio_retencion && <span className="datos__nota">{trd.inicio_retencion}</span>}
-      </dd>
-      <dt>Disposición final</dt>
-      <dd>{textoDisposicion(trd.disposicion)}</dd>
-      {trd.clasificacion.length > 0 && (
-        <>
-          <dt>Clasificación</dt>
-          <dd>{textoClasificacion(trd.clasificacion)}</dd>
-        </>
-      )}
-      <dt>Soporte</dt>
-      <dd>{textoSoporte(trd.soporte)}</dd>
-      <dt>Tipos documentales</dt>
-      <dd>
-        <TiposDocumentales tipos={trd.tipos} />
-      </dd>
-      {trd.procedimiento && (
-        <>
-          <dt>Procedimiento</dt>
-          <dd>
-            <details>
-              <summary>Ver el procedimiento de la TRD</summary>
-              <p className="datos__procedimiento">{trd.procedimiento}</p>
-            </details>
-          </dd>
-        </>
-      )}
-    </dl>
   )
 }
 
 /** Tipos documentales en orden, bajo su subtítulo (grupo) cuando lo tienen. */
 function TiposDocumentales({ tipos }) {
   const [todos, setTodos] = useState(false)
-  if (tipos.length === 0) return <span>—</span>
+  if (tipos.length === 0) return <p className="texto-suave">Sin tipos documentales.</p>
   const visibles = todos ? tipos : tipos.slice(0, TIPOS_VISIBLES)
   const grupos = []
   for (const tipo of visibles) {
@@ -140,7 +146,7 @@ function TiposDocumentales({ tipos }) {
         </div>
       ))}
       {tipos.length > TIPOS_VISIBLES && (
-        <button type="button" className="boton boton--texto" onClick={() => setTodos(!todos)}>
+        <button type="button" className="boton boton--enlace" onClick={() => setTodos(!todos)}>
           {todos ? 'Ver menos' : `Ver los ${formatoNumero(tipos.length)} tipos documentales`}
         </button>
       )}
@@ -151,62 +157,49 @@ function TiposDocumentales({ tipos }) {
 /** Listado de expedientes, del más reciente al más antiguo, en páginas de 50. */
 function Expedientes({ expedientes, centroDe }) {
   const [pagina, setPagina] = useState(0)
-  const paginas = Math.max(1, Math.ceil(expedientes.length / POR_PAGINA))
+  if (expedientes.length === 0) return <p className="texto-suave">No hay expedientes con los filtros elegidos.</p>
+  const paginas = Math.ceil(expedientes.length / POR_PAGINA)
   const desde = pagina * POR_PAGINA
   const visibles = expedientes.slice(desde, desde + POR_PAGINA)
   const variosCentros = new Set(expedientes.map((e) => centroDe(e.codigo_dependencia))).size > 1
 
   return (
-    <div className="ficha__expedientes">
-      <h3>Expedientes</h3>
-      {expedientes.length === 0 ? (
-        <p className="vacio">No hay expedientes con los filtros elegidos.</p>
-      ) : (
-        <>
-          <div className="tabla-caja">
-            <table className="tabla tabla--compacta">
-              <thead>
-                <tr>
-                  <th scope="col">Código</th>
-                  <th scope="col">Nombre</th>
-                  <th scope="col">Fecha de creación</th>
-                  <th scope="col">Acceso</th>
-                  {variosCentros && <th scope="col">Centro</th>}
-                </tr>
-              </thead>
-              <tbody>
-                {visibles.map((e) => (
-                  <tr key={e.codigo}>
-                    <td className="nowrap">{e.codigo}</td>
-                    <td className={e.control_acceso === 'IPU' ? '' : 'reservado'}>{e.nombre}</td>
-                    <td className="nowrap">{fechaCorta(e.fecha_creacion)}</td>
-                    <td>{textoAcceso(e.control_acceso)}</td>
-                    {variosCentros && <td>{centroDe(e.codigo_dependencia)}</td>}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          {paginas > 1 && (
-            <nav className="paginacion" aria-label="Páginas de expedientes">
-              <button type="button" className="boton" disabled={pagina === 0} onClick={() => setPagina(pagina - 1)}>
-                Anteriores
-              </button>
-              <span>
-                {desde + 1}–{Math.min(desde + POR_PAGINA, expedientes.length)} de {formatoNumero(expedientes.length)}
+    <>
+      <ul className="expedientes">
+        {visibles.map((e) => {
+          const reservado = e.control_acceso !== 'IPU'
+          return (
+            <li key={e.codigo} className="expediente">
+              <span className="expediente__codigo">{e.codigo}</span>
+              <span className={reservado ? 'expediente__nombre reservado' : 'expediente__nombre'}>
+                {reservado && <IconoCandado tamano={14} />}
+                {e.nombre}
+                {reservado && <span className="solo-lector"> (acceso {textoAcceso(e.control_acceso).toLowerCase()})</span>}
+                {variosCentros && <span className="expediente__centro">{centroDe(e.codigo_dependencia)}</span>}
               </span>
-              <button
-                type="button"
-                className="boton"
-                disabled={pagina >= paginas - 1}
-                onClick={() => setPagina(pagina + 1)}
-              >
-                Siguientes
-              </button>
-            </nav>
-          )}
-        </>
+              <span className="expediente__fecha">{fechaCorta(e.fecha_creacion)}</span>
+            </li>
+          )
+        })}
+      </ul>
+      {paginas > 1 && (
+        <nav className="paginacion" aria-label="Páginas de expedientes">
+          <button type="button" className="boton boton--contorno-gris" disabled={pagina === 0} onClick={() => setPagina(pagina - 1)}>
+            Anteriores
+          </button>
+          <span>
+            {desde + 1}–{Math.min(desde + POR_PAGINA, expedientes.length)} de {formatoNumero(expedientes.length)}
+          </span>
+          <button
+            type="button"
+            className="boton boton--contorno-gris"
+            disabled={pagina >= paginas - 1}
+            onClick={() => setPagina(pagina + 1)}
+          >
+            Siguientes
+          </button>
+        </nav>
       )}
-    </div>
+    </>
   )
 }

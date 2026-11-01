@@ -1,6 +1,8 @@
 import { useEffect, useId, useRef } from 'react'
+import { nombreLegible } from '../utils/formato.js'
+import { IconoFlecha } from './Iconos.jsx'
 
-/** Desplegable con casillas para elegir uno o varios valores. Sin selección muestra "Todas"/"Todos". */
+/** Lista desplegable con casillas para elegir uno o varios valores. Sin selección muestra "Todas"/"Todos". */
 export default function SelectorMultiple({ etiqueta, opciones, seleccion, onCambiar, todos, plural, conCodigo }) {
   const ref = useRef(null)
   const id = useId()
@@ -36,7 +38,8 @@ export default function SelectorMultiple({ etiqueta, opciones, seleccion, onCamb
       </span>
       <details className="selector" ref={ref}>
         <summary aria-labelledby={id} className={seleccion.length ? 'selector__resumen activo' : 'selector__resumen'}>
-          <span>{resumen}</span>
+          <span className="selector__texto">{resumen}</span>
+          <IconoFlecha className="selector__flecha" />
         </summary>
         <div className="selector__lista" role="group" aria-labelledby={id}>
           {opciones.length === 0 && <p className="selector__vacio">No hay opciones con los filtros anteriores.</p>}
@@ -46,17 +49,17 @@ export default function SelectorMultiple({ etiqueta, opciones, seleccion, onCamb
               <span>{texto(o, conCodigo)}</span>
             </label>
           ))}
+          {seleccion.length > 0 && (
+            <button type="button" className="selector__quitar" onClick={() => onCambiar([])}>
+              Quitar selección
+            </button>
+          )}
         </div>
-        {seleccion.length > 0 && (
-          <button type="button" className="selector__quitar" onClick={() => onCambiar([])}>
-            Quitar selección
-          </button>
-        )}
       </details>
     </div>
   )
 }
 
 function texto(opcion, conCodigo) {
-  return conCodigo ? `${opcion.valor} · ${opcion.nombre}` : opcion.nombre
+  return conCodigo ? `${opcion.valor} · ${nombreLegible(opcion.nombre)}` : opcion.nombre
 }

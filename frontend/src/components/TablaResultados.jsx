@@ -1,14 +1,21 @@
+import { useState } from 'react'
 import { ESTADOS } from '../datos/cruce.js'
-import { codigoFila, ETIQUETA_ESTADO, formatoNumero, nombreFila, textoDisposicion } from '../utils/formato.js'
+import { codigoFila, ETIQUETA_ESTADO, formatoNumero, nombreFila, nombreLegible, retencionCorta } from '../utils/formato.js'
+import Disposicion from './Disposicion.jsx'
+import { IconoFlecha } from './Iconos.jsx'
 
 /**
- * Series y subseries agrupadas como en la TRD: una fila por serie y debajo sus subseries.
- * Si lo filtrado abarca varias dependencias, cada una va en su propia sección.
+ * Series y subseries como en la TRD. Una serie con subseries es una fila de grupo que se
+ * pliega, con su total; una serie sin subseries es una fila normal. Si lo filtrado abarca
+ * varias dependencias, cada una va en su propia sección. Toda la fila abre la ficha.
  */
 export default function TablaResultados({ filas, nombrePlantilla, onAbrir, fichaAbierta }) {
+  const [plegados, setPlegados] = useState(() => new Set())
+
   if (filas.length === 0) {
-    return <p className="vacio">No hay series ni subseries con estos filtros.</p>
+    return <p className="vacio">No hay series ni subseries en esta vista.</p>
   }
+  const maximo = Math.max(1, ...filas.map((f) => f.cantidad))
   const secciones = []
   for (const fila of filas) {
     if (secciones.at(-1)?.plantilla !== fila.plantilla) secciones.push({ plantilla: fila.plantilla, filas: [] })
@@ -16,19 +23,34 @@ export default function TablaResultados({ filas, nombrePlantilla, onAbrir, ficha
   }
   const conSecciones = secciones.length > 1
 
+  const alternar = (clave) =>
+    setPlegados((actual) => {
+      const nuevo = new Set(actual)
+      if (nuevo.has(clave)) nuevo.delete(clave)
+      else nuevo.add(clave)
+      return nuevo
+    })
+
   return (
     <div className="tabla-caja">
       <table className="tabla">
         <thead>
           <tr>
-            <th scope="col">Código</th>
-            <th scope="col">Serie / subserie</th>
-            <th scope="col" className="centrado">
-              Retención AG / AC (años)
+            <th scope="col" className="col-codigo">
+              Código
             </th>
-            <th scope="col">Disposición final</th>
-            <th scope="col" className="numero">
+            <th scope="col">Serie / subserie</th>
+            <th scope="col" className="col-retencion">
+              Retención
+            </th>
+            <th scope="col" className="col-disposicion">
+              Disposición final
+            </th>
+            <th scope="col" className="col-expedientes">
               Expedientes
+            </th>
+            <th scope="col" className="col-accion">
+              <span className="solo-lector">Abrir</span>
             </th>
           </tr>
         </thead>
@@ -36,19 +58,24 @@ export default function TablaResultados({ filas, nombrePlantilla, onAbrir, ficha
           <tbody key={seccion.plantilla}>
             {conSecciones && (
               <tr className="tabla__seccion">
-                <th colSpan={5} scope="colgroup">
+                <th colSpan={6} scope="colgroup">
                   {nombrePlantilla(seccion.plantilla)}
                 </th>
               </tr>
             )}
-            {conEncabezados(seccion.filas).map((item) =>
-              item.encabezado ? (
-                <tr key={`serie-${item.codigo}`} className="tabla__serie">
-                  <td>{item.codigo}</td>
-                  <td colSpan={4}>{item.nombre}</td>
-                </tr>
+            {agrupar(seccion.filas).map((item) =>
+              item.grupo ? (
+                <Grupo
+                  key={`${seccion.plantilla}-${item.codigo}`}
+                  grupo={item}
+                  plegado={plegados.has(`${seccion.plantilla}|${item.codigo}`)}
+                  onAlternar={() => alternar(`${seccion.plantilla}|${item.codigo}`)}
+                  maximo={maximo}
+                  onAbrir={onAbrir}
+                  fichaAbierta={fichaAbierta}
+                />
               ) : (
-                <Fila key={item.llave} fila={item} onAbrir={onAbrir} abierta={item.llave === fichaAbierta} />
+                <Fila key={item.llave} fila={item} maximo={maximo} onAbrir={onAbrir} abierta={item.llave === fichaAbierta} />
               ),
             )}
           </tbody>
@@ -58,48 +85,100 @@ export default function TablaResultados({ filas, nombrePlantilla, onAbrir, ficha
   )
 }
 
-/** Inserta una fila de encabezado antes de las subseries de cada serie. */
-function conEncabezados(filas) {
-  const resultado = []
-  let serieActual = null
+/** Junta las subseries seguidas de una misma serie en un grupo. */
+function agrupar(filas) {
+  const items = []
   for (const fila of filas) {
-    if (fila.codigo_subserie && fila.codigo_serie !== serieActual) {
-      resultado.push({ encabezado: true, codigo: fila.codigo_serie, nombre: fila.nombre_serie })
+    if (!fila.codigo_subserie) {
+      items.push(fila)
+      continue
     }
-    serieActual = fila.codigo_serie
-    resultado.push(fila)
+    const ultimo = items.at(-1)
+    if (ultimo?.grupo && ultimo.codigo === fila.codigo_serie) ultimo.filas.push(fila)
+    else items.push({ grupo: true, codigo: fila.codigo_serie, nombre: fila.nombre_serie, filas: [fila] })
   }
-  return resultado
+  return items
 }
 
-function Fila({ fila, onAbrir, abierta }) {
-  const esSerie = !fila.codigo_subserie
-  const clases = ['tabla__fila', esSerie ? 'tabla__fila--serie' : '', abierta ? 'abierta' : ''].join(' ')
+function Grupo({ grupo, plegado, onAlternar, maximo, onAbrir, fichaAbierta }) {
+  const total = grupo.filas.reduce((suma, f) => suma + f.cantidad, 0)
+  const n = grupo.filas.length
   return (
-    <tr className={clases}>
-      <td>{codigoFila(fila)}</td>
-      <td className={esSerie ? '' : 'sangria'}>
-        <button type="button" className="enlace-fila" onClick={() => onAbrir(fila.llave)}>
-          {nombreFila(fila)}
-        </button>
-      </td>
-      <td className="centrado">{fila.trd ? `${fila.trd.retencion_ag ?? '—'} / ${fila.trd.retencion_ac ?? '—'}` : '—'}</td>
-      <td className="disposicion">{fila.trd ? textoDisposicion(fila.trd.disposicion) : '—'}</td>
-      <td className="numero">
-        <Cantidad fila={fila} />
-      </td>
-    </tr>
+    <>
+      <tr className="tabla__grupo" onClick={onAlternar}>
+        <td className="col-codigo">{grupo.codigo}</td>
+        <td colSpan={2}>
+          <button
+            type="button"
+            className="fila__boton"
+            aria-expanded={!plegado}
+            onClick={(e) => {
+              e.stopPropagation()
+              onAlternar()
+            }}
+          >
+            {grupo.nombre}
+          </button>
+        </td>
+        <td className="texto-suave">
+          {n} {n === 1 ? 'subserie' : 'subseries'}
+        </td>
+        <td className="col-expedientes">
+          <strong>{total > 0 ? formatoNumero(total) : '—'}</strong>
+        </td>
+        <td className="col-accion">
+          <IconoFlecha direccion={plegado ? 'derecha' : 'abajo'} />
+        </td>
+      </tr>
+      {!plegado &&
+        grupo.filas.map((f) => (
+          <Fila key={f.llave} fila={f} maximo={maximo} onAbrir={onAbrir} abierta={f.llave === fichaAbierta} subserie />
+        ))}
+    </>
   )
 }
 
-function Cantidad({ fila }) {
-  if (fila.estado === ESTADOS.CON) return formatoNumero(fila.cantidad)
-  if (fila.estado === ESTADOS.FUERA) {
-    return (
-      <span className="cantidad-con-etiqueta">
-        <span className="etiqueta etiqueta--fuera">{ETIQUETA_ESTADO.fuera}</span> {formatoNumero(fila.cantidad)}
-      </span>
-    )
-  }
-  return <span className="etiqueta etiqueta--sin">{ETIQUETA_ESTADO[fila.estado]}</span>
+function Fila({ fila, maximo, onAbrir, abierta, subserie }) {
+  const conExpedientes = fila.cantidad > 0
+  const clases = ['tabla__fila', subserie ? 'tabla__fila--subserie' : '', conExpedientes ? 'con' : 'sin', abierta ? 'abierta' : '']
+  return (
+    <tr className={clases.join(' ')} onClick={() => onAbrir(fila.llave)}>
+      <td className="col-codigo">{codigoFila(fila)}</td>
+      <td>
+        <button
+          type="button"
+          className="fila__boton"
+          onClick={(e) => {
+            e.stopPropagation()
+            onAbrir(fila.llave)
+          }}
+        >
+          {nombreLegible(nombreFila(fila))}
+        </button>
+      </td>
+      <td className="col-retencion">{fila.trd ? retencionCorta(fila.trd.retencion_ag, fila.trd.retencion_ac) : '—'}</td>
+      <td className="col-disposicion">
+        {fila.estado === ESTADOS.FUERA ? (
+          <span className="disp disp--fuera">{ETIQUETA_ESTADO.fuera}</span>
+        ) : (
+          <Disposicion codigos={fila.trd?.disposicion} />
+        )}
+      </td>
+      <td className="col-expedientes">
+        {conExpedientes ? (
+          <span className="cantidad">
+            <span className="barra" aria-hidden="true">
+              <span className="barra__relleno" style={{ width: `${Math.max(3, (fila.cantidad / maximo) * 100)}%` }} />
+            </span>
+            <strong>{formatoNumero(fila.cantidad)}</strong>
+          </span>
+        ) : (
+          <span className="texto-suave">{ETIQUETA_ESTADO[fila.estado]}</span>
+        )}
+      </td>
+      <td className="col-accion">
+        <IconoFlecha direccion="derecha" />
+      </td>
+    </tr>
+  )
 }
