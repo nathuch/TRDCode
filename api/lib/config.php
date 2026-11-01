@@ -1,10 +1,25 @@
 <?php
 // Lee la configuración del archivo .env y la devuelve como arreglo.
-// El .env no va al repositorio (la plantilla es .env.example). Se busca primero en la
-// ruta de la variable de entorno TRDCODE_ENV y, si no está, en la raíz del proyecto.
-// En producción el .env debe quedar fuera de la carpeta pública, indicado con TRDCODE_ENV.
-$ruta = getenv('TRDCODE_ENV') ?: dirname(__DIR__, 2) . '/.env';
-if (!is_file($ruta)) {
+// El .env no va al repositorio (la plantilla es .env.example) ni a la carpeta pública.
+// Se busca en este orden:
+//   1. La ruta de la variable de entorno TRDCODE_ENV.
+//   2. Fuera de la carpeta pública, junto a ella, con el nombre de la carpeta de la aplicación:
+//      con la aplicación en C:\xampp\htdocs\TRDCode, el archivo es C:\xampp\TRDCode.env.
+//   3. La raíz del proyecto (solo en desarrollo).
+$raiz = dirname(__DIR__, 2);
+$candidatas = [getenv('TRDCODE_ENV') ?: null];
+if (!empty($_SERVER['DOCUMENT_ROOT'])) {
+    $candidatas[] = dirname(realpath($_SERVER['DOCUMENT_ROOT']) ?: $_SERVER['DOCUMENT_ROOT']) . '/' . basename($raiz) . '.env';
+}
+$candidatas[] = $raiz . '/.env';
+$ruta = null;
+foreach ($candidatas as $candidata) {
+    if ($candidata !== null && is_file($candidata)) {
+        $ruta = $candidata;
+        break;
+    }
+}
+if ($ruta === null) {
     throw new RuntimeException('No se encontró el archivo .env de TRDCode.');
 }
 
