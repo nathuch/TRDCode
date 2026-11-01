@@ -25,10 +25,13 @@ Actualizado el 1 de noviembre de 2026.
 
 ## Cambios respecto al plan v3
 
-- **PHP 8.3** (el de XAMPP, `C:\xampp\php\php.exe`) en lugar de 8.1, para desarrollar y para los requisitos del servidor y la prueba P-29.
+- **PHP 8.3 en local, código compatible con PHP 8.1.** Se desarrolla con el PHP 8.3 de XAMPP (`C:\xampp\php\php.exe`), pero el código no usa nada de PHP 8.2 en adelante, para cumplir el mínimo de PHP 8.1 del plan (RNF-04 y prueba P-29). Intelephense está configurado en 8.1 para avisarlo.
+- **El `.env` nunca va al repositorio ni a la carpeta pública.** En producción queda fuera de la carpeta pública y su ruta se indica con la variable `TRDCODE_ENV`.
+- **En producción se usa un usuario de MySQL propio, nunca `root`**, con permisos solo sobre la base. Así debe quedar en `docs/INSTALACION.md` (#64).
+- **Pull Requests y fusiones a `main` solo cuando el usuario lo indique.** Las ramas de fase sí se suben a GitHub.
 - **MySQL 8.0** del equipo local en lugar de la MariaDB de XAMPP. phpMyAdmin no se usa; la base se revisa con MySQL Workbench.
 - **Configuración en `.env`** (ignorado por git) con la plantilla `.env.example`. `api/lib/config.php` ya no guarda datos: lee el `.env` desde la variable `TRDCODE_ENV` o desde la raíz del proyecto.
-- **En local la aplicación se conecta como `root`**: el usuario `trdcode_app` (#4) se cerró sin hacer y queda como recomendación para producción en la guía de instalación (#64).
+- **En local la aplicación se conecta como `root`**: el usuario `trdcode_app` (#4) se cerró sin hacer en el equipo local.
 - **`scripts/crear_usuario.php`** crea la usuaria encargada o cambia su contraseña sin mostrarla y guarda solo el hash. Reemplaza el `php -r` del plan.
 - **El correo con los requisitos al SENA (#7)** pasó de la Fase 1 a la Fase 11, para hacerlo al final.
 - **Columna `grupo` en `trd_tipos_documentales`**: guarda el subtítulo de la TRD 11 bajo el que aparece cada tipo documental (por ejemplo "Modalidad Licitación Pública" en los contratos).
@@ -44,7 +47,7 @@ Actualizado el 1 de noviembre de 2026.
 
 | Issue | Tarea | Estado |
 |---|---|---|
-| — | Node.js, Git, VS Code, Python 3 y XAMPP con PHP 8.3 | completa |
+| — | Node.js, Git, VS Code, Python 3 y XAMPP con PHP 8.3 (Intelephense en 8.1) | completa |
 | — | Repositorio en GitHub con GitHub CLI y carpetas `frontend/`, `api/`, `database/`, `scripts/`, `docs/` | completa |
 | — | Frontend con Vite + React, SheetJS, jsPDF, jspdf-autotable y Vitest; `vite.config.js` con `base: './'` y proxy a `api/` | completa |
 | — | Entorno de Python `.venv` con pdfplumber | completa |
@@ -236,12 +239,14 @@ Actualizado el 1 de noviembre de 2026.
 | #62 | Probar desde un celular en la misma red | sin empezar |
 | #63 | Crear `scripts/empaquetar.ps1` | sin empezar |
 | #64 | Redactar `docs/INSTALACION.md` para el área de sistemas del SENA | sin empezar |
+| — | [MANUAL] Instalar PHP 8.1 (por ejemplo con Laragon) antes de la prueba P-29 | sin empezar |
 | #65 | Probar el paquete en una instalación limpia | sin empezar |
 
 **Criterios de aceptación**
 - [ ] La aplicación funciona en `http://localhost/TRDCode/` y desde el celular.
 - [ ] Ni `api/lib/config.php` ni el `.env` se pueden abrir desde el navegador.
-- [ ] El paquete se instala con PHP 8.3 en una carpeta con otro nombre siguiendo solo la guía.
+- [ ] El paquete se instala con PHP 8.1 en una carpeta con otro nombre siguiendo solo la guía (P-28 y P-29).
+- [ ] `docs/INSTALACION.md` indica crear un usuario de MySQL propio para la aplicación, no `root`, y dejar el `.env` fuera de la carpeta pública.
 
 ## Fase 10 – Pruebas con la usuaria y ajustes · sin empezar
 
