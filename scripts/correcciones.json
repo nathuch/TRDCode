@@ -12,6 +12,10 @@
     "Gestión de instancias de concertación y": "Gestión de instancias de concertación y competencias laborales"
   },
   "registros": {
+    "10|00.9000.4|60|60.04": {
+      "_motivo": "El título en cursiva 'Identificación del perfil del emprendedor' (pág. 23) es el único de la subserie y quedaría como grupo de sus 55 tipos, pero estos cubren todas las etapas del proyecto (lean canvas, Fondo Emprender, interventoría, constitución), no solo la identificación del perfil, y el PDF no marca dónde termina esa etapa. Se guardan sin grupo.",
+      "quitar_grupo": true
+    },
     "11|00.9000.2|42|42.29": {
       "_motivo": "El PDF repite en las páginas 2 y 3 el texto oculto del procedimiento de la serie 07, que se mezcla con el de esta subserie. Se usa el texto visible de la página 2.",
       "proceso": null,

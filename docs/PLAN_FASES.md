@@ -89,16 +89,17 @@ Actualizado el 1 de noviembre de 2026.
 | #9 | Crear `scripts/extraer_trd.py` | completa |
 | #10 | Normalizar plantilla, códigos y versión en el extractor | completa |
 | #11 | Generar `scripts/salida/trd.json` y `database/trd.sql` | completa |
-| #12 | Validar la extracción contra los PDF y el reporte de OnBase | en curso: falta la revisión manual (`docs/revision_trd.md`) |
+| #12 | Validar la extracción contra los PDF y el reporte de OnBase | completa (revisión manual en `docs/revision_trd.md`) |
 | #13 | Registrar los casos especiales en `scripts/correcciones.json` | completa |
 | #14 | Importar `trd.sql` y comprobar los conteos | completa |
 
 **Criterios de aceptación**
-- [x] Las seis TRD están en MySQL: 109 series y subseries y 4.283 tipos documentales.
+- [x] Las seis TRD están en MySQL: 109 series y subseries y 4.281 tipos documentales.
+  - Nota: antes eran 4.283. Los 2 que salieron eran títulos en cursiva que se contaban como tipos documentales, en las páginas 8 y 23 de la TRD 2020 de Formación Profesional ("Extensión/ ampliación, modificación Registro Calificado" en la serie 63 e "Identificación del perfil del emprendedor" en la subserie 60.04).
 - [x] Los códigos de serie y subserie coinciden con un conteo independiente hecho sobre cada PDF.
 - [x] En la TRD 11, los tipos documentales coinciden con las viñetas del PDF (salvo dos viñetas sin texto en la TRD de la Subdirección, págs. 45 y 47).
 - [x] Del reporte de agosto, solo la subserie 85.18 queda fuera de la TRD.
-- [ ] La revisión manual de al menos diez registros por PDF no tiene errores.
+- [x] La revisión manual de al menos diez registros por PDF no tiene errores (`docs/revision_trd.md`: 55 registros; los 2 errores, títulos en cursiva pegados a un tipo, se corrigieron en el extractor).
 
 ## Fase 3 – API en PHP · sin empezar
 

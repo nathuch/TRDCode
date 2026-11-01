@@ -396,6 +396,7 @@ def aplicar_correcciones(registros):
     - "textos": reemplazos en todos los textos (palabras que el PDF parte en dos renglones).
     - "procesos": nombre completo de un proceso que el PDF corta.
     - "registros": campos que se reemplazan en un registro, por llave version|plantilla|serie|subserie.
+      Con "quitar_grupo": true, sus tipos documentales quedan sin grupo.
     """
     if not CORRECCIONES.exists():
         return
@@ -419,6 +420,9 @@ def aplicar_correcciones(registros):
             print(f"  aviso: la corrección {llave} no coincide con ningún registro")
             continue
         cambios = {k: v for k, v in cambios.items() if not k.startswith("_")}
+        if cambios.pop("quitar_grupo", False):
+            for t in por_llave[llave]["tipos"]:
+                t["grupo"] = None
         por_llave[llave].update(cambios)
         if "procedimiento" in cambios and "inicio_retencion" not in cambios:
             por_llave[llave]["inicio_retencion"] = extraer_inicio(cambios["procedimiento"])
