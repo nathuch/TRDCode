@@ -1,0 +1,87 @@
+TRDCode - Prototipo de consulta de series y subseries documentales
+SENA, Regional Tolima
+===================================================================
+
+Este prototipo solo sirve para consultar. No tiene inicio de sesión ni
+permite cargar reportes desde la pantalla.
+
+Cómo se usa: vea el manual Manual_de_usuario_TRDCode.pdf, en esta misma
+carpeta.
+
+Lo que necesita
+---------------
+- Un computador con XAMPP instalado (trae Apache, MySQL y phpMyAdmin).
+- La carpeta TRDCode (esta carpeta).
+- El archivo expedientes.sql, que se entrega aparte porque tiene nombres
+  de personas.
+
+
+Pasos de instalación
+--------------------
+
+1. Copie la carpeta TRDCode dentro de C:\xampp\htdocs\
+   Debe quedar así: C:\xampp\htdocs\TRDCode\index.html
+
+2. Abra el "XAMPP Control Panel" y pulse "Start" en Apache y en MySQL.
+   Los dos deben quedar en verde.
+
+3. Cree la base de datos:
+   a. En el navegador, abra http://localhost/phpmyadmin
+   b. A la izquierda, pulse "Nueva".
+   c. En "Nombre de la base de datos" escriba:  trdcode
+   d. En la lista de al lado elija:  utf8mb4_unicode_ci
+   e. Pulse "Crear".
+
+4. Cargue los datos. Con la base trdcode seleccionada a la izquierda,
+   abra la pestaña "Importar", pulse "Seleccionar archivo", elija el
+   archivo y pulse "Importar" (abajo). Hágalo con estos cuatro archivos,
+   uno por uno y en este orden:
+   a. C:\xampp\htdocs\TRDCode\database\schema.sql
+   b. C:\xampp\htdocs\TRDCode\database\datos_iniciales.sql
+   c. C:\xampp\htdocs\TRDCode\database\trd.sql
+   d. expedientes.sql  (el que se entregó aparte)
+   Cada uno debe terminar con un mensaje en verde.
+
+5. Configure la conexión a la base de datos:
+   a. Copie el archivo C:\xampp\htdocs\TRDCode\.env.example
+   b. Péguelo en C:\xampp\  (la carpeta que contiene htdocs, NO dentro
+      de htdocs).
+   c. Cámbiele el nombre a:  TRDCode.env
+      Debe quedar: C:\xampp\TRDCode.env
+      Si Windows oculta las extensiones, revise que no quede como
+      "TRDCode.env.txt" (en el Explorador: Vista > Extensiones de nombre
+      de archivo).
+   d. Ábralo con el Bloc de notas y deje estas líneas así:
+         DB_HOST=localhost
+         DB_NAME=trdcode
+         DB_USER=root
+         DB_PASS=
+      (DB_PASS queda vacío porque en XAMPP el usuario root no tiene
+      contraseña). Guarde y cierre.
+
+   El archivo .env va fuera de htdocs para que nadie lo pueda descargar
+   desde el navegador. Si le cambia el nombre a la carpeta TRDCode, el
+   archivo debe llamarse igual que la carpeta: C:\xampp\<carpeta>.env
+
+6. Abra en el navegador:  http://localhost/TRDCode/
+   Arriba debe decir "Datos al 10 de agosto de 2026".
+
+
+Si algo no funciona
+-------------------
+- Dice "No se pudieron cargar los datos": revise que MySQL esté en
+  verde en XAMPP y que el archivo C:\xampp\TRDCode.env tenga el nombre
+  y los datos del paso 5.
+- La página sale en blanco: revise que Apache esté en verde y que la
+  dirección termine en /TRDCode/
+- Se ven las series pero 0 expedientes: falta importar expedientes.sql
+  (paso 4d).
+- phpMyAdmin no abre: MySQL o Apache están apagados en XAMPP.
+
+
+Importante
+----------
+- Este prototipo usa el usuario root de MySQL solo porque es un equipo
+  de demostración. En un servidor del SENA se debe crear un usuario de
+  MySQL propio para la aplicación, con permisos solo sobre la base trdcode.
+- No copie el archivo .env ni expedientes.sql dentro de htdocs.
