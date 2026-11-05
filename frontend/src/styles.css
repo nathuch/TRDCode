@@ -589,6 +589,8 @@ summary {
   gap: 4px;
   border-bottom: 1px solid var(--borde);
   overflow-x: auto;
+  /* sin esto, la línea de la pestaña activa (margin -1px) hace aparecer una barra vertical */
+  overflow-y: hidden;
 }
 
 .pestana {
