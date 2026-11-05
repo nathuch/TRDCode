@@ -5,6 +5,9 @@ SENA, Regional Tolima
 Este prototipo solo sirve para consultar. No tiene inicio de sesión ni
 permite cargar reportes desde la pantalla.
 
+Cómo se usa: vea el manual Manual_de_usuario_TRDCode.pdf, en esta misma
+carpeta.
+
 Lo que necesita
 ---------------
 - Un computador con XAMPP instalado (trae Apache, MySQL y phpMyAdmin).

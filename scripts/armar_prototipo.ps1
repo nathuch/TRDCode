@@ -40,6 +40,13 @@ foreach ($archivo in 'schema.sql', 'datos_iniciales.sql', 'trd.sql') {
 
 Copy-Item -Path (Join-Path $raiz '.env.example') -Destination $destino
 Copy-Item -Path (Join-Path $raiz 'scripts\prototipo\LEEME.txt') -Destination $destino
+# Manual de usuario (se genera con: node scripts\generar_manual_pdf.mjs).
+$manual = Join-Path $raiz 'docs\GUIA_USO.pdf'
+if (Test-Path $manual) {
+    Copy-Item -Path $manual -Destination (Join-Path $destino 'Manual_de_usuario_TRDCode.pdf')
+} else {
+    Write-Warning 'No se encontro docs\GUIA_USO.pdf: el paquete va sin manual de usuario.'
+}
 
 # Bloqueos de Apache. Se escriben en ASCII: Apache no acepta .htaccess con BOM.
 Set-Content -Path (Join-Path $destino 'api\lib\.htaccess') -Value 'Require all denied' -Encoding ascii

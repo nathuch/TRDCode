@@ -48,4 +48,5 @@ Sirven para las pruebas; no se cambian.
 - Desarrollo: en la raíz, `C:\xampp\php\php.exe -S 127.0.0.1:8000 scripts/servidor_dev.php` (solo sirve `api/*.php`), y en `frontend/`, `npm run dev`. Vite reenvía `api/` a ese PHP.
 - Frontend: `npm run dev` y `npm test` en `frontend/`. Las pruebas con cifras reales leen `datos-prueba/datos.json` (`C:\xampp\php\php.exe api/datos.php > datos-prueba/datos.json`) y se saltan si no existe.
 - Expedientes del reporte: `.venv/Scripts/python scripts/generar_expedientes_sql.py` escribe `datos-prueba/expedientes.sql` (no va al repositorio).
+- Manual de usuario: se edita `docs/GUIA_USO.md` y se genera el PDF con `node scripts/generar_manual_pdf.mjs` (usa Edge sin ventana). Las capturas de `docs/img/` no deben mostrar nombres de personas.
 - Paquete del prototipo: `powershell -ExecutionPolicy Bypass -File scripts\armar_prototipo.ps1` arma `prototipo/TRDCode/` (ignorado por git); los pasos de instalación están en `scripts/prototipo/LEEME.txt`.
