@@ -252,27 +252,46 @@ try {
         echo "  (omitida: no se encontró el archivo de la sesión en $carpeta)\n";
     }
 
-    echo "\nBloqueo tras 5 fallos\n";
+    echo "\nBloqueo de la pareja correo + IP (5 fallos)\n";
     limpiarIntentos();
     for ($i = 1; $i <= 4; $i++) {
-        $r = entrar($inexistente, 'clave-equivocada');
+        $r = entrar($activa['correo'], 'clave-equivocada');
         comprobar("fallo $i: 401", $r['codigo'] === 401);
     }
-    $r = entrar($inexistente, 'clave-equivocada');
+    $r = entrar($activa['correo'], 'clave-equivocada');
     $espera = $r['json']['espera_segundos'] ?? 0;
     comprobar('al quinto fallo: 429 con lo que falta', $r['codigo'] === 429 && $espera > 840 && $espera <= 900 && str_contains(error($r), 'minutos'));
     echo '         mensaje: ' . error($r) . PHP_EOL;
     $r = entrar($activa['correo'], $activa['clave']);
-    comprobar('bloqueo por IP: otra cuenta, con su contraseña correcta, tampoco entra (429)', $r['codigo'] === 429 && $r['cookie'] === null);
+    comprobar('bloqueada, la pareja no entra ni con la contraseña correcta (429)', $r['codigo'] === 429 && $r['cookie'] === null);
+    $r = entrar($inexistente, 'clave-equivocada');
+    comprobar('otro correo desde la misma IP no queda bloqueado (401)', $r['codigo'] === 401);
+
+    echo "\nSin bloqueo solo por correo\n";
     limpiarIntentos();
     $insertar = $pdo->prepare('INSERT INTO intentos_login (correo, ip, fecha) VALUES (?, ?, NOW())');
     for ($i = 0; $i < 5; $i++) {
         $insertar->execute([$activa['correo'], IP_AJENA]);
     }
     $r = entrar($activa['correo'], $activa['clave']);
-    comprobar('bloqueo por correo: 5 fallos desde otra IP bloquean la cuenta aquí (429)', $r['codigo'] === 429);
-    $r = entrar($inexistente, 'clave-equivocada');
-    comprobar('esa IP no queda bloqueada para otro correo (401)', $r['codigo'] === 401);
+    comprobar('5 fallos con su correo desde otra IP no la bloquean aquí (200)', $r['codigo'] === 200);
+
+    echo "\nBloqueo de la IP (20 fallos con cualquier correo)\n";
+    limpiarIntentos();
+    $correosIp = [];
+    for ($i = 1; $i <= 20; $i++) {
+        $correosIp[] = "prueba-auth-ip$i-$sufijo@trdcode.local";
+    }
+    array_push($correosDePrueba, ...$correosIp);
+    $antes = [];
+    foreach (array_slice($correosIp, 0, 19) as $correo) {
+        $antes[] = entrar($correo, 'clave-equivocada')['codigo'];
+    }
+    comprobar('19 fallos con 19 correos distintos: todos 401', array_unique($antes) === [401]);
+    $r = entrar($correosIp[19], 'clave-equivocada');
+    comprobar('al fallo 20 desde la misma IP: 429 con lo que falta', $r['codigo'] === 429 && ($r['json']['espera_segundos'] ?? 0) > 840);
+    $r = entrar($activa['correo'], $activa['clave']);
+    comprobar('con la IP bloqueada, ninguna cuenta entra desde ella (429)', $r['codigo'] === 429 && $r['cookie'] === null);
 } catch (Throwable $e) {
     $fallas++;
     echo "\nERROR: " . $e->getMessage() . PHP_EOL;

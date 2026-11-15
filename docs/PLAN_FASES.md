@@ -13,7 +13,7 @@ Actualizado el 15 de noviembre de 2026.
 | 0 | Entorno de desarrollo | [Fase 0](https://github.com/nathuch/TRDCode/milestone/1) | `main` | completa |
 | 1 | Base de datos | [Fase 1](https://github.com/nathuch/TRDCode/milestone/2) | `fase-1-base-datos` (PR #83, fusionada) | completa |
 | 2 | Extracción de las TRD | [Fase 2](https://github.com/nathuch/TRDCode/milestone/3) | `fase-2-trd` | en curso |
-| 3 | API en PHP | [Fase 3](https://github.com/nathuch/TRDCode/milestone/4) | `fase-3-login` (sale de `mvp-prototipo`) | en curso: falta probar en Apache (#21) |
+| 3 | API en PHP | [Fase 3](https://github.com/nathuch/TRDCode/milestone/4) | `fase-3-login` (sale de `mvp-prototipo`) | en curso: todo hecho en la rama, falta fusionar |
 | 4 | Importación del Excel | [Fase 4](https://github.com/nathuch/TRDCode/milestone/5) | `fase-4-importacion` | sin empezar (el MVP carga por script) |
 | 5 | Cruce de expedientes con la TRD | [Fase 5](https://github.com/nathuch/TRDCode/milestone/6) | `fase-5-cruce` | sin empezar (hecha en el MVP) |
 | 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `fase-6-filtros` | sin empezar (hecha en el MVP) |
@@ -29,6 +29,7 @@ Las fases 3 a 9 siguen "sin empezar" como fases, pero el MVP (rama `mvp-prototip
 
 - **Equipo nuevo desde noviembre de 2026.** El equipo de desarrollo anterior fue robado y se va a formatear; el proyecto se retomó en otro computador desde la rama `mvp-prototipo`. En este equipo:
   - PHP y Apache son los de **XAMPP 8.2.12** (PHP 8.2.12 en `C:\xampp\php\php.exe`). El `php` del PATH es 8.4 y no se usa.
+  - Ojo: el Apache de XAMPP de este equipo **no carga el PHP de XAMPP**, sino el **PHP 8.4.11 de `C:\php`** (`LoadModule php_module "C:/php/php8apache2_4.dll"` en `httpd-xampp.conf`, con `C:\php\php.ini`). No se cambió porque puede servir a otros proyectos de `htdocs`. Así, la aplicación queda probada en PHP 8.2 (`php -S`) y 8.4 (Apache); la prueba con PHP 8.1 sigue pendiente (Fase 9).
   - La base de datos corre en el **MySQL 8.0 del equipo (servicio `MySQL80`, 8.0.41)**, que ocupa el puerto 3306; la MariaDB 10.4 de XAMPP no se usa aquí. El paquete del prototipo, en cambio, se instala con la MariaDB de XAMPP, así que el SQL debe funcionar en MySQL 8.0 y en MariaDB 10.4.
   - `api/lib/config.php` no lee un puerto (`DB_PORT`): la conexión usa siempre el puerto por defecto.
   - Node.js es 20.20.0; vitest 5 pide 22.12 o más nuevo y `npm install` lo avisa, pero las pruebas pasan. Actualizar Node queda pendiente.
@@ -79,7 +80,7 @@ Versión de **solo consulta** para mostrar a la usuaria e instalar en un equipo 
 | 3 | #15 | `api/lib/db.php` | hecha |
 | 3 | #16 | `api/lib/respuesta.php` | hecha |
 | 3 | #20 | `api/datos.php` | hecha (sin nombres IPC e IPR) |
-| 3 | #21 | Copia en el Apache de XAMPP | parcial: paquete del prototipo para `htdocs/TRDCode` |
+| 3 | #21 | Copia en el Apache de XAMPP | parcial: paquete del prototipo para `htdocs/TRDCode` (se instaló y probó en `fase-3-login`) |
 | 3 | #23 | `frontend/src/api/cliente.js` | parcial: solo `obtenerDatos()` (se completó en `fase-3-login`) |
 | 3 | #17, #18, #19, #22 | Sesión, CSRF, login, logout, cambio de clave y pruebas de la API | no (se hicieron en `fase-3-login`) |
 | 4 | #24 a #33 | Importación desde la pantalla | no; la reemplaza `generar_expedientes_sql.py` (normaliza como el plan y da los 3.385 expedientes) |
@@ -181,7 +182,7 @@ De la Fase 11, `docs/GUIA_USO.md` (#72) ya existe como manual del prototipo.
 | #18 | Crear `api/login.php` | completa |
 | #19 | Crear `api/logout.php`, `api/sesion.php` y `api/cambiar_clave.php` | completa |
 | #20 | Crear `api/datos.php` | completa (MVP) |
-| #21 | Instalar una copia en el Apache de XAMPP desde esta fase | sin empezar (solo existe el paquete del prototipo) |
+| #21 | Instalar una copia en el Apache de XAMPP desde esta fase | completa (ver abajo) |
 | #22 | Probar los servicios de la API con sus casos de error | completa (`scripts/probar_auth.php`) |
 | #23 | Crear `frontend/src/api/cliente.js` | completa |
 
@@ -189,18 +190,28 @@ De la Fase 11, `docs/GUIA_USO.md` (#72) ya existe como manual del prototipo.
 - Cookie `TRDCODE_SESION`, `HttpOnly` y `SameSite=Strict`, con `Secure` solo por HTTPS y limitada a la carpeta de la aplicación. La sesión solo se abre si llega la cookie: la consulta pública no crea sesiones.
 - Al entrar se regenera el id de sesión y se crea un token CSRF nuevo. La sesión se cierra tras 30 minutos sin actividad, o en la siguiente petición si la usuaria se desactiva.
 - `login.php` solo acepta POST con JSON y solo deja entrar usuarios activos. Ante cualquier fallo responde 401 "Correo o contraseña incorrectos." (si el correo no existe, igual verifica contra un hash ficticio, para no delatarlo por el tiempo de respuesta).
-- Bloqueo: 5 fallos en 15 minutos bloquean el correo y, por separado, la IP, hasta 15 minutos después del quinto fallo. Responde 429 con el tiempo que falta (`espera_segundos` y la cabecera `Retry-After`). Los fallos de la contraseña actual en `cambiar_clave.php` también cuentan.
+- **Regla de bloqueo** (en los últimos 15 minutos, contando la tabla `intentos_login`):
+  - 5 fallos de la **misma pareja correo + IP** bloquean esa pareja 15 minutos.
+  - 20 fallos desde **una misma IP, con cualquier correo**, bloquean esa IP 15 minutos.
+  - **No hay bloqueo solo por correo**: así nadie puede bloquear a la encargada sabiendo su correo, ni la bloquean los errores de otros funcionarios que salen por la misma IP.
+  - El bloqueo dura hasta 15 minutos después del fallo que completó la cuenta. Responde 429 con el tiempo que falta (`espera_segundos` y la cabecera `Retry-After`). Los fallos de la contraseña actual en `cambiar_clave.php` también cuentan.
 - Códigos: 401 sin sesión, 403 sin token CSRF válido en `X-CSRF-Token`, 405 con otro método, 415 si no llega JSON y 429 con bloqueo. Los errores internos van a `error_log`, sin contraseñas ni hashes.
 - `cambiar_clave.php` pide la actual y una nueva de 10 a 72 caracteres (bcrypt ignora lo que pase de 72 bytes), distinta de la actual.
 - Frontend: enlace discreto "Ingresar" en el encabezado (`Acceso.jsx`); con sesión, el nombre de la usuaria abre un menú con "Cambiar contraseña" y "Salir". Los formularios (`DialogoIngreso.jsx`, `DialogoClave.jsx` sobre `Dialogo.jsx`) tienen etiquetas, foco visible, Enter envía, Esc cierra y el foco no sale de la ventana. La consulta no cambia.
-- Pruebas: `C:\xampp\php\php.exe scripts/probar_auth.php` (con el servidor de desarrollo encendido) hace 48 comprobaciones con cuentas temporales que crea y borra; no usa la cuenta real.
+- Pruebas: `C:\xampp\php\php.exe scripts/probar_auth.php [url]` hace 51 comprobaciones con cuentas temporales que crea y borra; no usa la cuenta real. Sin `url` prueba el servidor de desarrollo (`http://127.0.0.1:8000`); con `http://localhost/TRDCode`, Apache. La prueba de inactividad modifica el archivo de la sesión, así que debe correrse con el mismo PHP del servidor: con Apache, `C:\php\php.exe` (ver "Equipo nuevo").
+
+**Copia en Apache (#21)**, el 15 de noviembre de 2026, siguiendo `scripts/prototipo/LEEME.txt`:
+- `scripts/armar_prototipo.ps1` armó el paquete y se copió a `C:\xampp\htdocs\TRDCode` (el paquete anterior quedó en `prototipo/TRDCode-mvp-v2`).
+- La base es la de MySQL80, ya cargada; no se usaron phpMyAdmin ni la MySQL de XAMPP, que choca con MySQL80 en el puerto 3306. El `.env` del proyecto se copió como `C:\xampp\TRDCode.env`, fuera de `htdocs`.
+- Resultado: `datos.php` responde lo mismo en Apache que con `php -S` (mismo SHA-256); `probar_auth.php` pasa las 51 comprobaciones en los dos; la interfaz entra, cambia la contraseña y sale en Apache (prueba en Edge sin ventana).
+- Descargas bloqueadas en Apache: `.env` (con un archivo ficticio puesto a propósito y borrado después), `.env.example`, `.htaccess`, `api/lib/` y sus archivos, `api/` y `database/` responden 403; `datos-prueba/` no está en el paquete (404); `C:\xampp\TRDCode.env` queda fuera de la carpeta pública (404). Con `php -S`, `.env`, `api/lib/` y `datos-prueba/` responden 404.
 
 **Criterios de aceptación**
 - [x] `datos.php` devuelve la TRD completa y sin nombres reservados (IPC e IPR). Sigue siendo público y no crea sesión.
-- [x] El inicio de sesión funciona y se bloquea durante 15 minutos tras cinco intentos fallidos.
+- [x] El inicio de sesión funciona y se bloquea durante 15 minutos tras cinco intentos fallidos (de la misma pareja correo + IP; o 20 desde una IP).
 - [x] Un servicio protegido responde 401 sin sesión.
-- [ ] Todo responde igual en Apache que con `php -S`. Falta instalar la copia en Apache (#21).
-- [ ] El `.env` no se puede descargar desde el navegador, ni con `php -S` ni con Apache. Con `php -S` responde 404 (`scripts/servidor_dev.php`); falta comprobarlo en Apache.
+- [x] Todo responde igual en Apache que con `php -S`.
+- [x] El `.env` no se puede descargar desde el navegador, ni con `php -S` ni con Apache.
 
 ## Fase 4 – Importación del Excel · sin empezar
 

@@ -1,7 +1,8 @@
 <?php
 // Inicio de sesión de la persona encargada. Recibe por POST un JSON { "correo": ..., "clave": ... }.
 // Solo entran usuarios activos. Ante cualquier fallo responde el mismo mensaje, sin decir si el
-// correo existe. Con 5 fallos en 15 minutos (por correo o por IP) responde 429 con lo que falta.
+// correo existe. Con bloqueo (5 fallos de la pareja correo + IP, o 20 desde la IP, en 15 minutos)
+// responde 429 con lo que falta.
 
 require __DIR__ . '/lib/auth.php';
 

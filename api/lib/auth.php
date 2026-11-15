@@ -4,7 +4,9 @@
 // - La sesión solo se abre si llega la cookie: los visitantes de la consulta pública no crean sesiones.
 // - Se cierra tras 30 minutos sin actividad, o si la usuaria deja de estar activa.
 // - Los servicios que cambian datos exigen el token CSRF en la cabecera X-CSRF-Token.
-// - Tras 5 fallos en 15 minutos se bloquea el correo y, por separado, la IP, hasta que pasen 15 minutos.
+// - Bloqueo de 15 minutos tras 5 fallos de la misma pareja correo + IP, o tras 20 fallos desde una IP
+//   con cualquier correo. No hay bloqueo solo por correo: así nadie puede bloquear a la encargada
+//   sabiendo su correo, ni la bloquean los errores de otros funcionarios que salen por la misma IP.
 // Nunca se registran contraseñas ni hashes.
 
 require_once __DIR__ . '/db.php';
@@ -12,7 +14,8 @@ require_once __DIR__ . '/respuesta.php';
 
 const SESION_NOMBRE = 'TRDCODE_SESION';
 const SESION_INACTIVIDAD = 1800; // segundos
-const INTENTOS_MAXIMOS = 5;
+const INTENTOS_PAREJA = 5; // fallos de la misma pareja correo + IP
+const INTENTOS_IP = 20; // fallos desde una IP, con cualquier correo
 const INTENTOS_MINUTOS = 15;
 const MENSAJE_CREDENCIALES = 'Correo o contraseña incorrectos.';
 // Hash de una cadena al azar que se descartó: si el correo no existe se verifica contra él,
@@ -172,22 +175,27 @@ function ipCliente(): string
 }
 
 /**
- * Segundos que faltan para que se levante el bloqueo del correo o de la IP (0 si no hay bloqueo).
- * Hay bloqueo si hay 5 fallos en los últimos 15 minutos; dura hasta 15 minutos después del quinto
- * fallo más reciente. Las horas las calcula la base (NOW()), así no importa la zona horaria de PHP.
+ * Segundos que faltan para que se levante el bloqueo (0 si no hay bloqueo). Hay bloqueo si en los
+ * últimos 15 minutos hay 5 fallos de la pareja correo + IP, o 20 fallos desde la IP; dura hasta
+ * 15 minutos después del fallo que completó la cuenta. Las horas las calcula la base (NOW()),
+ * así no importa la zona horaria de PHP.
  */
 function segundosDeBloqueo(string $correo, string $ip): int
 {
     $espera = 0;
-    // Columnas fijas, no vienen de la petición.
-    foreach (['correo' => $correo, 'ip' => $ip] as $columna => $valor) {
+    // Condiciones fijas, no vienen de la petición: [condición, valores, fallos que bloquean].
+    $reglas = [
+        ['correo = ? AND ip = ?', [$correo, $ip], INTENTOS_PAREJA],
+        ['ip = ?', [$ip], INTENTOS_IP],
+    ];
+    foreach ($reglas as [$condicion, $valores, $maximo]) {
         $consulta = conexion()->prepare(
             'SELECT TIMESTAMPDIFF(SECOND, NOW(), fecha + INTERVAL ' . INTENTOS_MINUTOS . " MINUTE)
              FROM intentos_login
-             WHERE $columna = ? AND fecha > NOW() - INTERVAL " . INTENTOS_MINUTOS . ' MINUTE
-             ORDER BY fecha DESC LIMIT 1 OFFSET ' . (INTENTOS_MAXIMOS - 1)
+             WHERE $condicion AND fecha > NOW() - INTERVAL " . INTENTOS_MINUTOS . ' MINUTE
+             ORDER BY fecha DESC LIMIT 1 OFFSET ' . ($maximo - 1)
         );
-        $consulta->execute([$valor]);
+        $consulta->execute($valores);
         $segundos = $consulta->fetchColumn();
         if ($segundos !== false) {
             $espera = max($espera, (int) $segundos, 1);
