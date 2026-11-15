@@ -4,11 +4,24 @@ import { leerExcel, revisarArchivo } from '../datos/leerExcel.js'
 import { fechaDelNombre, fueraDeTrd, MOTIVOS, normalizar, porCentro } from '../datos/normalizar.js'
 import { fechaHora, fechaLarga, formatoNumero, nombreLegible } from '../utils/formato.js'
 import Dialogo from './Dialogo.jsx'
-import { IconoAlerta, IconoDescarga } from './Iconos.jsx'
+import { IconoAlerta, IconoDescarga, IconoSubir } from './Iconos.jsx'
 
 const LOTE = 500
 const PROBLEMAS_VISIBLES = 100
 const ORDEN_CENTROS = ['73.9226', '73.9310', '73.9123']
+
+/** Fecha de hoy en el equipo (AAAA-MM-DD), para no aceptar una fecha del reporte futura. */
+function hoyIso() {
+  const d = new Date()
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`
+}
+
+/** Primera y última fecha de creación de los expedientes. */
+function rangoDeFechas(expedientes) {
+  if (expedientes.length === 0) return null
+  const fechas = expedientes.map((e) => e.fecha_creacion).sort()
+  return { desde: fechas[0], hasta: fechas.at(-1) }
+}
 
 // Dos cargas pueden tener la misma fecha de datos: se identifican también por cuándo se cargaron y quién.
 const describirCarga = (c) =>
@@ -25,6 +38,7 @@ export default function ActualizarDatos({ nombre, datos, onDatosActualizados, on
   const [archivo, setArchivo] = useState(null)
   const [fecha, setFecha] = useState('')
   const [error, setError] = useState(null)
+  const [arrastrando, setArrastrando] = useState(false)
   const [leyendo, setLeyendo] = useState(false)
   const [revision, setRevision] = useState(null)
   const [progreso, setProgreso] = useState(null)
@@ -73,8 +87,7 @@ export default function ActualizarDatos({ nombre, datos, onDatosActualizados, on
   const nombreCentro = (codigo) => datos?.centros.find((c) => c.codigo === codigo)?.nombre ?? codigo
   const nombrePlantilla = (p) => datos?.dependencias.find((d) => d.plantilla === p)?.nombre ?? p
 
-  const elegirArchivo = (e) => {
-    const elegido = e.target.files?.[0] ?? null
+  const tomarArchivo = (elegido) => {
     setArchivo(elegido)
     setError(null)
     // Si el nombre trae una fecha, se propone (la persona la puede cambiar).
@@ -82,9 +95,18 @@ export default function ActualizarDatos({ nombre, datos, onDatosActualizados, on
     if (propuesta) setFecha(propuesta)
   }
 
+  const soltar = (e) => {
+    e.preventDefault()
+    setArrastrando(false)
+    const soltado = e.dataTransfer?.files?.[0]
+    if (soltado) tomarArchivo(soltado)
+  }
+
   const revisar = async (e) => {
     e.preventDefault()
-    const problema = revisarArchivo(archivo) ?? (fecha ? null : 'Escriba la fecha del reporte.')
+    let problema = revisarArchivo(archivo)
+    if (!problema && !fecha) problema = 'Escriba la fecha del reporte.'
+    if (!problema && fecha > hoyIso()) problema = 'La fecha del reporte no puede ser posterior a hoy.'
     if (problema) {
       setError(problema)
       return
@@ -99,6 +121,7 @@ export default function ActualizarDatos({ nombre, datos, onDatosActualizados, on
         fecha,
         ...normalizado,
         porCentro: porCentro(normalizado.validos),
+        rango: rangoDeFechas(normalizado.validos),
         fuera: datos ? fueraDeTrd(normalizado.validos, datos.trd, datos.dependencias) : [],
       })
       setPaso('revisar')
@@ -208,19 +231,45 @@ export default function ActualizarDatos({ nombre, datos, onDatosActualizados, on
 
       {paso === 'elegir' && (
         <form className="panel actualizar__formulario" onSubmit={revisar} noValidate>
-          <label className="campo">
-            <span className="campo__etiqueta">Reporte de OnBase (.xlsx, hasta 15 MB)</span>
-            <input
-              className="campo__archivo"
-              type="file"
-              name="reporte"
-              accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
-              onChange={elegirArchivo}
-            />
-          </label>
+          <div
+            className={arrastrando ? 'zona-archivo arrastrando' : 'zona-archivo'}
+            onDragOver={(e) => {
+              e.preventDefault()
+              setArrastrando(true)
+            }}
+            onDragLeave={() => setArrastrando(false)}
+            onDrop={soltar}
+          >
+            <IconoSubir tamano={32} className="zona-archivo__icono" />
+            <p className="zona-archivo__texto">
+              <strong>Arrastre aquí el reporte de OnBase</strong>
+              <span className="texto-suave"> Archivo .xlsx de hasta 15 MB</span>
+            </p>
+            <label className="boton boton--contorno zona-archivo__boton">
+              Seleccionar archivo
+              <input
+                className="solo-lector"
+                type="file"
+                name="reporte"
+                accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet"
+                onChange={(e) => tomarArchivo(e.target.files?.[0] ?? null)}
+              />
+            </label>
+            <p className="zona-archivo__elegido" aria-live="polite">
+              {archivo ? `Archivo elegido: ${archivo.name}` : 'Todavía no ha elegido un archivo.'}
+            </p>
+          </div>
           <label className="campo actualizar__fecha">
             <span className="campo__etiqueta">Fecha del reporte</span>
-            <input className="campo__entrada" type="date" name="fecha" value={fecha} required onChange={(e) => setFecha(e.target.value)} />
+            <input
+              className="campo__entrada"
+              type="date"
+              name="fecha"
+              value={fecha}
+              max={hoyIso()}
+              required
+              onChange={(e) => setFecha(e.target.value)}
+            />
             <span className="ayuda">Es la fecha que se mostrará como "Datos al…". Si el nombre del archivo trae una fecha, se propone.</span>
           </label>
           <div className="formulario__acciones formulario__acciones--izquierda">
@@ -251,6 +300,11 @@ export default function ActualizarDatos({ nombre, datos, onDatosActualizados, on
               <span className="tarjeta-dato__detalle">
                 {centrosOrdenados.map((c) => `${nombreCentro(c)}: ${formatoNumero(revision.porCentro[c])}`).join(' · ')}
               </span>
+              {revision.rango && (
+                <span className="tarjeta-dato__detalle revision__rango">
+                  Creados del {fechaLarga(revision.rango.desde)} al {fechaLarga(revision.rango.hasta)}
+                </span>
+              )}
             </div>
             <div className="tarjeta-dato">
               <span className="tarjeta-dato__titulo">Descartadas por ser de otros centros</span>
@@ -285,10 +339,13 @@ export default function ActualizarDatos({ nombre, datos, onDatosActualizados, on
           )}
 
           {revision.problemas.length > 0 && (
-            <div className="revision__problemas">
-              <h4 className="panel__subtitulo">Filas con problemas (no se cargan)</h4>
+            <details className="revision__problemas">
+              <summary className="revision__resumen">
+                Ver las {formatoNumero(revision.problemas.length)} filas con problemas (no se cargan)
+                {repetidos > 0 && ` · ${formatoNumero(repetidos)} con el código repetido`}
+              </summary>
               <div className="tabla-caja">
-                <table className="tabla tabla--compacta">
+                <table className="tabla tabla--compacta tabla--apilable">
                   <thead>
                     <tr>
                       <th scope="col">Fila</th>
@@ -299,9 +356,11 @@ export default function ActualizarDatos({ nombre, datos, onDatosActualizados, on
                   <tbody>
                     {revision.problemas.slice(0, PROBLEMAS_VISIBLES).map((p) => (
                       <tr key={`${p.fila}-${p.motivo}`} className={p.motivo.startsWith(MOTIVOS.REPETIDO) ? 'fila-repetida' : undefined}>
-                        <td>{p.fila}</td>
-                        <td className="celda-codigo">{p.codigo || '—'}</td>
-                        <td>{p.motivo}</td>
+                        <td data-etiqueta="Fila">{p.fila}</td>
+                        <td className="celda-codigo" data-etiqueta="Código">
+                          {p.codigo || '—'}
+                        </td>
+                        <td data-etiqueta="Motivo">{p.motivo}</td>
                       </tr>
                     ))}
                   </tbody>
@@ -312,7 +371,7 @@ export default function ActualizarDatos({ nombre, datos, onDatosActualizados, on
                   Se muestran las primeras {PROBLEMAS_VISIBLES} de {formatoNumero(revision.problemas.length)}.
                 </p>
               )}
-            </div>
+            </details>
           )}
 
           <div className="formulario__acciones formulario__acciones--izquierda">
@@ -388,7 +447,7 @@ export default function ActualizarDatos({ nombre, datos, onDatosActualizados, on
         {cargas === null && !errorHistorial && <p className="texto-suave">Cargando el historial…</p>}
         {cargas && (
           <div className="tabla-caja">
-            <table className="tabla tabla--compacta">
+            <table className="tabla tabla--compacta tabla--apilable">
               <thead>
                 <tr>
                   <th scope="col">Datos al</th>
@@ -405,10 +464,12 @@ export default function ActualizarDatos({ nombre, datos, onDatosActualizados, on
               <tbody>
                 {cargas.map((c) => (
                   <tr key={c.id}>
-                    <td>{fechaLarga(c.fecha_reporte)}</td>
-                    <td>{fechaHora(c.fecha_carga)}</td>
-                    <td>{c.usuario}</td>
-                    <td className="col-numero">{formatoNumero(c.total_expedientes)}</td>
+                    <td data-etiqueta="Datos al">{fechaLarga(c.fecha_reporte)}</td>
+                    <td data-etiqueta="Cargada el">{fechaHora(c.fecha_carga)}</td>
+                    <td data-etiqueta="Por">{c.usuario}</td>
+                    <td className="col-numero" data-etiqueta="Expedientes">
+                      {formatoNumero(c.total_expedientes)}
+                    </td>
                     <td className="celda-accion">
                       {c.estado === 'activa' ? (
                         <span className="insignia">En uso</span>
