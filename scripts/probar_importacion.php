@@ -271,6 +271,11 @@ try {
     comprobar('volver a una carga que no existe responde 409', pedir('POST', 'restaurar_carga.php', ['carga_id' => 999999])['codigo'] === 409);
     $r = pedir('POST', 'restaurar_carga.php', ['carga_id' => $original]);
     comprobar('volver a la carga anterior funciona', $r['codigo'] === 200 && estadoCarga($original) === 'activa' && estadoCarga($nueva) === 'reemplazada');
+    comprobar('  la respuesta identifica la carga por cuándo se cargó y quién', ($r['json']['datos']['usuario'] ?? '') !== '' && preg_match('/^\d{4}-\d{2}-\d{2} \d{2}:\d{2}:\d{2}$/', $r['json']['datos']['fecha_carga'] ?? '') === 1);
+    $despues = pedir('GET', 'cargas.php')['json']['datos']['cargas'] ?? [];
+    comprobar('el historial conserva el orden (por fecha de carga); solo cambia cuál está en uso', count($despues) === 2
+        && $despues[0]['id'] === $nueva && $despues[0]['estado'] === 'reemplazada'
+        && $despues[1]['id'] === $original && $despues[1]['estado'] === 'activa');
     comprobar('la consulta vuelve a ser exactamente la de antes', huellaConsulta() === $huella0);
 } catch (Throwable $e) {
     $fallas++;

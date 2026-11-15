@@ -10,6 +10,10 @@ const LOTE = 500
 const PROBLEMAS_VISIBLES = 100
 const ORDEN_CENTROS = ['73.9226', '73.9310', '73.9123']
 
+// Dos cargas pueden tener la misma fecha de datos: se identifican también por cuándo se cargaron y quién.
+const describirCarga = (c) =>
+  `la carga del ${fechaHora(c.fecha_carga)} (${c.usuario}), con datos al ${fechaLarga(c.fecha_reporte)}`
+
 /**
  * Actualizar los datos con un reporte nuevo de OnBase (Fase 4), solo con sesión iniciada.
  * 1. Elegir el archivo y la fecha del reporte. 2. Vista previa (nada se carga todavía). 3. Carga en
@@ -151,7 +155,7 @@ export default function ActualizarDatos({ nombre, datos, onDatosActualizados, on
     setRestaurando(true)
     try {
       const r = await restaurarCarga(confirmar.id)
-      setAviso(`La consulta volvió a la carga del ${fechaLarga(r.fecha_reporte)} (${formatoNumero(r.total_expedientes)} expedientes).`)
+      setAviso(`La consulta volvió a ${describirCarga(r)}.`)
       setConfirmar(null)
       onDatosActualizados()
       cargarHistorial()
@@ -426,7 +430,7 @@ export default function ActualizarDatos({ nombre, datos, onDatosActualizados, on
         <Dialogo
           id="restaurar"
           titulo="¿Volver a esta carga?"
-          descripcion={`La consulta mostrará los ${formatoNumero(confirmar.total_expedientes)} expedientes con datos al ${fechaLarga(confirmar.fecha_reporte)}. La carga actual queda guardada como anterior.`}
+          descripcion={`La consulta mostrará ${describirCarga(confirmar)}: ${formatoNumero(confirmar.total_expedientes)} expedientes. La carga en uso queda guardada como anterior.`}
           onCerrar={() => setConfirmar(null)}
         >
           <div className="formulario__acciones">

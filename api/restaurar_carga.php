@@ -26,12 +26,18 @@ try {
     $pdo->prepare("UPDATE cargas SET estado = 'activa' WHERE id = ?")->execute([$id]);
     $pdo->commit();
 
-    $consulta = $pdo->prepare('SELECT fecha_reporte, total_expedientes FROM cargas WHERE id = ?');
+    // Dos cargas pueden tener la misma fecha de datos: se devuelve también cuándo se cargó y quién.
+    $consulta = $pdo->prepare(
+        'SELECT c.fecha_reporte, c.fecha_carga, c.total_expedientes, u.nombre AS usuario
+         FROM cargas c JOIN usuarios u ON u.id = c.usuario_id WHERE c.id = ?'
+    );
     $consulta->execute([$id]);
     $carga = $consulta->fetch();
     responderOk([
         'carga_id' => $id,
         'fecha_reporte' => $carga['fecha_reporte'],
+        'fecha_carga' => $carga['fecha_carga'],
+        'usuario' => $carga['usuario'],
         'total_expedientes' => (int) $carga['total_expedientes'],
     ]);
 } catch (Throwable $e) {
