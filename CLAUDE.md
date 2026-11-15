@@ -47,6 +47,7 @@ Sirven para las pruebas; no se cambian.
 - Usuaria encargada: `C:\xampp\php\php.exe scripts/crear_usuario.php`.
 - Desarrollo: en la raíz, `C:\xampp\php\php.exe -S 127.0.0.1:8000 scripts/servidor_dev.php` (solo sirve `api/*.php`), y en `frontend/`, `npm run dev`. Vite reenvía `api/` a ese PHP.
 - Pruebas de la sesión: con el servidor de desarrollo encendido, `C:\xampp\php\php.exe scripts/probar_auth.php`; contra Apache, `C:\php\php.exe scripts/probar_auth.php http://localhost/TRDCode` (el mismo PHP de Apache, para la prueba de inactividad). Crea y borra sus propias cuentas temporales; nunca usa la cuenta real.
+- Pruebas de la importación: con el servidor encendido, `C:\xampp\php\php.exe scripts/probar_importacion.php [url]`. Usa los expedientes de la carga activa y una cuenta temporal, y deja la base como estaba; no corre si ya hay cargas reemplazadas.
 - Copia en Apache: `C:\xampp\htdocs\TRDCode` (paquete del prototipo) con `C:\xampp\TRDCode.env`. Se enciende solo Apache, nunca la MySQL de XAMPP (choca con MySQL80 en el puerto 3306).
 - Frontend: `npm run dev` y `npm test` en `frontend/`. Las pruebas con cifras reales leen `datos-prueba/datos.json` (`C:\xampp\php\php.exe api/datos.php > datos-prueba/datos.json`) y se saltan si no existe.
 - Expedientes del reporte: `.venv/Scripts/python scripts/generar_expedientes_sql.py` escribe `datos-prueba/expedientes.sql` (no va al repositorio).

@@ -14,7 +14,7 @@ Actualizado el 15 de noviembre de 2026.
 | 1 | Base de datos | [Fase 1](https://github.com/nathuch/TRDCode/milestone/2) | `fase-1-base-datos` (PR #83, fusionada) | completa |
 | 2 | Extracción de las TRD | [Fase 2](https://github.com/nathuch/TRDCode/milestone/3) | `fase-2-trd` | en curso |
 | 3 | API en PHP | [Fase 3](https://github.com/nathuch/TRDCode/milestone/4) | `fase-3-login` (sale de `mvp-prototipo`) | en curso: todo hecho en la rama, falta fusionar |
-| 4 | Importación del Excel | [Fase 4](https://github.com/nathuch/TRDCode/milestone/5) | `fase-4-importacion` | sin empezar (el MVP carga por script) |
+| 4 | Importación del Excel | [Fase 4](https://github.com/nathuch/TRDCode/milestone/5) | `fase-4-importacion` | en curso: todo hecho en la rama, falta fusionar |
 | 5 | Cruce de expedientes con la TRD | [Fase 5](https://github.com/nathuch/TRDCode/milestone/6) | `fase-5-cruce` | sin empezar (hecha en el MVP) |
 | 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `fase-6-filtros` | sin empezar (hecha en el MVP) |
 | 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | sin empezar (casi toda hecha en el MVP) |
@@ -83,7 +83,7 @@ Versión de **solo consulta** para mostrar a la usuaria e instalar en un equipo 
 | 3 | #21 | Copia en el Apache de XAMPP | parcial: paquete del prototipo para `htdocs/TRDCode` (se instaló y probó en `fase-3-login`) |
 | 3 | #23 | `frontend/src/api/cliente.js` | parcial: solo `obtenerDatos()` (se completó en `fase-3-login`) |
 | 3 | #17, #18, #19, #22 | Sesión, CSRF, login, logout, cambio de clave y pruebas de la API | no (se hicieron en `fase-3-login`) |
-| 4 | #24 a #33 | Importación desde la pantalla | no; la reemplaza `generar_expedientes_sql.py` (normaliza como el plan y da los 3.385 expedientes) |
+| 4 | #24 a #33 | Importación desde la pantalla | no; la reemplaza `generar_expedientes_sql.py` (normaliza como el plan y da los 3.385 expedientes). Se hizo en `fase-4-importacion` |
 | 5 | #34, #35, #36 | `cruce.js`: `armarIndice()`, cuatro estados y `resumen()` | hechas |
 | 5 | #37 | Cargar los datos en `App.jsx` | hecha |
 | 5 | #38 | Pruebas de `cruce.js` (A-06 a A-08) | hecha |
@@ -222,29 +222,41 @@ La aplicación ya no abre con todos los resultados a la vista.
 - **Direcciones:** `estadoUrl.js` decide la vista (`leerUrl()` devuelve `vista`: inicio o consulta). Una dirección con filtros, búsqueda o ficha abre directo la consulta, así que los enlaces compartidos siguen funcionando. La consulta completa sin filtros se guarda como `#consulta`, para no volver al inicio al recargar.
 - **Pruebas:** `estadoUrl.test.js` (10 pruebas de la decisión inicio/consulta y del hash; `npm test` pasa con 31). En el navegador (Edge sin ventana), 35 comprobaciones en desarrollo y en la copia de Apache: tarjetas en orden, enlaces reales, atrás/adelante, título del encabezado, búsqueda con Enter y con el botón, TRD 10, enlace compartido con la ficha de 85.15 (643), teclado y celular sin desplazamiento horizontal.
 
-## Fase 4 – Importación del Excel · sin empezar
+## Fase 4 – Importación del Excel · en curso
 
 **Objetivo:** que la encargada cargue el reporte de OnBase, vea antes qué filas tienen problemas y pueda volver a una carga anterior.
 **Requisitos:** RF-12, RF-13, RF-14, RF-16, RNF-05 y RNF-06.
+**Rama:** `fase-4-importacion`, que sale de `main` después del PR #85.
 
 | Issue | Tarea | Estado |
 |---|---|---|
-| #24 | Crear `frontend/src/datos/leerExcel.js` | sin empezar |
-| #25 | Crear `frontend/src/datos/normalizar.js` | sin empezar |
-| #26 | Escribir las pruebas de `normalizar.js` (A-01 a A-05) | sin empezar |
-| #27 | Crear `frontend/src/components/ActualizarDatos.jsx` | sin empezar |
-| #28 | Crear `api/lib/validar.php` | sin empezar |
-| #29 | Crear `api/importar_iniciar.php` | sin empezar |
-| #30 | Crear `api/importar_lote.php` | sin empezar |
-| #31 | Crear `api/importar_finalizar.php` | sin empezar |
-| #32 | Crear `api/cargas.php` y `api/restaurar_carga.php` | sin empezar |
-| #33 | Probar la importación completa | sin empezar |
+| #24 | Crear `frontend/src/datos/leerExcel.js` | completa |
+| #25 | Crear `frontend/src/datos/normalizar.js` | completa |
+| #26 | Escribir las pruebas de `normalizar.js` (A-01 a A-05) | completa |
+| #27 | Crear `frontend/src/components/ActualizarDatos.jsx` | completa |
+| #28 | Crear `api/lib/validar.php` | completa |
+| #29 | Crear `api/importar_iniciar.php` | completa |
+| #30 | Crear `api/importar_lote.php` | completa |
+| #31 | Crear `api/importar_finalizar.php` | completa |
+| #32 | Crear `api/cargas.php` y `api/restaurar_carga.php` | completa |
+| #33 | Probar la importación completa | completa (`scripts/probar_importacion.php` y prueba en el navegador) |
+
+**Cómo quedó la importación**
+- **Lectura** (`leerExcel.js`): solo `.xlsx` de hasta 15 MB; si faltan columnas obligatorias, dice cuáles. SheetJS se carga solo al usarlo. Las celdas de texto se leen del XML original de la celda (como el script de Python), porque el valor procesado de SheetJS cambia `\r\n` por `\n`: con eso el reporte de agosto da exactamente lo mismo que `expedientes.sql`.
+- **Normalización** (`normalizar.js`): las mismas reglas de `scripts/generar_expedientes_sql.py`, en el mismo orden (tres centros, dependencia con o sin puntos, serie y subserie, fecha desde el número de Excel o texto, IPU/IPC/IPR, recortes por caracteres). Los códigos repetidos no se cargan en ninguna de sus filas, igual que en el script, pero cada fila queda marcada con su número y las demás filas donde aparece.
+- **Pantalla** (`ActualizarDatos.jsx`, `#actualizar`, solo con sesión; opción "Actualizar datos" del menú): 1. archivo y fecha del reporte (se propone la del nombre del archivo); 2. vista previa sin cargar nada: filas, expedientes por centro, descartadas de otros centros, aviso de lo que no está en la TRD (no impide cargar) y tabla de filas con problemas con fila, código y motivo, nunca el título; 3. carga en lotes de 500 con barra de progreso; 4. resultado con la nueva fecha "Datos al…", y la consulta se recarga. Debajo, el historial (la activa y las 2 anteriores, con fecha, quién y cantidad) con "Volver a esta carga" y confirmación.
+- **API:** el servidor revalida todo (`lib/validar.php`). `importar_iniciar.php` crea la carga `en_proceso` y pasa a `fallida` (borrando sus expedientes) toda carga en proceso sin actividad por más de 30 minutos. `importar_lote.php` acepta hasta 500, solo para una carga en proceso de la misma sesión y usuaria, en una transacción; si un expediente es inválido o ya se recibió, rechaza el lote entero y señala fila, código y motivo. `importar_finalizar.php` comprueba que llegaron todos y, en una transacción, activa la nueva, pasa la anterior a `reemplazada` y borra lo más viejo que la activa y las 2 anteriores (y las fallidas); si faltan expedientes, la carga pasa a `fallida`. `cargas.php` (GET con sesión) y `restaurar_carga.php` (sesión y CSRF; solo activa una `reemplazada`). Todo lo que cambia datos exige sesión y CSRF. `datos.php` sigue público y solo lee la carga activa, así que una importación a medias o cortada no cambia lo que se ve. Los errores en `error_log` omiten los valores citados por MySQL, para no registrar partes de títulos.
+- **Pruebas:**
+  - `npm test`: 45 pruebas; 14 nuevas de lectura y normalización (A-01 a A-05, formato, tamaño, columnas, fecha del nombre) y la comparación del reporte real con `expedientes.sql` campo por campo (se salta si no están los archivos de `datos-prueba/`).
+  - `C:\xampp\php\php.exe scripts/probar_importacion.php [url]`: 54 comprobaciones, en desarrollo y en Apache. Envía por la API los expedientes de la carga activa (los del reporte de agosto) y deja la base como estaba; no corre si ya hay cargas reemplazadas, para no tocar un historial real.
+  - En el navegador (desarrollo y Apache), con el `.xlsx` real: rechazo de otros formatos, fecha propuesta, vista previa (7.531 filas, 3.385 expedientes, 4.146 descartadas, aviso de 85.18 con 119), rechazo de una fecha futura sin cambiar la consulta, barra de progreso, resultado, historial, volver a la carga anterior con confirmación y celular.
+  - El borrado de cargas viejas se probó aparte, en una base temporal (`trdcode_prueba`, borrada después): tras cuatro importaciones quedan siempre la activa y las 2 anteriores.
 
 **Criterios de aceptación**
-- [ ] Al importar el reporte de agosto quedan 3.385 expedientes en la carga activa: Industria y Construcción 1.781, Comercio y Servicios 1.084 y Agropecuario La Granja 520.
-- [ ] Las pruebas de Vitest pasan.
-- [ ] Una importación cortada no cambia los datos que se ven.
-- [ ] "Volver a esta carga" recupera la carga anterior.
+- [x] Al importar el reporte de agosto quedan 3.385 expedientes en la carga activa: Industria y Construcción 1.781, Comercio y Servicios 1.084 y Agropecuario La Granja 520 (y los mismos conteos por serie y subserie: 643, 308, 85.18 con 39 y 85.15 con 17).
+- [x] Las pruebas de Vitest pasan.
+- [x] Una importación cortada no cambia los datos que se ven.
+- [x] "Volver a esta carga" recupera la carga anterior.
 
 ## Fase 5 – Cruce de expedientes con la TRD · sin empezar
 
@@ -387,7 +399,7 @@ La aplicación ya no abre con todos los resultados a la vista.
 ## Pendientes para la entrega
 
 - Crear la cuenta real de la encargada con su correo institucional (`scripts/crear_usuario.php`) y desactivar la cuenta de prueba (`UPDATE usuarios SET activo = 0 WHERE correo = ...`).
-- Actualizar el manual de usuario (`docs/GUIA_USO.md`, las capturas de `docs/img/` y el PDF): todavía dice que la aplicación abre con los 2.530 expedientes a la vista y no describe la pantalla de inicio ni el ingreso de la encargada.
+- Actualizar el manual de usuario (`docs/GUIA_USO.md`, las capturas de `docs/img/` y el PDF): todavía dice que la aplicación abre con los 2.530 expedientes a la vista y no describe la pantalla de inicio, el ingreso de la encargada ni "Actualizar datos" (la sección 11 todavía dice que la carga de reportes llegará después).
 
 ## Decisiones pendientes
 
