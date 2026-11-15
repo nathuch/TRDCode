@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { obtenerDatos } from './api/cliente.js'
+import Acceso from './components/Acceso.jsx'
 import BarraConsulta from './components/BarraConsulta.jsx'
 import Ficha from './components/Ficha.jsx'
 import { IconoAlerta, IconoCalendario, IconoDescarga } from './components/Iconos.jsx'
@@ -97,12 +98,15 @@ export default function App() {
             <h1>Consulta de series y subseries documentales</h1>
             <p className="encabezado__sub">SENA, Regional Tolima · Centros de Formación</p>
           </div>
-          {datos?.carga && (
-            <span className="sello">
-              <IconoCalendario />
-              Datos al {fechaLarga(datos.carga.fecha_reporte)}
-            </span>
-          )}
+          <div className="encabezado__lado">
+            {datos?.carga && (
+              <span className="sello">
+                <IconoCalendario />
+                Datos al {fechaLarga(datos.carga.fecha_reporte)}
+              </span>
+            )}
+            <Acceso />
+          </div>
         </header>
 
         {datos && (
