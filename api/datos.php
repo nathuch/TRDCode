@@ -7,10 +7,7 @@
 require __DIR__ . '/lib/db.php';
 require __DIR__ . '/lib/respuesta.php';
 
-if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== 'GET') {
-    header('Allow: GET');
-    responderError('Método no permitido.', 405);
-}
+exigirMetodo('GET');
 
 /** Convierte un valor SET de MySQL ('CT,D') en lista. */
 function lista(?string $valor): array

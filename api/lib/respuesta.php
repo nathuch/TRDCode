@@ -6,9 +6,19 @@ function responderOk($datos): void
     enviarJson(200, ['ok' => true, 'datos' => $datos]);
 }
 
-function responderError(string $mensaje, int $codigoHttp = 500): void
+/** $extra agrega campos a la respuesta de error (por ejemplo, los segundos que faltan de un bloqueo). */
+function responderError(string $mensaje, int $codigoHttp = 500, array $extra = []): void
 {
-    enviarJson($codigoHttp, ['ok' => false, 'error' => $mensaje]);
+    enviarJson($codigoHttp, ['ok' => false, 'error' => $mensaje] + $extra);
+}
+
+/** Responde 405 si la petición no llega con el método esperado. */
+function exigirMetodo(string $metodo): void
+{
+    if (($_SERVER['REQUEST_METHOD'] ?? 'GET') !== $metodo) {
+        header('Allow: ' . $metodo);
+        responderError('Método no permitido.', 405);
+    }
 }
 
 function enviarJson(int $codigoHttp, array $cuerpo): void
