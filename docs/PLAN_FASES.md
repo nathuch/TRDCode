@@ -15,9 +15,9 @@ Actualizado el 15 de noviembre de 2026.
 | 2 | Extracción de las TRD | [Fase 2](https://github.com/nathuch/TRDCode/milestone/3) | `fase-2-trd` | en curso |
 | 3 | API en PHP | [Fase 3](https://github.com/nathuch/TRDCode/milestone/4) | `fase-3-login` (sale de `mvp-prototipo`) | en curso: todo hecho en la rama, falta fusionar |
 | 4 | Importación del Excel | [Fase 4](https://github.com/nathuch/TRDCode/milestone/5) | `fase-4-importacion` | en curso: todo hecho en la rama, falta fusionar |
-| 5 | Cruce de expedientes con la TRD | [Fase 5](https://github.com/nathuch/TRDCode/milestone/6) | `fase-5-cruce` | sin empezar (hecha en el MVP) |
-| 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `fase-6-filtros` | sin empezar (hecha en el MVP) |
-| 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | sin empezar (casi toda hecha en el MVP) |
+| 5 | Cruce de expedientes con la TRD | [Fase 5](https://github.com/nathuch/TRDCode/milestone/6) | `main` (MVP) | completa en el código; issues abiertos |
+| 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `main` (MVP) | casi completa: falta #39 (diseño y celular) |
+| 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | a medias: faltan partes de #49, #51 y #52 |
 | 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | sin empezar (Excel hecho en el MVP) |
 | 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | sin empezar (parte hecha en el MVP) |
 | 10 | Pruebas con la usuaria y ajustes | [Fase 10](https://github.com/nathuch/TRDCode/milestone/11) | `fase-10-ajustes` | sin empezar |
@@ -87,14 +87,14 @@ Versión de **solo consulta** para mostrar a la usuaria e instalar en un equipo 
 | 5 | #34, #35, #36 | `cruce.js`: `armarIndice()`, cuatro estados y `resumen()` | hechas |
 | 5 | #37 | Cargar los datos en `App.jsx` | hecha |
 | 5 | #38 | Pruebas de `cruce.js` (A-06 a A-08) | hecha |
-| 6 | #39, #40 | Estructura de la página y estado de los filtros en `App.jsx` | hechas |
+| 6 | #39, #40 | Estructura de la página y estado de los filtros en `App.jsx` | #40 hecha; #39 a medias (ver la Fase 6) |
 | 6 | #41, #42 | `opcionesDisponibles()` y `aplicarFiltros()` | hechas |
 | 6 | #43 | Panel de filtros | hecha, como `BarraConsulta.jsx` y `SelectorMultiple.jsx` |
 | 6 | #44 | Buscador | hecha |
 | 6 | #45 | Pruebas de `filtros.js` (A-09, A-10) y rendimiento | hecha |
 | 7 | #46 | Resumen | hecha de otra forma: total y pestañas en `App.jsx`, sin tarjetas |
-| 7 | #47, #48, #49, #50 | Tabla, aviso de lo que no está en la TRD, ficha y "Datos al [fecha]" | hechas |
-| 7 | #51, #52 | Vista para celular y accesibilidad | parcial: estilos para pantallas angostas y roles ARIA, sin revisión formal |
+| 7 | #47, #48, #49, #50 | Tabla, aviso de lo que no está en la TRD, ficha y "Datos al [fecha]" | hechas, salvo partes de #49 (ver la Fase 7) |
+| 7 | #51, #52 | Vista para celular y accesibilidad | a medias; revisadas el 15 de noviembre (ver la Fase 7) |
 | 8 | #53, #54 | `exportar.js` y Excel con tres hojas | hechas |
 | 8 | #55, #56 | PDF e impresión | no |
 | 8 | #57 | Probar las exportaciones | parcial: pruebas del Excel |
@@ -258,64 +258,66 @@ La aplicación ya no abre con todos los resultados a la vista.
 - [x] Una importación cortada no cambia los datos que se ven.
 - [x] "Volver a esta carga" recupera la carga anterior.
 
-## Fase 5 – Cruce de expedientes con la TRD · sin empezar
+> **Revisión del 15 de noviembre de 2026.** Las Fases 5, 6 y 7 se revisaron contra el código de `main` (todo llegó con el MVP y está fusionado con el PR #84). Las pruebas citadas son de `npm test` (`cruce.test.js`, `filtros.test.js`, `exportar.test.js`, `estadoUrl.test.js`) salvo cuando dice "navegador": esas comprobaciones se hicieron en Edge sin ventana con scripts de prueba que no están en el repositorio (auditoría de solo lectura de la consulta, celular de 390 px y pruebas de la pantalla de inicio). Los issues siguen abiertos en GitHub.
+
+## Fase 5 – Cruce de expedientes con la TRD · completa en `main` (MVP)
 
 **Objetivo:** unir cada expediente con su serie o subserie de la TRD y calcular los conteos.
 **Requisitos:** RF-06 y RF-08.
 
-| Issue | Tarea | Estado |
-|---|---|---|
-| #34 | Crear `frontend/src/datos/cruce.js` con `armarIndice()` | sin empezar |
-| #35 | Clasificar cada entrada en sus cuatro estados | sin empezar |
-| #36 | Crear `resumen()` para las tarjetas de totales | sin empezar |
-| #37 | Cargar los datos en `App.jsx` | sin empezar |
-| #38 | Escribir las pruebas de `cruce.js` (A-06 a A-08) | sin empezar |
+| Issue | Tarea | Estado | Prueba |
+|---|---|---|---|
+| #34 | Crear `frontend/src/datos/cruce.js` con `armarIndice()` | hecha (devuelve una lista de entradas en lugar de un `Map`) | A-07 y "un código que no está en la TRD se muestra con el nombre del reporte" (`cruce.test.js`) |
+| #35 | Clasificar cada entrada en sus cuatro estados | hecha (`clasificar()`: con, sin, sin en el período, fuera de la TRD) | A-06 (85.18 fuera de la TRD) y A-08 (`cruce.test.js`) |
+| #36 | Crear `resumen()` para las tarjetas de totales | hecha; lo usa el total de la consulta (las tarjetas se reemplazaron, ver #46) | A-06: 643 con `resumen()` |
+| #37 | Cargar los datos en `App.jsx` | hecha: `obtenerDatos()` al abrir, "Cargando datos…" y el índice con `useMemo` | navegador: la consulta carga 2.530 expedientes |
+| #38 | Escribir las pruebas de `cruce.js` (A-06 a A-08) | hecha | `cruce.test.js` |
 
 **Criterios de aceptación**
-- [ ] El Grupo de Formación Profesional de Industria y Construcción con TRD 11 suma 643 expedientes.
-- [ ] La serie 37 Historias académicas tiene 308.
-- [ ] La subserie 85.18 aparece como "No está en la TRD" con 39.
-- [ ] La Granja no muestra series de la plantilla 00.9000.2.
+- [x] El Grupo de Formación Profesional de Industria y Construcción con TRD 11 suma 643 expedientes. *(A-06)*
+- [x] La serie 37 Historias académicas tiene 308. *(A-06)*
+- [x] La subserie 85.18 aparece como "No está en la TRD" con 39. *(A-06)*
+- [x] La Granja no muestra series de la plantilla 00.9000.2. *(A-07, con datos de ejemplo y con el reporte real)*
 
-## Fase 6 – Filtros y buscador · sin empezar
+## Fase 6 – Filtros y buscador · casi completa en `main` (MVP)
 
 **Objetivo:** construir el panel de filtros en cascada y el buscador.
 **Requisitos:** RF-01 a RF-05 y RNF-03.
 
-| Issue | Tarea | Estado |
-|---|---|---|
-| #39 | Maquetar la estructura general de la página | sin empezar |
-| #40 | Guardar el estado de los filtros en `App.jsx` | sin empezar |
-| #41 | Crear `opcionesDisponibles()` en `datos/filtros.js` | sin empezar |
-| #42 | Crear `aplicarFiltros()` en `datos/filtros.js` | sin empezar |
-| #43 | Crear `frontend/src/components/Filtros.jsx` | sin empezar |
-| #44 | Implementar el buscador | sin empezar |
-| #45 | Escribir las pruebas de `filtros.js` (A-09 y A-10) y medir el rendimiento | sin empezar |
+| Issue | Tarea | Estado | Prueba |
+|---|---|---|---|
+| #39 | Maquetar la estructura general de la página | **a medias**: el rediseño del MVP cambió la decisión del issue. Los filtros van en un panel plegable arriba de la tabla (la variante que el issue descartaba), no en una columna fija a la izquierda. En celular el panel **está abierto al entrar** y la tabla empieza a 1.383 px (la pantalla mide 844), cuando el issue pedía recogerlo en "Filtros (N)". El botón "Filtros" con el número sí existe. El título y "Actualizar datos" (ahora en el menú de la usuaria) también cambiaron | navegador (390 px) |
+| #40 | Guardar el estado de los filtros en `App.jsx` | hecha (`ESTADO_INICIAL` en `filtros.js`; además se guarda en la dirección) | A-09; `estadoUrl.test.js` |
+| #41 | Crear `opcionesDisponibles()` en `datos/filtros.js` | hecha | P-02 (`filtros.test.js`) |
+| #42 | Crear `aplicarFiltros()` en `datos/filtros.js` | hecha; la usan la tabla y las exportaciones | P-03, P-05 (`filtros.test.js`); P-09 (`exportar.test.js`) |
+| #43 | Crear `frontend/src/components/Filtros.jsx` | hecha como `BarraConsulta.jsx`, `SelectorMultiple.jsx` y `SelectorTrd.jsx`: TRD segmentada con `fieldset` y radios, desplegables con casillas ("Todos los centros", el nombre o "2 centros"), año como botones, limpieza de los dependientes y el texto de ayuda. Diferencia menor: "Limpiar filtros" se ve siempre, no solo con filtros aplicados | A-09; navegador |
+| #44 | Implementar el buscador | hecha: sin tildes ni mayúsculas, código y nombre de serie, subserie y expediente, 300 ms después de la última tecla, y aviso con botón para la otra versión | A-10, P-04 (`filtros.test.js`) |
+| #45 | Escribir las pruebas de `filtros.js` (A-09 y A-10) y medir el rendimiento | hecha | A-09, A-10 y RNF-03/P-27 (cada cambio de filtro en menos de un segundo con 3.385) |
 
 **Criterios de aceptación**
-- [ ] Cada filtro solo muestra opciones que existen con los anteriores.
-- [ ] El buscador encuentra por código y nombre, y avisa si hay resultados en la otra versión de la TRD.
-- [ ] Con los 3.385 expedientes, cada cambio de filtro responde en menos de un segundo.
+- [x] Cada filtro solo muestra opciones que existen con los anteriores. *(P-02)*
+- [x] El buscador encuentra por código y nombre, y avisa si hay resultados en la otra versión de la TRD. *(A-10, P-04)*
+- [x] Con los 3.385 expedientes, cada cambio de filtro responde en menos de un segundo. *(RNF-03)*
 
-## Fase 7 – Vista de resultados y ficha · sin empezar
+## Fase 7 – Vista de resultados y ficha · a medias en `main` (MVP)
 
 **Objetivo:** mostrar las series y subseries filtradas y la ficha de cada subserie con su listado de expedientes.
 **Requisitos:** RF-06, RF-07, RF-08, RF-13 y RNF-02.
 
-| Issue | Tarea | Estado |
-|---|---|---|
-| #46 | Crear `frontend/src/components/Resumen.jsx` | sin empezar |
-| #47 | Crear `frontend/src/components/TablaResultados.jsx` | sin empezar |
-| #48 | Mostrar el aviso de subseries que no están en la TRD | sin empezar |
-| #49 | Crear `frontend/src/components/Ficha.jsx` | sin empezar |
-| #50 | Mostrar "Datos al [fecha]" de la carga activa | sin empezar |
-| #51 | Ajustar la vista para celular | sin empezar |
-| #52 | Revisar la accesibilidad básica | sin empezar |
+| Issue | Tarea | Estado | Prueba |
+|---|---|---|---|
+| #46 | Crear `frontend/src/components/Resumen.jsx` | hecha de otra forma (rediseño del MVP): sin las cuatro tarjetas; el total grande y las pestañas Todas / Con / Sin / Fuera de la TRD, cada una con su número | navegador |
+| #47 | Crear `frontend/src/components/TablaResultados.jsx` | hecha: agrupada por serie (grupos plegables), disposición con sigla y nombre completo, etiquetas de estado y orden por código. La retención va en una columna ("2 + 8 años") en lugar de AG y AC por separado | P-09 (las filas de la pantalla); navegador |
+| #48 | Mostrar el aviso de subseries que no están en la TRD | hecha (recuadro amarillo con código, nombre y cantidad) | A-06 (85.18); navegador |
+| #49 | Crear `frontend/src/components/Ficha.jsx` | **a medias**. Hecho: panel a la derecha, pantalla completa en celular, Esc y ×, retención con cuándo empieza a contar, disposición, clasificación, soporte, tipos documentales, listado en páginas de 50 del más reciente al más antiguo, "Nombre reservado (IPC/IPR)" y "Exportar a Excel". Falta: la etiqueta "N expedientes" en el encabezado (está en la sección del listado); el control de acceso de cada expediente solo se ve en los reservados (candado), no en los IPU; "Exportar a PDF" e "Imprimir" (Fase 8) | navegador: ficha de 85.15 |
+| #50 | Mostrar "Datos al [fecha]" de la carga activa | hecha (en la consulta y abajo en el inicio) | navegador: "Datos al 10 de agosto de 2026" |
+| #51 | Ajustar la vista para celular | **a medias**. Hecho: la página no se desplaza a lo ancho, la tabla se desplaza dentro de su caja y la ficha ocupa la pantalla completa (390 de 390 px). Falta: el panel de filtros abierto al entrar empuja la tabla a 1.383 px; en la tabla solo se ven código y nombre, y retención, disposición y **expedientes** quedan fuera de la vista sin desplazarla (860 px de tabla en una caja de 356) | navegador (390 x 844) |
+| #52 | Revisar la accesibilidad básica | **a medias**. Hecho: contraste sin fallas en todo el texto visible de la consulta, la ficha y el celular (4,5:1 o 3:1 en texto grande); botones reales (las filas tienen un `<button>` y los grupos `aria-expanded`); todos los controles con nombre; foco visible de 3 px; `lang="es"`. Falta: al cerrar la ficha **el foco se pierde** (queda en `body`) en lugar de volver a la fila; con la ficha abierta, Tab sale de ella (no hay trampa de foco); las pestañas usan `role="tab"` pero no responden a las flechas; la consulta solo tiene un encabezado (`h1`), sin encabezados para el total ni la tabla; el cambio del total al filtrar no se anuncia a los lectores de pantalla; dos zonas táctiles miden menos de 24 px (la × de las etiquetas, 22 px, y "Quitar selección", 18 px) | navegador |
 
 **Criterios de aceptación**
-- [ ] La vista sigue las decisiones de diseño de los issues #27, #39, #43 y #49.
-- [ ] La ficha de 85.15 muestra retención de 2 + 8 años, cuándo empieza a contar, conservación total y 17 expedientes (P-07).
-- [ ] La vista se usa sin zoom en un celular.
+- [ ] La vista sigue las decisiones de diseño de los issues #27, #39, #43 y #49. **A medias:** #43 se cumple; #39 cambió con el rediseño del MVP (falta confirmarlo con la usuaria o ajustar el celular); a #49 le faltan los puntos de arriba; de #27 (Fase 4) faltan la zona grande para arrastrar el archivo, el rango de fechas en la vista previa, la lista de problemas plegable y que el campo de fecha no deje elegir fechas futuras (hoy lo rechaza el servidor); la fecha se propone desde el nombre del archivo en lugar de `lastModified`, como se pidió en la Fase 4, y el ingreso quedó en el encabezado (Fase 3).
+- [x] La ficha de 85.15 muestra retención de 2 + 8 años, cuándo empieza a contar, conservación total y 17 expedientes (P-07). *(navegador: "10 años en total, 2 años en gestión + 8 en archivo central", el texto de inicio de la retención, "CT Conservación total" y "Expedientes (17)" con los 17 reservados; `exportar.test.js` comprueba los 17 al exportar desde la ficha)*
+- [ ] La vista se usa sin zoom en un celular. **A medias:** no hace falta zoom ni hay desplazamiento horizontal de la página, pero la columna de expedientes no se ve sin desplazar la tabla y los filtros abiertos tapan los resultados (ver #51).
 
 ## Fase 8 – Exportar e imprimir · sin empezar
 
