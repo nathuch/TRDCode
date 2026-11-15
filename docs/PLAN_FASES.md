@@ -213,6 +213,15 @@ De la Fase 11, `docs/GUIA_USO.md` (#72) ya existe como manual del prototipo.
 - [x] Todo responde igual en Apache que con `php -S`.
 - [x] El `.env` no se puede descargar desde el navegador, ni con `php -S` ni con Apache.
 
+## Pantalla de inicio (antes de la Fase 4) · completa en `fase-3-login`
+
+La aplicación ya no abre con todos los resultados a la vista.
+
+- **Inicio** (dirección sin filtros, búsqueda ni ficha): el mismo encabezado con "Ingresar" o el menú de la usuaria; "¿Qué serie o subserie busca?" con el buscador grande, el botón Buscar y el selector TRD 11 · vigente / TRD 10 · 2020; una tarjeta por centro (Industria y Construcción, Comercio y Servicios, Agropecuario La Granja) con "Ver series"; el enlace "Ver todas las series" y, abajo, "Datos al [fecha de la carga activa]". Sin tabla, totales ni panel de filtros (`components/Inicio.jsx`).
+- **Paso a la consulta:** buscar (Enter o Buscar), elegir un centro o "Ver todas" abre la consulta con ese filtro y con la TRD elegida. Las tarjetas y "Ver todas" son enlaces reales (`#centros=73.9226`, `#consulta`): se pueden abrir en otra pestaña. El paso crea una entrada en el historial: "atrás" vuelve al inicio y "adelante" a la consulta. El título del encabezado (TRDCode) también es un enlace al inicio. Al cambiar de vista, el foco pasa al título de la vista nueva.
+- **Direcciones:** `estadoUrl.js` decide la vista (`leerUrl()` devuelve `vista`: inicio o consulta). Una dirección con filtros, búsqueda o ficha abre directo la consulta, así que los enlaces compartidos siguen funcionando. La consulta completa sin filtros se guarda como `#consulta`, para no volver al inicio al recargar.
+- **Pruebas:** `estadoUrl.test.js` (10 pruebas de la decisión inicio/consulta y del hash; `npm test` pasa con 31). En el navegador (Edge sin ventana), 35 comprobaciones en desarrollo y en la copia de Apache: tarjetas en orden, enlaces reales, atrás/adelante, título del encabezado, búsqueda con Enter y con el botón, TRD 10, enlace compartido con la ficha de 85.15 (643), teclado y celular sin desplazamiento horizontal.
+
 ## Fase 4 – Importación del Excel · sin empezar
 
 **Objetivo:** que la encargada cargue el reporte de OnBase, vea antes qué filas tienen problemas y pueda volver a una carga anterior.
@@ -378,6 +387,7 @@ De la Fase 11, `docs/GUIA_USO.md` (#72) ya existe como manual del prototipo.
 ## Pendientes para la entrega
 
 - Crear la cuenta real de la encargada con su correo institucional (`scripts/crear_usuario.php`) y desactivar la cuenta de prueba (`UPDATE usuarios SET activo = 0 WHERE correo = ...`).
+- Actualizar el manual de usuario (`docs/GUIA_USO.md`, las capturas de `docs/img/` y el PDF): todavía dice que la aplicación abre con los 2.530 expedientes a la vista y no describe la pantalla de inicio ni el ingreso de la encargada.
 
 ## Decisiones pendientes
 
