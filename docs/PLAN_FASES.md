@@ -2,7 +2,7 @@
 
 Resumen del plan de desarrollo v3 ("Plan_de_desarrollo_TRDCode.pdf") con los hitos e issues de GitHub y las decisiones tomadas después de escribir el plan. El detalle de cada tarea está en su issue.
 
-Actualizado el 1 de noviembre de 2026.
+Actualizado el 15 de noviembre de 2026.
 
 **Estados:** completa · en curso · sin empezar. Las tareas de una fase se cierran en GitHub cuando su rama se fusiona a `main`; una tarea "completa" de una fase en curso ya está hecha en la rama, pero su issue sigue abierto.
 
@@ -13,30 +13,97 @@ Actualizado el 1 de noviembre de 2026.
 | 0 | Entorno de desarrollo | [Fase 0](https://github.com/nathuch/TRDCode/milestone/1) | `main` | completa |
 | 1 | Base de datos | [Fase 1](https://github.com/nathuch/TRDCode/milestone/2) | `fase-1-base-datos` (PR #83, fusionada) | completa |
 | 2 | Extracción de las TRD | [Fase 2](https://github.com/nathuch/TRDCode/milestone/3) | `fase-2-trd` | en curso |
-| 3 | API en PHP | [Fase 3](https://github.com/nathuch/TRDCode/milestone/4) | `fase-3-api` | sin empezar |
-| 4 | Importación del Excel | [Fase 4](https://github.com/nathuch/TRDCode/milestone/5) | `fase-4-importacion` | sin empezar |
-| 5 | Cruce de expedientes con la TRD | [Fase 5](https://github.com/nathuch/TRDCode/milestone/6) | `fase-5-cruce` | sin empezar |
-| 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `fase-6-filtros` | sin empezar |
-| 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | sin empezar |
-| 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | sin empezar |
-| 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | sin empezar |
+| 3 | API en PHP | [Fase 3](https://github.com/nathuch/TRDCode/milestone/4) | `fase-3-login` (sale de `mvp-prototipo`) | en curso: todo hecho en la rama, falta fusionar |
+| 4 | Importación del Excel | [Fase 4](https://github.com/nathuch/TRDCode/milestone/5) | `fase-4-importacion` | sin empezar (el MVP carga por script) |
+| 5 | Cruce de expedientes con la TRD | [Fase 5](https://github.com/nathuch/TRDCode/milestone/6) | `fase-5-cruce` | sin empezar (hecha en el MVP) |
+| 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `fase-6-filtros` | sin empezar (hecha en el MVP) |
+| 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | sin empezar (casi toda hecha en el MVP) |
+| 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | sin empezar (Excel hecho en el MVP) |
+| 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | sin empezar (parte hecha en el MVP) |
 | 10 | Pruebas con la usuaria y ajustes | [Fase 10](https://github.com/nathuch/TRDCode/milestone/11) | `fase-10-ajustes` | sin empezar |
 | 11 | Guía y entrega al SENA | [Fase 11](https://github.com/nathuch/TRDCode/milestone/12) | `main` | sin empezar |
 
+Las fases 3 a 9 siguen "sin empezar" como fases, pero el MVP (rama `mvp-prototipo`) ya adelantó parte de sus tareas: el detalle está en la sección [MVP del prototipo](#mvp-del-prototipo).
+
 ## Cambios respecto al plan v3
 
-- **PHP 8.3 en local, código compatible con PHP 8.1.** Se desarrolla con el PHP 8.3 de XAMPP (`C:\xampp\php\php.exe`), pero el código no usa nada de PHP 8.2 en adelante, para cumplir el mínimo de PHP 8.1 del plan (RNF-04 y prueba P-29). Intelephense está configurado en 8.1 para avisarlo.
+- **Equipo nuevo desde noviembre de 2026.** El equipo de desarrollo anterior fue robado y se va a formatear; el proyecto se retomó en otro computador desde la rama `mvp-prototipo`. En este equipo:
+  - PHP y Apache son los de **XAMPP 8.2.12** (PHP 8.2.12 en `C:\xampp\php\php.exe`). El `php` del PATH es 8.4 y no se usa.
+  - Ojo: el Apache de XAMPP de este equipo **no carga el PHP de XAMPP**, sino el **PHP 8.4.11 de `C:\php`** (`LoadModule php_module "C:/php/php8apache2_4.dll"` en `httpd-xampp.conf`, con `C:\php\php.ini`). No se cambió porque puede servir a otros proyectos de `htdocs`. Así, la aplicación queda probada en PHP 8.2 (`php -S`) y 8.4 (Apache); la prueba con PHP 8.1 sigue pendiente (Fase 9).
+  - La base de datos corre en el **MySQL 8.0 del equipo (servicio `MySQL80`, 8.0.41)**, que ocupa el puerto 3306; la MariaDB 10.4 de XAMPP no se usa aquí. El paquete del prototipo, en cambio, se instala con la MariaDB de XAMPP, así que el SQL debe funcionar en MySQL 8.0 y en MariaDB 10.4.
+  - `api/lib/config.php` no lee un puerto (`DB_PORT`): la conexión usa siempre el puerto por defecto.
+  - Node.js es 20.20.0; vitest 5 pide 22.12 o más nuevo y `npm install` lo avisa, pero las pruebas pasan. Actualizar Node queda pendiente.
+- **PHP 8.3 en local, código compatible con PHP 8.1.** Se desarrolló con el PHP 8.3 de XAMPP (en el equipo nuevo es 8.2.12), pero el código no usa nada de PHP 8.2 en adelante, para cumplir el mínimo de PHP 8.1 del plan (RNF-04 y prueba P-29). Intelephense está configurado en 8.1 para avisarlo.
 - **El `.env` nunca va al repositorio ni a la carpeta pública.** En producción queda fuera de la carpeta pública y su ruta se indica con la variable `TRDCODE_ENV`.
 - **En producción se usa un usuario de MySQL propio, nunca `root`**, con permisos solo sobre la base. Así debe quedar en `docs/INSTALACION.md` (#64).
 - **Pull Requests y fusiones a `main` solo cuando el usuario lo indique.** Las ramas de fase sí se suben a GitHub.
-- **MySQL 8.0** del equipo local en lugar de la MariaDB de XAMPP. phpMyAdmin no se usa; la base se revisa con MySQL Workbench.
-- **Configuración en `.env`** (ignorado por git) con la plantilla `.env.example`. `api/lib/config.php` ya no guarda datos: lee el `.env` desde la variable `TRDCODE_ENV` o desde la raíz del proyecto.
+- **MySQL 8.0** del equipo local en lugar de la MariaDB de XAMPP para desarrollar. phpMyAdmin no se usa en desarrollo; la base se revisa con MySQL Workbench. El LEEME del prototipo sí usa phpMyAdmin, porque el equipo de demostración solo tiene XAMPP.
+- **Configuración en `.env`** (ignorado por git) con la plantilla `.env.example`. `api/lib/config.php` ya no guarda datos y busca el `.env` en este orden:
+  1. La ruta de la variable de entorno `TRDCODE_ENV`.
+  2. Junto a la carpeta pública, con el nombre de la carpeta de la aplicación: con la aplicación en `C:\xampp\htdocs\TRDCode`, el archivo es `C:\xampp\TRDCode.env`. Así se instala el prototipo.
+  3. La raíz del proyecto, solo en desarrollo.
 - **En local la aplicación se conecta como `root`**: el usuario `trdcode_app` (#4) se cerró sin hacer en el equipo local.
 - **`scripts/crear_usuario.php`** crea la usuaria encargada o cambia su contraseña sin mostrarla y guarda solo el hash. Reemplaza el `php -r` del plan.
 - **El correo con los requisitos al SENA (#7)** pasó de la Fase 1 a la Fase 11, para hacerlo al final.
 - **Columna `grupo` en `trd_tipos_documentales`**: guarda el subtítulo de la TRD 11 bajo el que aparece cada tipo documental (por ejemplo "Modalidad Licitación Pública" en los contratos).
 - **El "Reporte Tolima" de OnBase es la fuente de expedientes.** No se sube al repositorio.
 - **La propuesta de pantallas** no está en el repositorio; las decisiones de diseño quedaron en los issues #27, #39, #43 y #49.
+- **Prototipo (MVP) antes de terminar las fases.** Se armó una versión de solo consulta para mostrarla a la usuaria; ver la sección siguiente.
+
+---
+
+## MVP del prototipo
+
+Versión de **solo consulta** para mostrar a la usuaria e instalar en un equipo de demostración con XAMPP. No tiene inicio de sesión ni carga de reportes desde la pantalla.
+
+- **Rama:** `mvp-prototipo`, que sale de `fase-2-trd`. Se fusionó a `main` con el PR #84 (5 de noviembre de 2026).
+- **Etiquetas** (puntos de respaldo, en GitHub):
+  - `mvp-v1` (`a6d3955`): MVP antes del rediseño de la interfaz.
+  - `mvp-v2` (`77ba212`): MVP con el rediseño de la interfaz y el manual de usuario.
+- **Paquete:** `scripts/armar_prototipo.ps1` arma `prototipo/TRDCode/` (ignorado por git) con los pasos de `scripts/prototipo/LEEME.txt`. El `.env` y `expedientes.sql` se entregan aparte.
+
+**Qué incluye**
+- `api/datos.php`: un solo JSON público con centros, dependencias, la TRD con sus tipos documentales y los expedientes de la carga activa. Los nombres de los expedientes que no son IPU se reemplazan en el servidor por "Nombre reservado (IPC/IPR)".
+- Carga de expedientes por script: `scripts/generar_expedientes_sql.py` convierte el Reporte Tolima en `datos-prueba/expedientes.sql` (no va al repositorio), con una carga activa y un usuario técnico inactivo que la registra.
+- Cruce con la TRD, filtros en cascada (TRD → centro → dependencia → serie → subserie, más el año) y buscador, todo en el navegador.
+- Interfaz: barra de consulta con buscador, versión de la TRD, panel de filtros plegable y etiquetas de lo consultado; total, pestañas (Todas, Con expedientes, Sin expedientes, Fuera de la TRD), aviso de lo que no está en la TRD y tabla agrupada por serie; ficha lateral con retención, disposición, tipos documentales, procedimiento y expedientes.
+- Exportación a Excel con tres hojas y la consulta guardada en la dirección (`#centros=…&ficha=…`).
+- Servidor de desarrollo de PHP que solo sirve `api/*.php` (`scripts/servidor_dev.php`).
+- Manual de usuario (`docs/GUIA_USO.md` y su PDF).
+
+**Qué quedó por fuera:** inicio de sesión, CSRF y límite de intentos; importar el Excel desde la pantalla, historial de cargas y volver a una carga anterior; exportar a PDF e imprimir; `docs/INSTALACION.md` y la prueba con PHP 8.1.
+
+**Tareas de las fases 3 a 9 hechas en `mvp-prototipo`.** Sus issues siguen abiertos: se cierran cuando se haga cada fase.
+
+| Fase | Issue | Tarea | En el MVP |
+|---|---|---|---|
+| 3 | #15 | `api/lib/db.php` | hecha |
+| 3 | #16 | `api/lib/respuesta.php` | hecha |
+| 3 | #20 | `api/datos.php` | hecha (sin nombres IPC e IPR) |
+| 3 | #21 | Copia en el Apache de XAMPP | parcial: paquete del prototipo para `htdocs/TRDCode` (se instaló y probó en `fase-3-login`) |
+| 3 | #23 | `frontend/src/api/cliente.js` | parcial: solo `obtenerDatos()` (se completó en `fase-3-login`) |
+| 3 | #17, #18, #19, #22 | Sesión, CSRF, login, logout, cambio de clave y pruebas de la API | no (se hicieron en `fase-3-login`) |
+| 4 | #24 a #33 | Importación desde la pantalla | no; la reemplaza `generar_expedientes_sql.py` (normaliza como el plan y da los 3.385 expedientes) |
+| 5 | #34, #35, #36 | `cruce.js`: `armarIndice()`, cuatro estados y `resumen()` | hechas |
+| 5 | #37 | Cargar los datos en `App.jsx` | hecha |
+| 5 | #38 | Pruebas de `cruce.js` (A-06 a A-08) | hecha |
+| 6 | #39, #40 | Estructura de la página y estado de los filtros en `App.jsx` | hechas |
+| 6 | #41, #42 | `opcionesDisponibles()` y `aplicarFiltros()` | hechas |
+| 6 | #43 | Panel de filtros | hecha, como `BarraConsulta.jsx` y `SelectorMultiple.jsx` |
+| 6 | #44 | Buscador | hecha |
+| 6 | #45 | Pruebas de `filtros.js` (A-09, A-10) y rendimiento | hecha |
+| 7 | #46 | Resumen | hecha de otra forma: total y pestañas en `App.jsx`, sin tarjetas |
+| 7 | #47, #48, #49, #50 | Tabla, aviso de lo que no está en la TRD, ficha y "Datos al [fecha]" | hechas |
+| 7 | #51, #52 | Vista para celular y accesibilidad | parcial: estilos para pantallas angostas y roles ARIA, sin revisión formal |
+| 8 | #53, #54 | `exportar.js` y Excel con tres hojas | hechas |
+| 8 | #55, #56 | PDF e impresión | no |
+| 8 | #57 | Probar las exportaciones | parcial: pruebas del Excel |
+| 9 | #58 | Frontend con rutas relativas | hecha |
+| 9 | #60 | `robots.txt` y `.htaccess` de `api/lib` | hecha |
+| 9 | #63 | Script de empaquetado | parcial: `armar_prototipo.ps1` en lugar de `empaquetar.ps1` |
+| 9 | #64 | `docs/INSTALACION.md` | no; el prototipo trae `LEEME.txt` |
+
+De la Fase 11, `docs/GUIA_USO.md` (#72) ya existe como manual del prototipo.
 
 ---
 
@@ -101,29 +168,59 @@ Actualizado el 1 de noviembre de 2026.
 - [x] Del reporte de agosto, solo la subserie 85.18 queda fuera de la TRD.
 - [x] La revisión manual de al menos diez registros por PDF no tiene errores (`docs/revision_trd.md`: 55 registros; los 2 errores, títulos en cursiva pegados a un tipo, se corrigieron en el extractor).
 
-## Fase 3 – API en PHP · sin empezar
+## Fase 3 – API en PHP · en curso
 
 **Objetivo:** construir los servicios de consulta, sesión y contraseña, y probarlos desde ya en Apache.
 **Requisitos:** RF-12, RF-13, RF-15, RNF-04, RNF-06 y RNF-09.
+**Rama:** `fase-3-login`, que sale de `mvp-prototipo` (las tareas #15, #16 y #20 llegaron con el MVP).
 
 | Issue | Tarea | Estado |
 |---|---|---|
-| #15 | Crear `api/lib/db.php` | sin empezar |
-| #16 | Crear `api/lib/respuesta.php` | sin empezar |
-| #17 | Crear `api/lib/auth.php` con sesión, CSRF y límite de intentos | sin empezar |
-| #18 | Crear `api/login.php` | sin empezar |
-| #19 | Crear `api/logout.php`, `api/sesion.php` y `api/cambiar_clave.php` | sin empezar |
-| #20 | Crear `api/datos.php` | sin empezar |
-| #21 | Instalar una copia en el Apache de XAMPP desde esta fase | sin empezar |
-| #22 | Probar los servicios de la API con sus casos de error | sin empezar |
-| #23 | Crear `frontend/src/api/cliente.js` | sin empezar |
+| #15 | Crear `api/lib/db.php` | completa (MVP) |
+| #16 | Crear `api/lib/respuesta.php` | completa (MVP; en `fase-3-login` suma `exigirMetodo()` y datos extra en los errores) |
+| #17 | Crear `api/lib/auth.php` con sesión, CSRF y límite de intentos | completa |
+| #18 | Crear `api/login.php` | completa |
+| #19 | Crear `api/logout.php`, `api/sesion.php` y `api/cambiar_clave.php` | completa |
+| #20 | Crear `api/datos.php` | completa (MVP) |
+| #21 | Instalar una copia en el Apache de XAMPP desde esta fase | completa (ver abajo) |
+| #22 | Probar los servicios de la API con sus casos de error | completa (`scripts/probar_auth.php`) |
+| #23 | Crear `frontend/src/api/cliente.js` | completa |
+
+**Cómo quedó el inicio de sesión**
+- Cookie `TRDCODE_SESION`, `HttpOnly` y `SameSite=Strict`, con `Secure` solo por HTTPS y limitada a la carpeta de la aplicación. La sesión solo se abre si llega la cookie: la consulta pública no crea sesiones.
+- Al entrar se regenera el id de sesión y se crea un token CSRF nuevo. La sesión se cierra tras 30 minutos sin actividad, o en la siguiente petición si la usuaria se desactiva.
+- `login.php` solo acepta POST con JSON y solo deja entrar usuarios activos. Ante cualquier fallo responde 401 "Correo o contraseña incorrectos." (si el correo no existe, igual verifica contra un hash ficticio, para no delatarlo por el tiempo de respuesta).
+- **Regla de bloqueo** (en los últimos 15 minutos, contando la tabla `intentos_login`):
+  - 5 fallos de la **misma pareja correo + IP** bloquean esa pareja 15 minutos.
+  - 20 fallos desde **una misma IP, con cualquier correo**, bloquean esa IP 15 minutos.
+  - **No hay bloqueo solo por correo**: así nadie puede bloquear a la encargada sabiendo su correo, ni la bloquean los errores de otros funcionarios que salen por la misma IP.
+  - El bloqueo dura hasta 15 minutos después del fallo que completó la cuenta. Responde 429 con el tiempo que falta (`espera_segundos` y la cabecera `Retry-After`). Los fallos de la contraseña actual en `cambiar_clave.php` también cuentan.
+- Códigos: 401 sin sesión, 403 sin token CSRF válido en `X-CSRF-Token`, 405 con otro método, 415 si no llega JSON y 429 con bloqueo. Los errores internos van a `error_log`, sin contraseñas ni hashes.
+- `cambiar_clave.php` pide la actual y una nueva de 10 a 72 caracteres (bcrypt ignora lo que pase de 72 bytes), distinta de la actual.
+- Frontend: enlace discreto "Ingresar" en el encabezado (`Acceso.jsx`); con sesión, el nombre de la usuaria abre un menú con "Cambiar contraseña" y "Salir". Los formularios (`DialogoIngreso.jsx`, `DialogoClave.jsx` sobre `Dialogo.jsx`) tienen etiquetas, foco visible, Enter envía, Esc cierra y el foco no sale de la ventana. La consulta no cambia.
+- Pruebas: `C:\xampp\php\php.exe scripts/probar_auth.php [url]` hace 51 comprobaciones con cuentas temporales que crea y borra; no usa la cuenta real. Sin `url` prueba el servidor de desarrollo (`http://127.0.0.1:8000`); con `http://localhost/TRDCode`, Apache. La prueba de inactividad modifica el archivo de la sesión, así que debe correrse con el mismo PHP del servidor: con Apache, `C:\php\php.exe` (ver "Equipo nuevo").
+
+**Copia en Apache (#21)**, el 15 de noviembre de 2026, siguiendo `scripts/prototipo/LEEME.txt`:
+- `scripts/armar_prototipo.ps1` armó el paquete y se copió a `C:\xampp\htdocs\TRDCode` (el paquete anterior quedó en `prototipo/TRDCode-mvp-v2`).
+- La base es la de MySQL80, ya cargada; no se usaron phpMyAdmin ni la MySQL de XAMPP, que choca con MySQL80 en el puerto 3306. El `.env` del proyecto se copió como `C:\xampp\TRDCode.env`, fuera de `htdocs`.
+- Resultado: `datos.php` responde lo mismo en Apache que con `php -S` (mismo SHA-256); `probar_auth.php` pasa las 51 comprobaciones en los dos; la interfaz entra, cambia la contraseña y sale en Apache (prueba en Edge sin ventana).
+- Descargas bloqueadas en Apache: `.env` (con un archivo ficticio puesto a propósito y borrado después), `.env.example`, `.htaccess`, `api/lib/` y sus archivos, `api/` y `database/` responden 403; `datos-prueba/` no está en el paquete (404); `C:\xampp\TRDCode.env` queda fuera de la carpeta pública (404). Con `php -S`, `.env`, `api/lib/` y `datos-prueba/` responden 404.
 
 **Criterios de aceptación**
-- [ ] `datos.php` devuelve la TRD completa y sin nombres reservados (IPC e IPR).
-- [ ] El inicio de sesión funciona y se bloquea durante 15 minutos tras cinco intentos fallidos.
-- [ ] Un servicio protegido responde 401 sin sesión.
-- [ ] Todo responde igual en Apache que con `php -S`.
-- [ ] El `.env` no se puede descargar desde el navegador, ni con `php -S` ni con Apache.
+- [x] `datos.php` devuelve la TRD completa y sin nombres reservados (IPC e IPR). Sigue siendo público y no crea sesión.
+- [x] El inicio de sesión funciona y se bloquea durante 15 minutos tras cinco intentos fallidos (de la misma pareja correo + IP; o 20 desde una IP).
+- [x] Un servicio protegido responde 401 sin sesión.
+- [x] Todo responde igual en Apache que con `php -S`.
+- [x] El `.env` no se puede descargar desde el navegador, ni con `php -S` ni con Apache.
+
+## Pantalla de inicio (antes de la Fase 4) · completa en `fase-3-login`
+
+La aplicación ya no abre con todos los resultados a la vista.
+
+- **Inicio** (dirección sin filtros, búsqueda ni ficha): el mismo encabezado con "Ingresar" o el menú de la usuaria; "¿Qué serie o subserie busca?" con el buscador grande, el botón Buscar y el selector TRD 11 · vigente / TRD 10 · 2020; una tarjeta por centro (Industria y Construcción, Comercio y Servicios, Agropecuario La Granja) con "Ver series"; el enlace "Ver todas las series" y, abajo, "Datos al [fecha de la carga activa]". Sin tabla, totales ni panel de filtros (`components/Inicio.jsx`).
+- **Paso a la consulta:** buscar (Enter o Buscar), elegir un centro o "Ver todas" abre la consulta con ese filtro y con la TRD elegida. Las tarjetas y "Ver todas" son enlaces reales (`#centros=73.9226`, `#consulta`): se pueden abrir en otra pestaña. El paso crea una entrada en el historial: "atrás" vuelve al inicio y "adelante" a la consulta. El título del encabezado (TRDCode) también es un enlace al inicio. Al cambiar de vista, el foco pasa al título de la vista nueva.
+- **Direcciones:** `estadoUrl.js` decide la vista (`leerUrl()` devuelve `vista`: inicio o consulta). Una dirección con filtros, búsqueda o ficha abre directo la consulta, así que los enlaces compartidos siguen funcionando. La consulta completa sin filtros se guarda como `#consulta`, para no volver al inicio al recargar.
+- **Pruebas:** `estadoUrl.test.js` (10 pruebas de la decisión inicio/consulta y del hash; `npm test` pasa con 31). En el navegador (Edge sin ventana), 35 comprobaciones en desarrollo y en la copia de Apache: tarjetas en orden, enlaces reales, atrás/adelante, título del encabezado, búsqueda con Enter y con el botón, TRD 10, enlace compartido con la ficha de 85.15 (643), teclado y celular sin desplazamiento horizontal.
 
 ## Fase 4 – Importación del Excel · sin empezar
 
@@ -286,6 +383,11 @@ Actualizado el 1 de noviembre de 2026.
 - [ ] El SENA recibió el correo de requisitos, el paquete, la guía de instalación y la guía de uso.
 
 ---
+
+## Pendientes para la entrega
+
+- Crear la cuenta real de la encargada con su correo institucional (`scripts/crear_usuario.php`) y desactivar la cuenta de prueba (`UPDATE usuarios SET activo = 0 WHERE correo = ...`).
+- Actualizar el manual de usuario (`docs/GUIA_USO.md`, las capturas de `docs/img/` y el PDF): todavía dice que la aplicación abre con los 2.530 expedientes a la vista y no describe la pantalla de inicio ni el ingreso de la encargada.
 
 ## Decisiones pendientes
 

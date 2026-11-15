@@ -24,6 +24,10 @@ datos-prueba/
 TRDCode-v*.zip
 /prototipo/
 
+# Caché que deja Edge sin ventana al generar el manual en PDF
+docs/DawnCache/
+docs/GPUCache/
+
 # Sistema operativo
 Thumbs.db
 .DS_Store

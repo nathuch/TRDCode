@@ -9,7 +9,7 @@ Aplicación de consulta de series y subseries documentales (TRD 2020 y 2025) de 
 - `gh` no está en el PATH: `C:\Program Files\GitHub CLI\gh.exe`.
 
 ## PHP
-- En local se usa PHP 8.3 (`C:\xampp\php\php.exe`; el `php` del PATH es 8.4 y no se usa).
+- En local se usa el PHP de XAMPP (`C:\xampp\php\php.exe`: 8.2.12 en el equipo actual; el `php` del PATH es 8.4 y no se usa). Excepción: el Apache de XAMPP de este equipo carga el PHP 8.4.11 de `C:\php` (con `C:\php\php.ini`); no se cambia porque puede servir a otros proyectos.
 - Todo el código PHP debe ser compatible con PHP 8.1. No usar nada de 8.2 en adelante: clases `readonly`, tipos DNF, `true`/`false`/`null` como tipos sueltos, constantes en traits, constantes de clase tipadas, `json_validate()`, `#[\Override]`, etc.
 - Intelephense está en `8.1.0` en `.vscode/settings.json`, para que avise si se usa algo más nuevo. Ese archivo no se versiona: cada equipo lo configura.
 
@@ -26,7 +26,7 @@ Aplicación de consulta de series y subseries documentales (TRD 2020 y 2025) de 
 ## Configuración y base de datos
 - La configuración se edita solo en `.env` (plantilla: `.env.example`). No mostrar sus valores. `api/lib/config.php` lo busca en este orden: la ruta de la variable `TRDCODE_ENV`; junto a la carpeta pública, con el nombre de la carpeta de la aplicación (`C:\xampp\TRDCode.env` para `C:\xampp\htdocs\TRDCode`); y la raíz del proyecto, solo en desarrollo.
 - El `.env` nunca va al repositorio ni a la carpeta pública del servidor. Además, el `.htaccess` de la raíz del paquete bloquea cualquier archivo que empiece con punto.
-- En local, la base es el MySQL 8.0 del equipo (servicio `MySQL80`) y la aplicación se conecta como `root`. En producción se usa un usuario de MySQL propio con permisos solo sobre la base, nunca `root`: así debe quedar en `docs/INSTALACION.md`.
+- En local (equipo nuevo desde noviembre de 2026; el anterior fue robado), la base es el MySQL 8.0 del equipo (servicio `MySQL80`, en el puerto 3306) y la aplicación se conecta como `root`. PHP y Apache son los de XAMPP; la MariaDB 10.4 de XAMPP no se usa aquí, pero el paquete del prototipo se instala con ella, así que el SQL debe funcionar en MySQL 8.0 y en MariaDB 10.4. `config.php` no lee `DB_PORT`. En producción se usa un usuario de MySQL propio con permisos solo sobre la base, nunca `root`: así debe quedar en `docs/INSTALACION.md`.
 - `codigo_subserie` vale `''` (cadena vacía) cuando la serie no tiene subseries, nunca `NULL`: la llave única admite varios `NULL` y dejaría pasar duplicados. Vale igual en la base, en la API y en el frontend.
 
 ## Cifras esperadas con el reporte de prueba (10 de agosto)
@@ -46,6 +46,8 @@ Sirven para las pruebas; no se cambian.
 - TRD: `.venv/Scripts/python scripts/extraer_trd.py` genera `database/trd.sql`; las correcciones van en `scripts/correcciones.json`.
 - Usuaria encargada: `C:\xampp\php\php.exe scripts/crear_usuario.php`.
 - Desarrollo: en la raíz, `C:\xampp\php\php.exe -S 127.0.0.1:8000 scripts/servidor_dev.php` (solo sirve `api/*.php`), y en `frontend/`, `npm run dev`. Vite reenvía `api/` a ese PHP.
+- Pruebas de la sesión: con el servidor de desarrollo encendido, `C:\xampp\php\php.exe scripts/probar_auth.php`; contra Apache, `C:\php\php.exe scripts/probar_auth.php http://localhost/TRDCode` (el mismo PHP de Apache, para la prueba de inactividad). Crea y borra sus propias cuentas temporales; nunca usa la cuenta real.
+- Copia en Apache: `C:\xampp\htdocs\TRDCode` (paquete del prototipo) con `C:\xampp\TRDCode.env`. Se enciende solo Apache, nunca la MySQL de XAMPP (choca con MySQL80 en el puerto 3306).
 - Frontend: `npm run dev` y `npm test` en `frontend/`. Las pruebas con cifras reales leen `datos-prueba/datos.json` (`C:\xampp\php\php.exe api/datos.php > datos-prueba/datos.json`) y se saltan si no existe.
 - Expedientes del reporte: `.venv/Scripts/python scripts/generar_expedientes_sql.py` escribe `datos-prueba/expedientes.sql` (no va al repositorio).
 - Manual de usuario: se edita `docs/GUIA_USO.md` y se genera el PDF con `node scripts/generar_manual_pdf.mjs` (usa Edge sin ventana). Las capturas de `docs/img/` no deben mostrar nombres de personas.
