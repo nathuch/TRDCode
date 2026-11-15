@@ -60,6 +60,21 @@ export function fechaLarga(iso) {
 }
 
 /** '2026-08-10' -> '10/08/2026'. */
+/** '2026-11-15 15:42:10' (DATETIME de MySQL) -> '15 nov 2026, 3:42 p. m.' */
+export function fechaHora(texto) {
+  if (!texto) return ''
+  const [fecha, hora = '00:00'] = texto.split(' ')
+  const [a, m, d] = fecha.split('-').map(Number)
+  const [hh, mm] = hora.split(':').map(Number)
+  return new Date(a, m - 1, d, hh, mm).toLocaleString('es-CO', {
+    day: 'numeric',
+    month: 'short',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+  })
+}
+
 export function fechaCorta(iso) {
   if (!iso) return ''
   const [a, m, d] = iso.slice(0, 10).split('-')

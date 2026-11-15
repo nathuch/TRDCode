@@ -1,15 +1,15 @@
 import { useEffect, useRef, useState } from 'react'
-import { cambiarClave, cerrarSesion, iniciarSesion, obtenerSesion } from '../api/cliente.js'
+import { cambiarClave, cerrarSesion, iniciarSesion } from '../api/cliente.js'
 import DialogoClave from './DialogoClave.jsx'
 import DialogoIngreso from './DialogoIngreso.jsx'
 import { IconoFlecha } from './Iconos.jsx'
 
 /**
  * Acceso de la persona encargada, en el encabezado. Sin sesión es un enlace discreto "Ingresar";
- * con sesión, su nombre abre un menú con "Cambiar contraseña" y "Salir". La consulta no cambia.
+ * con sesión, su nombre abre un menú con "Actualizar datos", "Cambiar contraseña" y "Salir".
+ * La sesión (nombre o null) la guarda App, que la necesita para la pantalla de importación.
  */
-export default function Acceso() {
-  const [nombre, setNombre] = useState(null)
+export default function Acceso({ nombre, onCambiarNombre: setNombre, onActualizar }) {
   const [dialogo, setDialogo] = useState(null)
   const [menuAbierto, setMenuAbierto] = useState(false)
   const [saliendo, setSaliendo] = useState(false)
@@ -19,12 +19,6 @@ export default function Acceso() {
   // Al cerrar un diálogo, entrar o salir, el foco vuelve al botón del encabezado que corresponda
   // (al entrar o salir, el que se usó desaparece).
   const moverFoco = useRef(false)
-
-  useEffect(() => {
-    obtenerSesion()
-      .then((s) => setNombre(s.sesion ? s.nombre : null))
-      .catch(() => setNombre(null))
-  }, [])
 
   useEffect(() => {
     if (!moverFoco.current || dialogo !== null) return
@@ -117,6 +111,16 @@ export default function Acceso() {
           </button>
           {menuAbierto && (
             <div className="acceso__menu" id="acceso-menu">
+              <button
+                type="button"
+                className="acceso__opcion"
+                onClick={() => {
+                  setMenuAbierto(false)
+                  onActualizar()
+                }}
+              >
+                Actualizar datos
+              </button>
               <button type="button" className="acceso__opcion" onClick={() => abrirDialogo('clave')}>
                 Cambiar contraseña
               </button>

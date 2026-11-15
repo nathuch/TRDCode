@@ -4,14 +4,16 @@
  *
  * Una dirección sin filtros, búsqueda ni ficha abre la pantalla de inicio. La consulta completa
  * sin filtros ("Ver todas las series") se guarda como #consulta, para no volver al inicio al recargar.
+ * La pantalla para actualizar los datos (solo con sesión) es #actualizar.
  */
 import { ESTADO_INICIAL } from './datos/filtros.js'
 
 const LISTAS = ['centros', 'dependencias', 'series', 'subseries', 'anios']
 const MARCA_CONSULTA = 'consulta'
+const MARCA_ACTUALIZAR = 'actualizar'
 const CLAVES = ['trd', ...LISTAS, 'buscar', 'ficha', MARCA_CONSULTA]
 
-/** Lee la dirección: { estado, ficha, vista }, con vista 'inicio' o 'consulta'. */
+/** Lee la dirección: { estado, ficha, vista }, con vista 'inicio', 'consulta' o 'actualizar'. */
 export function leerUrl(hash = window.location.hash) {
   const parametros = new URLSearchParams(hash.replace(/^#/, ''))
   const estado = { ...ESTADO_INICIAL }
@@ -21,7 +23,8 @@ export function leerUrl(hash = window.location.hash) {
     if (valor) estado[campo] = valor.split(',').filter(Boolean).map((v) => (campo === 'anios' ? Number(v) : v))
   }
   estado.texto = parametros.get('buscar') ?? ''
-  const vista = CLAVES.some((clave) => parametros.has(clave)) ? 'consulta' : 'inicio'
+  let vista = CLAVES.some((clave) => parametros.has(clave)) ? 'consulta' : 'inicio'
+  if (parametros.has(MARCA_ACTUALIZAR)) vista = 'actualizar'
   return { estado, ficha: parametros.get('ficha'), vista }
 }
 
@@ -43,6 +46,11 @@ export function escribirUrl(estado, ficha) {
 /** Pasa a una consulta creando una entrada en el historial: "atrás" vuelve a donde se estaba. */
 export function irAConsulta(estado) {
   window.history.pushState(null, '', `#${armarHash(estado)}`)
+}
+
+/** Abre la pantalla para actualizar los datos, con su propia entrada en el historial. */
+export function irAActualizar() {
+  window.history.pushState(null, '', `#${MARCA_ACTUALIZAR}`)
 }
 
 /** Vuelve a la pantalla de inicio (dirección sin hash), con su propia entrada en el historial. */

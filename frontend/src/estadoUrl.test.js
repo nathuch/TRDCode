@@ -37,6 +37,10 @@ describe('leerUrl: inicio o consulta', () => {
     expect(estado).toEqual(ESTADO_INICIAL)
   })
 
+  it('#actualizar abre la pantalla para actualizar los datos', () => {
+    expect(leerUrl('#actualizar').vista).toBe('actualizar')
+  })
+
   it('#trd=10 abre la consulta en la TRD 10', () => {
     const { vista, estado } = leerUrl('#trd=10')
     expect(vista).toBe('consulta')
