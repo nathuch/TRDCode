@@ -13,7 +13,7 @@ Actualizado el 15 de noviembre de 2026.
 | 0 | Entorno de desarrollo | [Fase 0](https://github.com/nathuch/TRDCode/milestone/1) | `main` | completa |
 | 1 | Base de datos | [Fase 1](https://github.com/nathuch/TRDCode/milestone/2) | `fase-1-base-datos` (PR #83, fusionada) | completa |
 | 2 | Extracción de las TRD | [Fase 2](https://github.com/nathuch/TRDCode/milestone/3) | `fase-2-trd` | en curso |
-| 3 | API en PHP | [Fase 3](https://github.com/nathuch/TRDCode/milestone/4) | `fase-3-api` | sin empezar (parte hecha en el MVP) |
+| 3 | API en PHP | [Fase 3](https://github.com/nathuch/TRDCode/milestone/4) | `fase-3-login` (sale de `mvp-prototipo`) | en curso: falta probar en Apache (#21) |
 | 4 | Importación del Excel | [Fase 4](https://github.com/nathuch/TRDCode/milestone/5) | `fase-4-importacion` | sin empezar (el MVP carga por script) |
 | 5 | Cruce de expedientes con la TRD | [Fase 5](https://github.com/nathuch/TRDCode/milestone/6) | `fase-5-cruce` | sin empezar (hecha en el MVP) |
 | 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `fase-6-filtros` | sin empezar (hecha en el MVP) |
@@ -80,8 +80,8 @@ Versión de **solo consulta** para mostrar a la usuaria e instalar en un equipo 
 | 3 | #16 | `api/lib/respuesta.php` | hecha |
 | 3 | #20 | `api/datos.php` | hecha (sin nombres IPC e IPR) |
 | 3 | #21 | Copia en el Apache de XAMPP | parcial: paquete del prototipo para `htdocs/TRDCode` |
-| 3 | #23 | `frontend/src/api/cliente.js` | parcial: solo `obtenerDatos()` |
-| 3 | #17, #18, #19, #22 | Sesión, CSRF, login, logout, cambio de clave y pruebas de la API | no |
+| 3 | #23 | `frontend/src/api/cliente.js` | parcial: solo `obtenerDatos()` (se completó en `fase-3-login`) |
+| 3 | #17, #18, #19, #22 | Sesión, CSRF, login, logout, cambio de clave y pruebas de la API | no (se hicieron en `fase-3-login`) |
 | 4 | #24 a #33 | Importación desde la pantalla | no; la reemplaza `generar_expedientes_sql.py` (normaliza como el plan y da los 3.385 expedientes) |
 | 5 | #34, #35, #36 | `cruce.js`: `armarIndice()`, cuatro estados y `resumen()` | hechas |
 | 5 | #37 | Cargar los datos en `App.jsx` | hecha |
@@ -167,29 +167,40 @@ De la Fase 11, `docs/GUIA_USO.md` (#72) ya existe como manual del prototipo.
 - [x] Del reporte de agosto, solo la subserie 85.18 queda fuera de la TRD.
 - [x] La revisión manual de al menos diez registros por PDF no tiene errores (`docs/revision_trd.md`: 55 registros; los 2 errores, títulos en cursiva pegados a un tipo, se corrigieron en el extractor).
 
-## Fase 3 – API en PHP · sin empezar
+## Fase 3 – API en PHP · en curso
 
 **Objetivo:** construir los servicios de consulta, sesión y contraseña, y probarlos desde ya en Apache.
 **Requisitos:** RF-12, RF-13, RF-15, RNF-04, RNF-06 y RNF-09.
+**Rama:** `fase-3-login`, que sale de `mvp-prototipo` (las tareas #15, #16 y #20 llegaron con el MVP).
 
 | Issue | Tarea | Estado |
 |---|---|---|
-| #15 | Crear `api/lib/db.php` | sin empezar |
-| #16 | Crear `api/lib/respuesta.php` | sin empezar |
-| #17 | Crear `api/lib/auth.php` con sesión, CSRF y límite de intentos | sin empezar |
-| #18 | Crear `api/login.php` | sin empezar |
-| #19 | Crear `api/logout.php`, `api/sesion.php` y `api/cambiar_clave.php` | sin empezar |
-| #20 | Crear `api/datos.php` | sin empezar |
-| #21 | Instalar una copia en el Apache de XAMPP desde esta fase | sin empezar |
-| #22 | Probar los servicios de la API con sus casos de error | sin empezar |
-| #23 | Crear `frontend/src/api/cliente.js` | sin empezar |
+| #15 | Crear `api/lib/db.php` | completa (MVP) |
+| #16 | Crear `api/lib/respuesta.php` | completa (MVP; en `fase-3-login` suma `exigirMetodo()` y datos extra en los errores) |
+| #17 | Crear `api/lib/auth.php` con sesión, CSRF y límite de intentos | completa |
+| #18 | Crear `api/login.php` | completa |
+| #19 | Crear `api/logout.php`, `api/sesion.php` y `api/cambiar_clave.php` | completa |
+| #20 | Crear `api/datos.php` | completa (MVP) |
+| #21 | Instalar una copia en el Apache de XAMPP desde esta fase | sin empezar (solo existe el paquete del prototipo) |
+| #22 | Probar los servicios de la API con sus casos de error | completa (`scripts/probar_auth.php`) |
+| #23 | Crear `frontend/src/api/cliente.js` | completa |
+
+**Cómo quedó el inicio de sesión**
+- Cookie `TRDCODE_SESION`, `HttpOnly` y `SameSite=Strict`, con `Secure` solo por HTTPS y limitada a la carpeta de la aplicación. La sesión solo se abre si llega la cookie: la consulta pública no crea sesiones.
+- Al entrar se regenera el id de sesión y se crea un token CSRF nuevo. La sesión se cierra tras 30 minutos sin actividad, o en la siguiente petición si la usuaria se desactiva.
+- `login.php` solo acepta POST con JSON y solo deja entrar usuarios activos. Ante cualquier fallo responde 401 "Correo o contraseña incorrectos." (si el correo no existe, igual verifica contra un hash ficticio, para no delatarlo por el tiempo de respuesta).
+- Bloqueo: 5 fallos en 15 minutos bloquean el correo y, por separado, la IP, hasta 15 minutos después del quinto fallo. Responde 429 con el tiempo que falta (`espera_segundos` y la cabecera `Retry-After`). Los fallos de la contraseña actual en `cambiar_clave.php` también cuentan.
+- Códigos: 401 sin sesión, 403 sin token CSRF válido en `X-CSRF-Token`, 405 con otro método, 415 si no llega JSON y 429 con bloqueo. Los errores internos van a `error_log`, sin contraseñas ni hashes.
+- `cambiar_clave.php` pide la actual y una nueva de 10 a 72 caracteres (bcrypt ignora lo que pase de 72 bytes), distinta de la actual.
+- Frontend: enlace discreto "Ingresar" en el encabezado (`Acceso.jsx`); con sesión, el nombre de la usuaria abre un menú con "Cambiar contraseña" y "Salir". Los formularios (`DialogoIngreso.jsx`, `DialogoClave.jsx` sobre `Dialogo.jsx`) tienen etiquetas, foco visible, Enter envía, Esc cierra y el foco no sale de la ventana. La consulta no cambia.
+- Pruebas: `C:\xampp\php\php.exe scripts/probar_auth.php` (con el servidor de desarrollo encendido) hace 48 comprobaciones con cuentas temporales que crea y borra; no usa la cuenta real.
 
 **Criterios de aceptación**
-- [ ] `datos.php` devuelve la TRD completa y sin nombres reservados (IPC e IPR).
-- [ ] El inicio de sesión funciona y se bloquea durante 15 minutos tras cinco intentos fallidos.
-- [ ] Un servicio protegido responde 401 sin sesión.
-- [ ] Todo responde igual en Apache que con `php -S`.
-- [ ] El `.env` no se puede descargar desde el navegador, ni con `php -S` ni con Apache.
+- [x] `datos.php` devuelve la TRD completa y sin nombres reservados (IPC e IPR). Sigue siendo público y no crea sesión.
+- [x] El inicio de sesión funciona y se bloquea durante 15 minutos tras cinco intentos fallidos.
+- [x] Un servicio protegido responde 401 sin sesión.
+- [ ] Todo responde igual en Apache que con `php -S`. Falta instalar la copia en Apache (#21).
+- [ ] El `.env` no se puede descargar desde el navegador, ni con `php -S` ni con Apache. Con `php -S` responde 404 (`scripts/servidor_dev.php`); falta comprobarlo en Apache.
 
 ## Fase 4 – Importación del Excel · sin empezar
 
@@ -352,6 +363,10 @@ De la Fase 11, `docs/GUIA_USO.md` (#72) ya existe como manual del prototipo.
 - [ ] El SENA recibió el correo de requisitos, el paquete, la guía de instalación y la guía de uso.
 
 ---
+
+## Pendientes para la entrega
+
+- Crear la cuenta real de la encargada con su correo institucional (`scripts/crear_usuario.php`) y desactivar la cuenta de prueba (`UPDATE usuarios SET activo = 0 WHERE correo = ...`).
 
 ## Decisiones pendientes
 
