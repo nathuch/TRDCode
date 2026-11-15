@@ -2,11 +2,8 @@ import { useEffect, useState } from 'react'
 import { nombreLegible } from '../utils/formato.js'
 import { IconoCerrar, IconoFiltros, IconoFlecha, IconoLupa } from './Iconos.jsx'
 import SelectorMultiple from './SelectorMultiple.jsx'
+import SelectorTrd from './SelectorTrd.jsx'
 
-const VERSIONES = [
-  { valor: '11', texto: 'TRD 11', detalle: 'vigente' },
-  { valor: '10', texto: 'TRD 10', detalle: '2020' },
-]
 const LISTAS = ['centros', 'dependencias', 'series', 'subseries', 'anios']
 
 /**
@@ -71,23 +68,7 @@ export default function BarraConsulta({ estado, opciones, onCambiar, onLimpiar, 
           />
         </div>
 
-        <fieldset className="segmentado">
-          <legend className="solo-lector">Versión de la tabla de retención</legend>
-          {VERSIONES.map((v) => (
-            <label key={v.valor} className={estado.trd === v.valor ? 'segmentado__opcion activa' : 'segmentado__opcion'}>
-              <input
-                type="radio"
-                name="trd"
-                value={v.valor}
-                checked={estado.trd === v.valor}
-                onChange={() => onCambiar('trd', v.valor)}
-              />
-              <span>
-                <strong>{v.texto}</strong> · <span className="segmentado__detalle">{v.detalle}</span>
-              </span>
-            </label>
-          ))}
-        </fieldset>
+        <SelectorTrd valor={estado.trd} onCambiar={(v) => onCambiar('trd', v)} />
 
         <button
           type="button"
