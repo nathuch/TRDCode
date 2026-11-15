@@ -1,12 +1,13 @@
 import { useEffect, useRef, useState } from 'react'
 import { ESTADOS } from '../datos/cruce.js'
+import { retenerFoco } from '../utils/foco.js'
 import {
   codigoFila,
+  etiquetaAcceso,
   fechaCorta,
   formatoNumero,
   nombreFila,
   nombreLegible,
-  textoAcceso,
   textoClasificacion,
   textoSoporte,
 } from '../utils/formato.js'
@@ -21,18 +22,23 @@ const anios = (n) => (n === 1 ? '1 año' : `${n} años`)
 /** Ficha de una serie o subserie: panel lateral con los datos de la TRD y sus expedientes. */
 export default function Ficha({ fila, nombrePlantilla, nombreCentroDeDependencia, onCerrar, onExportar, exportando }) {
   const cerrar = useRef(null)
+  const panel = useRef(null)
 
+  // Esc cierra; Tab no sale de la ficha. Al cerrar, App devuelve el foco a la fila que la abrió.
   useEffect(() => {
     cerrar.current?.focus()
-    const conEscape = (e) => e.key === 'Escape' && onCerrar()
-    document.addEventListener('keydown', conEscape)
-    return () => document.removeEventListener('keydown', conEscape)
+    const alTeclear = (e) => {
+      if (e.key === 'Escape') onCerrar()
+      else retenerFoco(e, panel.current)
+    }
+    document.addEventListener('keydown', alTeclear)
+    return () => document.removeEventListener('keydown', alTeclear)
   }, [onCerrar])
 
   const { trd } = fila
   return (
     <div className="ficha-fondo" onClick={(e) => e.target === e.currentTarget && onCerrar()}>
-      <section className="ficha" role="dialog" aria-modal="true" aria-labelledby="ficha-titulo">
+      <section className="ficha" role="dialog" aria-modal="true" aria-labelledby="ficha-titulo" ref={panel}>
         <header className="ficha__encabezado">
           <div className="ficha__titulos">
             <p className="ficha__dependencia">
@@ -42,6 +48,9 @@ export default function Ficha({ fila, nombrePlantilla, nombreCentroDeDependencia
             <h2 id="ficha-titulo">
               <span className="ficha__codigo">{codigoFila(fila)}</span> {nombreLegible(nombreFila(fila))}
             </h2>
+            <p className="ficha__cantidad">
+              {formatoNumero(fila.cantidad)} {fila.cantidad === 1 ? 'expediente' : 'expedientes'}
+            </p>
           </div>
           <button type="button" className="boton-icono" ref={cerrar} onClick={onCerrar} aria-label="Cerrar la ficha">
             <IconoCerrar tamano={20} />
@@ -172,10 +181,13 @@ function Expedientes({ expedientes, centroDe }) {
             <li key={e.codigo} className="expediente">
               <span className="expediente__codigo">{e.codigo}</span>
               <span className={reservado ? 'expediente__nombre reservado' : 'expediente__nombre'}>
-                {reservado && <IconoCandado tamano={14} />}
                 {e.nombre}
-                {reservado && <span className="solo-lector"> (acceso {textoAcceso(e.control_acceso).toLowerCase()})</span>}
                 {variosCentros && <span className="expediente__centro">{centroDe(e.codigo_dependencia)}</span>}
+              </span>
+              <span className={reservado ? 'etiqueta-acceso etiqueta-acceso--restringida' : 'etiqueta-acceso'}>
+                <span className="solo-lector">Control de acceso: </span>
+                {reservado && <IconoCandado tamano={12} />}
+                {etiquetaAcceso(e.control_acceso)}
               </span>
               <span className="expediente__fecha">{fechaCorta(e.fecha_creacion)}</span>
             </li>

@@ -5,6 +5,7 @@ import SelectorMultiple from './SelectorMultiple.jsx'
 import SelectorTrd from './SelectorTrd.jsx'
 
 const LISTAS = ['centros', 'dependencias', 'series', 'subseries', 'anios']
+const PANTALLA_ANGOSTA = '(max-width: 640px)'
 
 /**
  * Barra de consulta: buscador, versión de la TRD, panel de filtros en cascada que se pliega
@@ -13,7 +14,9 @@ const LISTAS = ['centros', 'dependencias', 'series', 'subseries', 'anios']
 export default function BarraConsulta({ estado, opciones, onCambiar, onLimpiar, nombreCentro, nombrePlantilla }) {
   const [texto, setTexto] = useState(estado.texto)
   const [textoAplicado, setTextoAplicado] = useState(estado.texto)
-  const [panelAbierto, setPanelAbierto] = useState(true)
+  // Abierto al entrar en computador; en celular arranca cerrado (decisión del issue #39) para que los
+  // resultados no queden debajo de los desplegables. Mismo corte que "Pantallas angostas" en styles.css.
+  const [panelAbierto, setPanelAbierto] = useState(() => !window.matchMedia(PANTALLA_ANGOSTA).matches)
 
   // Si la búsqueda cambia desde afuera (una etiqueta o "Limpiar filtros"), el campo la sigue.
   if (estado.texto !== textoAplicado) {
@@ -52,6 +55,7 @@ export default function BarraConsulta({ estado, opciones, onCambiar, onLimpiar, 
 
   return (
     <div className="consulta">
+      <h2 className="solo-lector">Buscar y filtrar</h2>
       <div className="consulta__barra">
         <div className="buscador">
           <IconoLupa tamano={20} className="buscador__icono" />

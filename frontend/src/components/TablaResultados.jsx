@@ -8,6 +8,8 @@ import { IconoFlecha } from './Iconos.jsx'
  * Series y subseries como en la TRD. Una serie con subseries es una fila de grupo que se
  * pliega, con su total; una serie sin subseries es una fila normal. Si lo filtrado abarca
  * varias dependencias, cada una va en su propia sección. Toda la fila abre la ficha.
+ * En pantallas angostas cada fila se muestra como tarjeta (styles.css), sin desplazamiento lateral;
+ * data-etiqueta da el rótulo de cada dato en la tarjeta.
  */
 export default function TablaResultados({ filas, nombrePlantilla, onAbrir, fichaAbierta }) {
   const [plegados, setPlegados] = useState(() => new Set())
@@ -33,7 +35,7 @@ export default function TablaResultados({ filas, nombrePlantilla, onAbrir, ficha
 
   return (
     <div className="tabla-caja">
-      <table className="tabla">
+      <table className="tabla tabla--resultados">
         <thead>
           <tr>
             <th scope="col" className="col-codigo">
@@ -107,7 +109,7 @@ function Grupo({ grupo, plegado, onAlternar, maximo, onAbrir, fichaAbierta }) {
     <>
       <tr className="tabla__grupo" onClick={onAlternar}>
         <td className="col-codigo">{grupo.codigo}</td>
-        <td colSpan={2}>
+        <td colSpan={2} className="celda-nombre">
           <button
             type="button"
             className="fila__boton"
@@ -120,10 +122,10 @@ function Grupo({ grupo, plegado, onAlternar, maximo, onAbrir, fichaAbierta }) {
             {grupo.nombre}
           </button>
         </td>
-        <td className="texto-suave">
+        <td className="texto-suave celda-subseries">
           {n} {n === 1 ? 'subserie' : 'subseries'}
         </td>
-        <td className="col-expedientes">
+        <td className="col-expedientes" data-etiqueta="Expedientes">
           <strong>{total > 0 ? formatoNumero(total) : '—'}</strong>
         </td>
         <td className="col-accion">
@@ -142,9 +144,9 @@ function Fila({ fila, maximo, onAbrir, abierta, subserie }) {
   const conExpedientes = fila.cantidad > 0
   const clases = ['tabla__fila', subserie ? 'tabla__fila--subserie' : '', conExpedientes ? 'con' : 'sin', abierta ? 'abierta' : '']
   return (
-    <tr className={clases.join(' ')} onClick={() => onAbrir(fila.llave)}>
+    <tr className={clases.join(' ')} onClick={() => onAbrir(fila.llave)} data-llave={fila.llave}>
       <td className="col-codigo">{codigoFila(fila)}</td>
-      <td>
+      <td className="celda-nombre">
         <button
           type="button"
           className="fila__boton"
@@ -156,15 +158,17 @@ function Fila({ fila, maximo, onAbrir, abierta, subserie }) {
           {nombreLegible(nombreFila(fila))}
         </button>
       </td>
-      <td className="col-retencion">{fila.trd ? retencionCorta(fila.trd.retencion_ag, fila.trd.retencion_ac) : '—'}</td>
-      <td className="col-disposicion">
+      <td className="col-retencion" data-etiqueta="Retención">
+        {fila.trd ? retencionCorta(fila.trd.retencion_ag, fila.trd.retencion_ac) : '—'}
+      </td>
+      <td className="col-disposicion" data-etiqueta="Disposición">
         {fila.estado === ESTADOS.FUERA ? (
           <span className="disp disp--fuera">{ETIQUETA_ESTADO.fuera}</span>
         ) : (
           <Disposicion codigos={fila.trd?.disposicion} />
         )}
       </td>
-      <td className="col-expedientes">
+      <td className="col-expedientes" data-etiqueta="Expedientes">
         {conExpedientes ? (
           <span className="cantidad">
             <span className="barra" aria-hidden="true">

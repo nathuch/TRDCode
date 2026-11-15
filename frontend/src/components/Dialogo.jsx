@@ -1,7 +1,6 @@
 import { useEffect, useRef } from 'react'
+import { enfocables, retenerFoco } from '../utils/foco.js'
 import { IconoCerrar } from './Iconos.jsx'
-
-const ENFOCABLES = 'input:not([disabled]), button:not([disabled]), a[href]'
 
 /**
  * Ventana modal: al abrir pone el foco en el primer campo, lo mantiene adentro con Tab,
@@ -17,24 +16,15 @@ export default function Dialogo({ id, titulo, descripcion, onCerrar, children })
 
   useEffect(() => {
     const anterior = document.activeElement
-    const primero = caja.current.querySelector('input') ?? caja.current.querySelector(ENFOCABLES)
+    const primero = caja.current.querySelector('input') ?? enfocables(caja.current)[0]
     primero?.focus()
 
     const alTeclear = (e) => {
       if (e.key === 'Escape') {
         e.stopPropagation()
         cerrar.current()
-      } else if (e.key === 'Tab') {
-        const enfocables = [...caja.current.querySelectorAll(ENFOCABLES)]
-        if (enfocables.length === 0) return
-        const [inicio, fin] = [enfocables[0], enfocables.at(-1)]
-        if (e.shiftKey && document.activeElement === inicio) {
-          e.preventDefault()
-          fin.focus()
-        } else if (!e.shiftKey && document.activeElement === fin) {
-          e.preventDefault()
-          inicio.focus()
-        }
+      } else {
+        retenerFoco(e, caja.current)
       }
     }
     document.addEventListener('keydown', alTeclear)
