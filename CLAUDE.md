@@ -9,7 +9,7 @@ Aplicación de consulta de series y subseries documentales (TRD 2020 y 2025) de 
 - `gh` no está en el PATH: `C:\Program Files\GitHub CLI\gh.exe`.
 
 ## PHP
-- En local se usa PHP 8.3 (`C:\xampp\php\php.exe`; el `php` del PATH es 8.4 y no se usa).
+- En local se usa el PHP de XAMPP (`C:\xampp\php\php.exe`: 8.2.12 en el equipo actual; el `php` del PATH es 8.4 y no se usa).
 - Todo el código PHP debe ser compatible con PHP 8.1. No usar nada de 8.2 en adelante: clases `readonly`, tipos DNF, `true`/`false`/`null` como tipos sueltos, constantes en traits, constantes de clase tipadas, `json_validate()`, `#[\Override]`, etc.
 - Intelephense está en `8.1.0` en `.vscode/settings.json`, para que avise si se usa algo más nuevo. Ese archivo no se versiona: cada equipo lo configura.
 
@@ -26,7 +26,7 @@ Aplicación de consulta de series y subseries documentales (TRD 2020 y 2025) de 
 ## Configuración y base de datos
 - La configuración se edita solo en `.env` (plantilla: `.env.example`). No mostrar sus valores. `api/lib/config.php` lo busca en este orden: la ruta de la variable `TRDCODE_ENV`; junto a la carpeta pública, con el nombre de la carpeta de la aplicación (`C:\xampp\TRDCode.env` para `C:\xampp\htdocs\TRDCode`); y la raíz del proyecto, solo en desarrollo.
 - El `.env` nunca va al repositorio ni a la carpeta pública del servidor. Además, el `.htaccess` de la raíz del paquete bloquea cualquier archivo que empiece con punto.
-- En local, la base es el MySQL 8.0 del equipo (servicio `MySQL80`) y la aplicación se conecta como `root`. En producción se usa un usuario de MySQL propio con permisos solo sobre la base, nunca `root`: así debe quedar en `docs/INSTALACION.md`.
+- En local (equipo nuevo desde noviembre de 2026; el anterior fue robado), la base es el MySQL 8.0 del equipo (servicio `MySQL80`, en el puerto 3306) y la aplicación se conecta como `root`. PHP y Apache son los de XAMPP; la MariaDB 10.4 de XAMPP no se usa aquí, pero el paquete del prototipo se instala con ella, así que el SQL debe funcionar en MySQL 8.0 y en MariaDB 10.4. `config.php` no lee `DB_PORT`. En producción se usa un usuario de MySQL propio con permisos solo sobre la base, nunca `root`: así debe quedar en `docs/INSTALACION.md`.
 - `codigo_subserie` vale `''` (cadena vacía) cuando la serie no tiene subseries, nunca `NULL`: la llave única admite varios `NULL` y dejaría pasar duplicados. Vale igual en la base, en la API y en el frontend.
 
 ## Cifras esperadas con el reporte de prueba (10 de agosto)

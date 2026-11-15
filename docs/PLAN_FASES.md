@@ -2,7 +2,7 @@
 
 Resumen del plan de desarrollo v3 ("Plan_de_desarrollo_TRDCode.pdf") con los hitos e issues de GitHub y las decisiones tomadas después de escribir el plan. El detalle de cada tarea está en su issue.
 
-Actualizado el 1 de noviembre de 2026.
+Actualizado el 15 de noviembre de 2026.
 
 **Estados:** completa · en curso · sin empezar. Las tareas de una fase se cierran en GitHub cuando su rama se fusiona a `main`; una tarea "completa" de una fase en curso ya está hecha en la rama, pero su issue sigue abierto.
 
@@ -13,30 +13,96 @@ Actualizado el 1 de noviembre de 2026.
 | 0 | Entorno de desarrollo | [Fase 0](https://github.com/nathuch/TRDCode/milestone/1) | `main` | completa |
 | 1 | Base de datos | [Fase 1](https://github.com/nathuch/TRDCode/milestone/2) | `fase-1-base-datos` (PR #83, fusionada) | completa |
 | 2 | Extracción de las TRD | [Fase 2](https://github.com/nathuch/TRDCode/milestone/3) | `fase-2-trd` | en curso |
-| 3 | API en PHP | [Fase 3](https://github.com/nathuch/TRDCode/milestone/4) | `fase-3-api` | sin empezar |
-| 4 | Importación del Excel | [Fase 4](https://github.com/nathuch/TRDCode/milestone/5) | `fase-4-importacion` | sin empezar |
-| 5 | Cruce de expedientes con la TRD | [Fase 5](https://github.com/nathuch/TRDCode/milestone/6) | `fase-5-cruce` | sin empezar |
-| 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `fase-6-filtros` | sin empezar |
-| 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | sin empezar |
-| 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | sin empezar |
-| 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | sin empezar |
+| 3 | API en PHP | [Fase 3](https://github.com/nathuch/TRDCode/milestone/4) | `fase-3-api` | sin empezar (parte hecha en el MVP) |
+| 4 | Importación del Excel | [Fase 4](https://github.com/nathuch/TRDCode/milestone/5) | `fase-4-importacion` | sin empezar (el MVP carga por script) |
+| 5 | Cruce de expedientes con la TRD | [Fase 5](https://github.com/nathuch/TRDCode/milestone/6) | `fase-5-cruce` | sin empezar (hecha en el MVP) |
+| 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `fase-6-filtros` | sin empezar (hecha en el MVP) |
+| 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | sin empezar (casi toda hecha en el MVP) |
+| 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | sin empezar (Excel hecho en el MVP) |
+| 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | sin empezar (parte hecha en el MVP) |
 | 10 | Pruebas con la usuaria y ajustes | [Fase 10](https://github.com/nathuch/TRDCode/milestone/11) | `fase-10-ajustes` | sin empezar |
 | 11 | Guía y entrega al SENA | [Fase 11](https://github.com/nathuch/TRDCode/milestone/12) | `main` | sin empezar |
 
+Las fases 3 a 9 siguen "sin empezar" como fases, pero el MVP (rama `mvp-prototipo`) ya adelantó parte de sus tareas: el detalle está en la sección [MVP del prototipo](#mvp-del-prototipo).
+
 ## Cambios respecto al plan v3
 
-- **PHP 8.3 en local, código compatible con PHP 8.1.** Se desarrolla con el PHP 8.3 de XAMPP (`C:\xampp\php\php.exe`), pero el código no usa nada de PHP 8.2 en adelante, para cumplir el mínimo de PHP 8.1 del plan (RNF-04 y prueba P-29). Intelephense está configurado en 8.1 para avisarlo.
+- **Equipo nuevo desde noviembre de 2026.** El equipo de desarrollo anterior fue robado y se va a formatear; el proyecto se retomó en otro computador desde la rama `mvp-prototipo`. En este equipo:
+  - PHP y Apache son los de **XAMPP 8.2.12** (PHP 8.2.12 en `C:\xampp\php\php.exe`). El `php` del PATH es 8.4 y no se usa.
+  - La base de datos corre en el **MySQL 8.0 del equipo (servicio `MySQL80`, 8.0.41)**, que ocupa el puerto 3306; la MariaDB 10.4 de XAMPP no se usa aquí. El paquete del prototipo, en cambio, se instala con la MariaDB de XAMPP, así que el SQL debe funcionar en MySQL 8.0 y en MariaDB 10.4.
+  - `api/lib/config.php` no lee un puerto (`DB_PORT`): la conexión usa siempre el puerto por defecto.
+  - Node.js es 20.20.0; vitest 5 pide 22.12 o más nuevo y `npm install` lo avisa, pero las pruebas pasan. Actualizar Node queda pendiente.
+- **PHP 8.3 en local, código compatible con PHP 8.1.** Se desarrolló con el PHP 8.3 de XAMPP (en el equipo nuevo es 8.2.12), pero el código no usa nada de PHP 8.2 en adelante, para cumplir el mínimo de PHP 8.1 del plan (RNF-04 y prueba P-29). Intelephense está configurado en 8.1 para avisarlo.
 - **El `.env` nunca va al repositorio ni a la carpeta pública.** En producción queda fuera de la carpeta pública y su ruta se indica con la variable `TRDCODE_ENV`.
 - **En producción se usa un usuario de MySQL propio, nunca `root`**, con permisos solo sobre la base. Así debe quedar en `docs/INSTALACION.md` (#64).
 - **Pull Requests y fusiones a `main` solo cuando el usuario lo indique.** Las ramas de fase sí se suben a GitHub.
-- **MySQL 8.0** del equipo local en lugar de la MariaDB de XAMPP. phpMyAdmin no se usa; la base se revisa con MySQL Workbench.
-- **Configuración en `.env`** (ignorado por git) con la plantilla `.env.example`. `api/lib/config.php` ya no guarda datos: lee el `.env` desde la variable `TRDCODE_ENV` o desde la raíz del proyecto.
+- **MySQL 8.0** del equipo local en lugar de la MariaDB de XAMPP para desarrollar. phpMyAdmin no se usa en desarrollo; la base se revisa con MySQL Workbench. El LEEME del prototipo sí usa phpMyAdmin, porque el equipo de demostración solo tiene XAMPP.
+- **Configuración en `.env`** (ignorado por git) con la plantilla `.env.example`. `api/lib/config.php` ya no guarda datos y busca el `.env` en este orden:
+  1. La ruta de la variable de entorno `TRDCODE_ENV`.
+  2. Junto a la carpeta pública, con el nombre de la carpeta de la aplicación: con la aplicación en `C:\xampp\htdocs\TRDCode`, el archivo es `C:\xampp\TRDCode.env`. Así se instala el prototipo.
+  3. La raíz del proyecto, solo en desarrollo.
 - **En local la aplicación se conecta como `root`**: el usuario `trdcode_app` (#4) se cerró sin hacer en el equipo local.
 - **`scripts/crear_usuario.php`** crea la usuaria encargada o cambia su contraseña sin mostrarla y guarda solo el hash. Reemplaza el `php -r` del plan.
 - **El correo con los requisitos al SENA (#7)** pasó de la Fase 1 a la Fase 11, para hacerlo al final.
 - **Columna `grupo` en `trd_tipos_documentales`**: guarda el subtítulo de la TRD 11 bajo el que aparece cada tipo documental (por ejemplo "Modalidad Licitación Pública" en los contratos).
 - **El "Reporte Tolima" de OnBase es la fuente de expedientes.** No se sube al repositorio.
 - **La propuesta de pantallas** no está en el repositorio; las decisiones de diseño quedaron en los issues #27, #39, #43 y #49.
+- **Prototipo (MVP) antes de terminar las fases.** Se armó una versión de solo consulta para mostrarla a la usuaria; ver la sección siguiente.
+
+---
+
+## MVP del prototipo
+
+Versión de **solo consulta** para mostrar a la usuaria e instalar en un equipo de demostración con XAMPP. No tiene inicio de sesión ni carga de reportes desde la pantalla.
+
+- **Rama:** `mvp-prototipo`, que sale de `fase-2-trd`. Se fusionó a `main` con el PR #84 (5 de noviembre de 2026).
+- **Etiquetas** (puntos de respaldo, en GitHub):
+  - `mvp-v1` (`a6d3955`): MVP antes del rediseño de la interfaz.
+  - `mvp-v2` (`77ba212`): MVP con el rediseño de la interfaz y el manual de usuario.
+- **Paquete:** `scripts/armar_prototipo.ps1` arma `prototipo/TRDCode/` (ignorado por git) con los pasos de `scripts/prototipo/LEEME.txt`. El `.env` y `expedientes.sql` se entregan aparte.
+
+**Qué incluye**
+- `api/datos.php`: un solo JSON público con centros, dependencias, la TRD con sus tipos documentales y los expedientes de la carga activa. Los nombres de los expedientes que no son IPU se reemplazan en el servidor por "Nombre reservado (IPC/IPR)".
+- Carga de expedientes por script: `scripts/generar_expedientes_sql.py` convierte el Reporte Tolima en `datos-prueba/expedientes.sql` (no va al repositorio), con una carga activa y un usuario técnico inactivo que la registra.
+- Cruce con la TRD, filtros en cascada (TRD → centro → dependencia → serie → subserie, más el año) y buscador, todo en el navegador.
+- Interfaz: barra de consulta con buscador, versión de la TRD, panel de filtros plegable y etiquetas de lo consultado; total, pestañas (Todas, Con expedientes, Sin expedientes, Fuera de la TRD), aviso de lo que no está en la TRD y tabla agrupada por serie; ficha lateral con retención, disposición, tipos documentales, procedimiento y expedientes.
+- Exportación a Excel con tres hojas y la consulta guardada en la dirección (`#centros=…&ficha=…`).
+- Servidor de desarrollo de PHP que solo sirve `api/*.php` (`scripts/servidor_dev.php`).
+- Manual de usuario (`docs/GUIA_USO.md` y su PDF).
+
+**Qué quedó por fuera:** inicio de sesión, CSRF y límite de intentos; importar el Excel desde la pantalla, historial de cargas y volver a una carga anterior; exportar a PDF e imprimir; `docs/INSTALACION.md` y la prueba con PHP 8.1.
+
+**Tareas de las fases 3 a 9 hechas en `mvp-prototipo`.** Sus issues siguen abiertos: se cierran cuando se haga cada fase.
+
+| Fase | Issue | Tarea | En el MVP |
+|---|---|---|---|
+| 3 | #15 | `api/lib/db.php` | hecha |
+| 3 | #16 | `api/lib/respuesta.php` | hecha |
+| 3 | #20 | `api/datos.php` | hecha (sin nombres IPC e IPR) |
+| 3 | #21 | Copia en el Apache de XAMPP | parcial: paquete del prototipo para `htdocs/TRDCode` |
+| 3 | #23 | `frontend/src/api/cliente.js` | parcial: solo `obtenerDatos()` |
+| 3 | #17, #18, #19, #22 | Sesión, CSRF, login, logout, cambio de clave y pruebas de la API | no |
+| 4 | #24 a #33 | Importación desde la pantalla | no; la reemplaza `generar_expedientes_sql.py` (normaliza como el plan y da los 3.385 expedientes) |
+| 5 | #34, #35, #36 | `cruce.js`: `armarIndice()`, cuatro estados y `resumen()` | hechas |
+| 5 | #37 | Cargar los datos en `App.jsx` | hecha |
+| 5 | #38 | Pruebas de `cruce.js` (A-06 a A-08) | hecha |
+| 6 | #39, #40 | Estructura de la página y estado de los filtros en `App.jsx` | hechas |
+| 6 | #41, #42 | `opcionesDisponibles()` y `aplicarFiltros()` | hechas |
+| 6 | #43 | Panel de filtros | hecha, como `BarraConsulta.jsx` y `SelectorMultiple.jsx` |
+| 6 | #44 | Buscador | hecha |
+| 6 | #45 | Pruebas de `filtros.js` (A-09, A-10) y rendimiento | hecha |
+| 7 | #46 | Resumen | hecha de otra forma: total y pestañas en `App.jsx`, sin tarjetas |
+| 7 | #47, #48, #49, #50 | Tabla, aviso de lo que no está en la TRD, ficha y "Datos al [fecha]" | hechas |
+| 7 | #51, #52 | Vista para celular y accesibilidad | parcial: estilos para pantallas angostas y roles ARIA, sin revisión formal |
+| 8 | #53, #54 | `exportar.js` y Excel con tres hojas | hechas |
+| 8 | #55, #56 | PDF e impresión | no |
+| 8 | #57 | Probar las exportaciones | parcial: pruebas del Excel |
+| 9 | #58 | Frontend con rutas relativas | hecha |
+| 9 | #60 | `robots.txt` y `.htaccess` de `api/lib` | hecha |
+| 9 | #63 | Script de empaquetado | parcial: `armar_prototipo.ps1` en lugar de `empaquetar.ps1` |
+| 9 | #64 | `docs/INSTALACION.md` | no; el prototipo trae `LEEME.txt` |
+
+De la Fase 11, `docs/GUIA_USO.md` (#72) ya existe como manual del prototipo.
 
 ---
 
