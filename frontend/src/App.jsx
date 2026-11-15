@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { obtenerDatos } from './api/cliente.js'
+import { obtenerDatos, obtenerSesion } from './api/cliente.js'
 import Acceso from './components/Acceso.jsx'
+import ActualizarDatos from './components/ActualizarDatos.jsx'
 import BarraConsulta from './components/BarraConsulta.jsx'
 import Ficha from './components/Ficha.jsx'
 import { IconoAlerta, IconoCalendario, IconoDescarga } from './components/Iconos.jsx'
@@ -14,7 +15,7 @@ import {
   opcionesDisponibles,
   resultadosEnOtraVersion,
 } from './datos/filtros.js'
-import { escribirUrl, irAConsulta, irAInicio, leerUrl } from './estadoUrl.js'
+import { escribirUrl, irAActualizar, irAConsulta, irAInicio, leerUrl } from './estadoUrl.js'
 import { exportarExcel } from './utils/exportar.js'
 import { codigoFila, disposiciones, fechaLarga, formatoNumero, nombreFila, nombreLegible } from './utils/formato.js'
 
@@ -35,16 +36,31 @@ export default function App() {
   const [llaveFicha, setLlaveFicha] = useState(inicial.ficha)
   const [pestana, setPestana] = useState('todas')
   const [exportando, setExportando] = useState(false)
-  // 'inicio' (sin resultados a la vista) o 'consulta'. Una dirección con filtros o ficha abre la consulta.
+  // 'inicio' (sin resultados a la vista), 'consulta' o 'actualizar' (solo con sesión).
+  // Una dirección con filtros o ficha abre la consulta.
   const [vista, setVista] = useState(inicial.vista)
   // Al cambiar de vista por una acción, el foco pasa al título de la vista nueva.
   const enfocarVista = useRef(false)
+  // Nombre de la encargada con sesión iniciada, o null. sesionLista: ya se preguntó al servidor.
+  const [nombre, setNombre] = useState(null)
+  const [sesionLista, setSesionLista] = useState(false)
 
-  useEffect(() => {
+  const recargarDatos = useCallback(() => {
     obtenerDatos()
       .then(setDatos)
       .catch((e) => setError(e.message))
   }, [])
+
+  useEffect(recargarDatos, [recargarDatos])
+
+  useEffect(() => {
+    obtenerSesion()
+      .then((s) => setNombre(s.sesion ? s.nombre : null))
+      .catch(() => setNombre(null))
+      .finally(() => setSesionLista(true))
+  }, [])
+
+  const sesionVencida = useCallback(() => setNombre(null), [])
 
   useEffect(() => {
     if (vista === 'consulta') escribirUrl(estado, llaveFicha)
@@ -54,8 +70,8 @@ export default function App() {
   useEffect(() => {
     const alNavegar = () => {
       const leido = leerUrl()
-      // Al volver al inicio se conserva la versión de la TRD elegida.
-      setEstado((actual) => (leido.vista === 'inicio' ? { ...leido.estado, trd: actual.trd } : leido.estado))
+      // Fuera de la consulta se conserva la versión de la TRD elegida.
+      setEstado((actual) => (leido.vista !== 'consulta' ? { ...leido.estado, trd: actual.trd } : leido.estado))
       setLlaveFicha(leido.ficha)
       setPestana('todas')
       setVista(leido.vista)
@@ -68,8 +84,16 @@ export default function App() {
   useEffect(() => {
     if (!enfocarVista.current) return
     enfocarVista.current = false
-    document.getElementById(vista === 'inicio' ? 'inicio-titulo' : 'resultados')?.focus()
+    document.getElementById({ inicio: 'inicio-titulo', consulta: 'resultados', actualizar: 'actualizar-titulo' }[vista])?.focus()
   }, [vista])
+
+  const abrirActualizar = () => {
+    if (vista !== 'actualizar') irAActualizar()
+    setLlaveFicha(null)
+    setVista('actualizar')
+    enfocarVista.current = true
+    window.scrollTo(0, 0)
+  }
 
   const abrirConsulta = (nuevo) => {
     irAConsulta(nuevo)
@@ -156,13 +180,13 @@ export default function App() {
           </div>
           <div className="encabezado__lado">
             {/* En el inicio, la fecha de los datos va abajo. */}
-            {datos?.carga && vista === 'consulta' && (
+            {datos?.carga && vista !== 'inicio' && (
               <span className="sello">
                 <IconoCalendario />
                 Datos al {fechaLarga(datos.carga.fecha_reporte)}
               </span>
             )}
-            <Acceso />
+            <Acceso nombre={nombre} onCambiarNombre={setNombre} onActualizar={abrirActualizar} />
           </div>
         </header>
 
@@ -189,6 +213,22 @@ export default function App() {
           error={error}
           onIr={abrirConsulta}
         />
+      ) : vista === 'actualizar' ? (
+        sesionLista ? (
+          <ActualizarDatos
+            nombre={nombre}
+            datos={datos}
+            onDatosActualizados={recargarDatos}
+            onSesionVencida={sesionVencida}
+            onVerConsulta={() => abrirConsulta({ ...ESTADO_INICIAL, trd: estado.trd })}
+          />
+        ) : (
+          <main className="contenedor actualizar">
+            <p className="vacio" role="status">
+              Cargando…
+            </p>
+          </main>
+        )
       ) : (
         <main className="contenedor resultados" id="resultados" tabIndex={-1} aria-label="Resultados de la consulta">
           {error && (
