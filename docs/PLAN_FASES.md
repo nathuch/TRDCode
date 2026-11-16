@@ -18,7 +18,7 @@ Actualizado el 15 de noviembre de 2026.
 | 5 | Cruce de expedientes con la TRD | [Fase 5](https://github.com/nathuch/TRDCode/milestone/6) | `main` (MVP) | completa en el código; issues abiertos |
 | 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `main` (MVP) y `fase-7-vista` (#39 en celular) | en curso: todo hecho en la rama, falta fusionar |
 | 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | en curso: todo hecho en la rama, falta fusionar |
-| 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | completa en `fase-8-exportar` (sin PR) |
+| 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | completa en `fase-8-exportar`, en revisión (PR #89) |
 | 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | sin empezar (parte hecha en el MVP) |
 | 10 | Pruebas con la usuaria y ajustes | [Fase 10](https://github.com/nathuch/TRDCode/milestone/11) | `fase-10-ajustes` | sin empezar |
 | 11 | Guía y entrega al SENA | [Fase 11](https://github.com/nathuch/TRDCode/milestone/12) | `main` | sin empezar |
@@ -321,7 +321,7 @@ La aplicación ya no abre con todos los resultados a la vista.
 - [x] La ficha de 85.15 muestra retención de 2 + 8 años, cuándo empieza a contar, conservación total y 17 expedientes (P-07). *(navegador: "10 años en total, 2 años en gestión + 8 en archivo central", el texto de inicio de la retención, "CT Conservación total" y "Expedientes (17)" con los 17 reservados; `exportar.test.js` comprueba los 17 al exportar desde la ficha)*
 - [x] La vista se usa sin zoom en un celular. *(navegador a 390 px: sin desplazamiento lateral en ninguna pantalla, resultados en tarjetas con los expedientes a la vista y filtros cerrados al entrar; ver #51)*
 
-## Fase 8 – Exportar e imprimir · completa en `fase-8-exportar`
+## Fase 8 – Exportar e imprimir · completa en `fase-8-exportar` (PR #89, sin fusionar)
 
 **Objetivo:** que el usuario pueda llevarse exactamente lo que está viendo.
 **Requisitos:** RF-09, RF-10, RF-11 y RNF-09.
