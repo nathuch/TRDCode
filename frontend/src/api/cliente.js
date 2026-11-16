@@ -13,11 +13,13 @@ let tokenCsrf = null
  * los expedientes señalados ([{ indice, fila, codigo, motivo }]).
  */
 export class ErrorApi extends Error {
-  constructor(mensaje, estado, esperaSegundos = null, errores = []) {
+  constructor(mensaje, estado, esperaSegundos = null, errores = [], debeCambiarClave = false) {
     super(mensaje)
     this.estado = estado
     this.esperaSegundos = esperaSegundos
     this.errores = errores
+    // 403 porque la cuenta tiene una contraseña temporal que debe cambiar antes de seguir.
+    this.debeCambiarClave = debeCambiarClave
   }
 }
 
@@ -43,15 +45,16 @@ async function llamar(ruta, { metodo = 'GET', cuerpo, conCsrf = false } = {}) {
       respuesta.status,
       datos.espera_segundos,
       datos.errores ?? [],
+      datos.debe_cambiar_clave === true,
     )
   }
   return datos.datos
 }
 
-/** Guarda el token de la sesión y devuelve { sesion, nombre }. */
+/** Guarda el token de la sesión y devuelve { sesion, nombre, debeCambiarClave }. */
 function recordarSesion(datos) {
   tokenCsrf = datos.sesion ? datos.csrf : null
-  return { sesion: datos.sesion, nombre: datos.nombre ?? null }
+  return { sesion: datos.sesion, nombre: datos.nombre ?? null, debeCambiarClave: datos.debe_cambiar_clave === true }
 }
 
 export async function obtenerDatos() {
@@ -106,4 +109,31 @@ export async function finalizarImportacion(cargaId) {
 
 export async function restaurarCarga(cargaId) {
   return llamar('api/restaurar_carga.php', { metodo: 'POST', cuerpo: { carga_id: cargaId }, conCsrf: true })
+}
+
+// Cuentas editables (RF-17): "Mi cuenta" y "Usuarios". Todo exige sesión y token CSRF.
+
+export async function guardarMiNombre(nombre) {
+  return recordarSesion(await llamar('api/mi_cuenta.php', { metodo: 'POST', cuerpo: { nombre }, conCsrf: true }))
+}
+
+export async function cambiarCorreo(correo, clave) {
+  return llamar('api/cambiar_correo.php', { metodo: 'POST', cuerpo: { correo, clave }, conCsrf: true })
+}
+
+export async function obtenerUsuarios() {
+  return (await llamar('api/usuarios.php')).cuentas
+}
+
+/** Sin id crea la cuenta (con contraseña temporal); con id edita el nombre y el correo de otra cuenta. */
+export async function guardarUsuario(cuenta) {
+  return llamar('api/usuario_guardar.php', { metodo: 'POST', cuerpo: cuenta, conCsrf: true })
+}
+
+export async function ponerClaveTemporal(id, clave) {
+  return llamar('api/usuario_clave_temporal.php', { metodo: 'POST', cuerpo: { id, clave }, conCsrf: true })
+}
+
+export async function cambiarEstadoUsuario(id, activo) {
+  return llamar('api/usuario_estado.php', { metodo: 'POST', cuerpo: { id, activo }, conCsrf: true })
 }

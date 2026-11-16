@@ -4,16 +4,16 @@
  *
  * Una dirección sin filtros, búsqueda ni ficha abre la pantalla de inicio. La consulta completa
  * sin filtros ("Ver todas las series") se guarda como #consulta, para no volver al inicio al recargar.
- * La pantalla para actualizar los datos (solo con sesión) es #actualizar.
+ * Las pantallas que exigen sesión son #actualizar (actualizar los datos), #usuarios y #cuenta (Mi cuenta).
  */
 import { ESTADO_INICIAL } from './datos/filtros.js'
 
 const LISTAS = ['centros', 'dependencias', 'series', 'subseries', 'anios']
 const MARCA_CONSULTA = 'consulta'
-const MARCA_ACTUALIZAR = 'actualizar'
+export const VISTAS_CON_SESION = ['actualizar', 'usuarios', 'cuenta']
 const CLAVES = ['trd', ...LISTAS, 'buscar', 'ficha', MARCA_CONSULTA]
 
-/** Lee la dirección: { estado, ficha, vista }, con vista 'inicio', 'consulta' o 'actualizar'. */
+/** Lee la dirección: { estado, ficha, vista }, con vista 'inicio', 'consulta' o una de VISTAS_CON_SESION. */
 export function leerUrl(hash = window.location.hash) {
   const parametros = new URLSearchParams(hash.replace(/^#/, ''))
   const estado = { ...ESTADO_INICIAL }
@@ -24,7 +24,7 @@ export function leerUrl(hash = window.location.hash) {
   }
   estado.texto = parametros.get('buscar') ?? ''
   let vista = CLAVES.some((clave) => parametros.has(clave)) ? 'consulta' : 'inicio'
-  if (parametros.has(MARCA_ACTUALIZAR)) vista = 'actualizar'
+  vista = VISTAS_CON_SESION.find((v) => parametros.has(v)) ?? vista
   return { estado, ficha: parametros.get('ficha'), vista }
 }
 
@@ -48,9 +48,9 @@ export function irAConsulta(estado) {
   window.history.pushState(null, '', `#${armarHash(estado)}`)
 }
 
-/** Abre la pantalla para actualizar los datos, con su propia entrada en el historial. */
-export function irAActualizar() {
-  window.history.pushState(null, '', `#${MARCA_ACTUALIZAR}`)
+/** Abre una pantalla con sesión (actualizar, usuarios o cuenta), con su propia entrada en el historial. */
+export function irAVista(vista) {
+  window.history.pushState(null, '', `#${vista}`)
 }
 
 /** Vuelve a la pantalla de inicio (dirección sin hash), con su propia entrada en el historial. */

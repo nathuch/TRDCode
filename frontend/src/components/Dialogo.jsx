@@ -4,15 +4,16 @@ import { IconoCerrar } from './Iconos.jsx'
 
 /**
  * Ventana modal: al abrir pone el foco en el primer campo, lo mantiene adentro con Tab,
- * se cierra con Esc o con la ×, y al cerrar devuelve el foco a donde estaba.
+ * se cierra con Esc o con la ×, y al cerrar devuelve el foco a donde estaba. Con cerrable = false no
+ * tiene × ni se cierra con Esc (la contraseña temporal que hay que cambiar).
  */
-export default function Dialogo({ id, titulo, descripcion, onCerrar, children }) {
+export default function Dialogo({ id, titulo, descripcion, onCerrar, cerrable = true, children }) {
   const caja = useRef(null)
   const cerrar = useRef(onCerrar)
 
   useEffect(() => {
-    cerrar.current = onCerrar
-  }, [onCerrar])
+    cerrar.current = cerrable ? onCerrar : null
+  }, [onCerrar, cerrable])
 
   useEffect(() => {
     const anterior = document.activeElement
@@ -22,7 +23,7 @@ export default function Dialogo({ id, titulo, descripcion, onCerrar, children })
     const alTeclear = (e) => {
       if (e.key === 'Escape') {
         e.stopPropagation()
-        cerrar.current()
+        if (cerrar.current) cerrar.current()
       } else {
         retenerFoco(e, caja.current)
       }
@@ -53,9 +54,11 @@ export default function Dialogo({ id, titulo, descripcion, onCerrar, children })
               </p>
             )}
           </div>
-          <button type="button" className="boton-icono" onClick={onCerrar} aria-label="Cerrar">
-            <IconoCerrar tamano={20} />
-          </button>
+          {cerrable && (
+            <button type="button" className="boton-icono" onClick={onCerrar} aria-label="Cerrar">
+              <IconoCerrar tamano={20} />
+            </button>
+          )}
         </header>
         <div className="dialogo__cuerpo">{children}</div>
       </section>
