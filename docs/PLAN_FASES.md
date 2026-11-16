@@ -355,6 +355,8 @@ La aplicación ya no abre con todos los resultados a la vista.
 | #64 | Redactar `docs/INSTALACION.md` para el área de sistemas del SENA | sin empezar |
 | — | [MANUAL] Instalar PHP 8.1 (por ejemplo con Laragon) antes de la prueba P-29 | sin empezar |
 | #65 | Probar el paquete en una instalación limpia | sin empezar |
+| — | Probar en MariaDB 10.4 la instalación completa: `schema.sql`, `datos_iniciales.sql`, `trd.sql`, `expedientes.sql` y la migración `001_usuarios.sql` (también aplicada a una base anterior, dos veces). Con la MySQL de XAMPP encendida en otro puerto (por ejemplo 3307) y su propia carpeta de datos, sin tocar MySQL80. Hasta ahora todo se probó en MySQL 8.0.41 | sin empezar (pendiente encontrado en RF-17) |
+| — | Crear la primera cuenta en una instalación nueva del paquete: un script de consola incluido en el paquete, dentro de una carpeta que no se pueda abrir desde la web (bloqueada por `.htaccess`), al que se le indica la ruta del `.env` (por ejemplo `C:\xampp\TRDCode.env`). No una página web de instalación. Hoy `scripts/crear_usuario.php` no va en el paquete y desde la consola solo encuentra el `.env` de la raíz del proyecto o el de `TRDCODE_ENV`. Las demás cuentas ya se crean desde "Usuarios" (RF-17) | sin empezar (pendiente encontrado en RF-17) |
 
 **Criterios de aceptación**
 - [ ] La aplicación funciona en `http://localhost/TRDCode/` y desde el celular.
