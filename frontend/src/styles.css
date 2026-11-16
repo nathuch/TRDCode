@@ -67,6 +67,13 @@ summary {
   white-space: nowrap;
 }
 
+/* Lo que solo sale al imprimir (línea de filtros, ficha completa) y lo que solo se ve en pantalla. */
+@media screen {
+  .solo-impresion {
+    display: none !important;
+  }
+}
+
 .texto-suave {
   color: var(--texto-suave);
 }
@@ -359,7 +366,8 @@ summary {
   white-space: nowrap;
 }
 
-.acceso__menu {
+.acceso__menu,
+.menu-exportar__menu {
   position: absolute;
   z-index: 40;
   top: calc(100% + 6px);
@@ -374,7 +382,8 @@ summary {
   box-shadow: 0 10px 28px rgb(0 0 0 / 14%);
 }
 
-.acceso__opcion {
+.acceso__opcion,
+.menu-exportar__opcion {
   padding: 9px 12px;
   border: 0;
   border-radius: 6px;
@@ -384,7 +393,8 @@ summary {
   cursor: pointer;
 }
 
-.acceso__opcion:hover:not(:disabled) {
+.acceso__opcion:hover:not(:disabled),
+.menu-exportar__opcion:hover {
   background: var(--gris-fondo);
 }
 
@@ -1376,9 +1386,10 @@ summary {
 
 .ficha__seccion-encabezado {
   display: flex;
+  flex-wrap: wrap;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
+  gap: 8px 12px;
 }
 
 .ficha__procedimiento summary {
@@ -1850,7 +1861,7 @@ summary {
     white-space: nowrap;
   }
 
-  .tabla--resultados tbody + tbody {
+  .tabla--resultados tbody + .tabla__cabeza-seccion {
     margin-top: 16px;
   }
 
@@ -2095,4 +2106,201 @@ summary {
 
 .tabla--usuarios .celda-accion {
   white-space: normal;
+}
+
+/* Exportar (Excel o PDF) e Imprimir, en la consulta y en la ficha (Fase 8) */
+.botones-exportar {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.menu-exportar {
+  position: relative;
+}
+
+.menu-exportar__menu {
+  min-width: 170px;
+}
+
+/* Impresión (Fase 8, #56): solo lo que se ve, sin el encabezado interactivo, los filtros, los botones,
+   las pestañas ni los menús; arriba, una línea con los filtros aplicados y la fecha de los datos.
+   Con la ficha abierta se imprime solo la ficha, completa. Grupos y tarjetas no se cortan entre páginas. */
+@media print {
+  @page {
+    size: A4;
+    margin: 14mm 12mm;
+  }
+
+  html,
+  body {
+    background: #fff;
+  }
+
+  body {
+    font-size: 10pt;
+  }
+
+  :focus,
+  :focus-visible {
+    outline: none !important;
+  }
+
+  .solo-pantalla,
+  .superior,
+  .pestanas,
+  .botones-exportar,
+  .aviso-version .boton,
+  .col-accion,
+  .barra,
+  .paginacion,
+  .boton-icono,
+  .boton--enlace,
+  .acceso,
+  .menu-exportar__menu,
+  .acceso__menu {
+    display: none !important;
+  }
+
+  .contenedor {
+    max-width: none;
+    padding: 0;
+  }
+
+  .resultados {
+    padding: 0;
+    gap: 10px;
+  }
+
+  .impresion-cabecera {
+    padding-bottom: 6px;
+    border-bottom: 2px solid var(--verde-sena);
+  }
+
+  .impresion-cabecera__marca {
+    font-size: 8pt;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--verde);
+  }
+
+  .impresion-cabecera__titulo {
+    font-size: 15pt;
+    font-weight: 700;
+  }
+
+  .impresion-cabecera__linea {
+    margin-top: 2px;
+    font-size: 9pt;
+    color: var(--texto-suave);
+  }
+
+  .total__numero {
+    font-size: 18pt;
+  }
+
+  .tabla-caja {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+  }
+
+  .tabla {
+    min-width: 0;
+    font-size: 9pt;
+  }
+
+  .tabla thead {
+    display: table-header-group; /* la cabecera se repite en cada hoja */
+  }
+
+  .tabla th,
+  .tabla td {
+    padding: 4px 8px;
+  }
+
+  .tabla tr,
+  .tabla__bloque,
+  .tabla__cabeza-seccion,
+  .aviso-fuera,
+  .aviso-ambar,
+  .tarjeta-dato,
+  .ficha__tarjetas,
+  .expediente,
+  .tipos {
+    break-inside: avoid;
+  }
+
+  .tabla__cabeza-seccion,
+  .ficha__seccion h3,
+  .ficha__seccion-encabezado {
+    break-after: avoid;
+  }
+
+  .tabla .col-expedientes {
+    width: auto;
+  }
+
+  .tabla__fila.abierta td {
+    background: none;
+  }
+
+  .fila__boton {
+    min-height: 0;
+    color: inherit;
+    font: inherit;
+  }
+
+  .disp,
+  .tabla__seccion th,
+  .tabla__grupo {
+    print-color-adjust: exact;
+    -webkit-print-color-adjust: exact;
+  }
+
+  /* Con la ficha abierta, la hoja es la ficha: sin el fondo oscuro, sin panel lateral ni desplazamiento. */
+  .pagina:has(.ficha-fondo) > :not(.ficha-fondo) {
+    display: none !important;
+  }
+
+  .ficha-fondo {
+    position: static;
+    display: block;
+    background: none;
+  }
+
+  .ficha {
+    width: auto;
+    height: auto;
+    overflow: visible;
+    box-shadow: none;
+  }
+
+  .ficha__encabezado {
+    position: static;
+    display: block;
+    padding: 0 0 8px;
+    border-top: 0;
+    border-bottom: 2px solid var(--verde-sena);
+  }
+
+  .ficha__cuerpo {
+    display: block;
+    padding: 0;
+  }
+
+  .ficha__cuerpo > * {
+    margin-top: 14px;
+  }
+
+  .expedientes {
+    border-radius: 0;
+  }
+
+  .expediente {
+    padding: 4px 8px;
+    font-size: 9pt;
+  }
 }

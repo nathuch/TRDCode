@@ -10,6 +10,7 @@ No llevan datos reales: las cuentas son temporales (correo `prueba-…@trdcode.l
 | `ingreso.mjs` | Ingreso, errores, bloqueo, menú, cambio de contraseña y salida | Solo su cuenta temporal |
 | `vista.mjs` | Pestañas y ficha con el teclado, control de acceso, h2, `aria-live`, zonas táctiles; celular a 390 px en todas las pantallas | Solo su cuenta temporal |
 | `menus.mjs` | Menú de la usuaria y selectores de filtros abiertos: completos dentro de la pantalla, sin pasar los márgenes y alineados a su botón, a 320, 390, 768 y 1.280 px | Solo su cuenta temporal |
+| `exportar.mjs` | Menú "Exportar" e "Imprimir": descarga el PDF y el Excel de la consulta y de la ficha de 85.15, los lee y los compara con lo que se ve (los 17 expedientes, ningún nombre reservado, "Página N de M"); la impresión con la emulación de impresión del navegador (también una ficha de más de 50 expedientes); el menú a 320 y 390 px | No |
 | `usuarios.mjs` | "Usuarios" y "Mi cuenta": crear, editar, contraseña temporal (y la ventana que obliga a cambiarla), desactivar y activar; nombre, correo y contraseña propios; celular a 390 px | Solo sus cuentas temporales |
 | `actualizar.mjs` | "Actualizar datos" completo: arrastrar, vista previa, carga, historial y volver a una carga | **Sí: crea cargas.** Solo en una base temporal |
 
@@ -41,5 +42,7 @@ C:/xampp/php/php.exe scripts/pruebas-navegador/base_temporal.php borrar
 Antes de crear cuentas o cargas, `ingreso.mjs`, `vista.mjs`, `menus.mjs`, `usuarios.mjs` y `actualizar.mjs` comprueban que la aplicación probada use la misma base que ellas (comparan la carga activa que entrega `datos.php`); si no coincide, se detienen sin escribir nada.
 
 `base_temporal.php` crea `trdcode_prueba` con los scripts de `database/` y `datos-prueba/expedientes.sql`, y escribe `datos-prueba/prueba.env` (no va al repositorio). Necesita `datos-prueba/reporte-tolima-2026-08-10.xlsx`. El Excel inventado con filas con problemas lo genera la prueba al correr (los `.xlsx` no van al repositorio).
+
+`exportar.mjs` descarga los archivos en una carpeta temporal que borra al terminar, y lee el PDF con `leer_pdf.mjs` (solo sirve para los PDF de TRDCode: jsPDF sin comprimir). Deja junto a las capturas la hoja impresa por el navegador (`exportar-impresion-*.pdf`), para revisarla a ojo.
 
 Variables opcionales: `NAVEGADOR` (ruta de Edge o Chrome), `PHP` (por defecto `C:\xampp\php\php.exe`) y `CAPTURAS`.

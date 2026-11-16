@@ -1,5 +1,6 @@
-import { useState } from 'react'
+import { Fragment, useState } from 'react'
 import { ESTADOS } from '../datos/cruce.js'
+import { agrupar, enBloques, enSecciones } from '../utils/agrupar.js'
 import { codigoFila, ETIQUETA_ESTADO, formatoNumero, nombreFila, nombreLegible, retencionCorta } from '../utils/formato.js'
 import Disposicion from './Disposicion.jsx'
 import { IconoFlecha } from './Iconos.jsx'
@@ -18,11 +19,7 @@ export default function TablaResultados({ filas, nombrePlantilla, onAbrir, ficha
     return <p className="vacio">No hay series ni subseries en esta vista.</p>
   }
   const maximo = Math.max(1, ...filas.map((f) => f.cantidad))
-  const secciones = []
-  for (const fila of filas) {
-    if (secciones.at(-1)?.plantilla !== fila.plantilla) secciones.push({ plantilla: fila.plantilla, filas: [] })
-    secciones.at(-1).filas.push(fila)
-  }
+  const secciones = enSecciones(filas)
   const conSecciones = secciones.length > 1
 
   const alternar = (clave) =>
@@ -56,57 +53,49 @@ export default function TablaResultados({ filas, nombrePlantilla, onAbrir, ficha
             </th>
           </tr>
         </thead>
+        {/* Cada grupo de serie va en su propio tbody para que al imprimir no se corte entre páginas. */}
         {secciones.map((seccion) => (
-          <tbody key={seccion.plantilla}>
+          <Fragment key={seccion.plantilla}>
             {conSecciones && (
-              <tr className="tabla__seccion">
-                <th colSpan={6} scope="colgroup">
-                  {nombrePlantilla(seccion.plantilla)}
-                </th>
-              </tr>
+              <tbody className="tabla__cabeza-seccion">
+                <tr className="tabla__seccion">
+                  <th colSpan={6} scope="colgroup">
+                    {nombrePlantilla(seccion.plantilla)}
+                  </th>
+                </tr>
+              </tbody>
             )}
-            {agrupar(seccion.filas).map((item) =>
-              item.grupo ? (
+            {enBloques(agrupar(seccion.filas)).map((bloque) =>
+              bloque.grupo ? (
                 <Grupo
-                  key={`${seccion.plantilla}-${item.codigo}`}
-                  grupo={item}
-                  plegado={plegados.has(`${seccion.plantilla}|${item.codigo}`)}
-                  onAlternar={() => alternar(`${seccion.plantilla}|${item.codigo}`)}
+                  key={`g-${bloque.grupo.codigo}`}
+                  grupo={bloque.grupo}
+                  plegado={plegados.has(`${seccion.plantilla}|${bloque.grupo.codigo}`)}
+                  onAlternar={() => alternar(`${seccion.plantilla}|${bloque.grupo.codigo}`)}
                   maximo={maximo}
                   onAbrir={onAbrir}
                   fichaAbierta={fichaAbierta}
                 />
               ) : (
-                <Fila key={item.llave} fila={item} maximo={maximo} onAbrir={onAbrir} abierta={item.llave === fichaAbierta} />
+                <tbody key={`s-${bloque.sueltas[0].llave}`} className="tabla__sueltas">
+                  {bloque.sueltas.map((f) => (
+                    <Fila key={f.llave} fila={f} maximo={maximo} onAbrir={onAbrir} abierta={f.llave === fichaAbierta} />
+                  ))}
+                </tbody>
               ),
             )}
-          </tbody>
+          </Fragment>
         ))}
       </table>
     </div>
   )
 }
 
-/** Junta las subseries seguidas de una misma serie en un grupo. */
-function agrupar(filas) {
-  const items = []
-  for (const fila of filas) {
-    if (!fila.codigo_subserie) {
-      items.push(fila)
-      continue
-    }
-    const ultimo = items.at(-1)
-    if (ultimo?.grupo && ultimo.codigo === fila.codigo_serie) ultimo.filas.push(fila)
-    else items.push({ grupo: true, codigo: fila.codigo_serie, nombre: fila.nombre_serie, filas: [fila] })
-  }
-  return items
-}
-
 function Grupo({ grupo, plegado, onAlternar, maximo, onAbrir, fichaAbierta }) {
-  const total = grupo.filas.reduce((suma, f) => suma + f.cantidad, 0)
+  const { total } = grupo
   const n = grupo.filas.length
   return (
-    <>
+    <tbody className="tabla__bloque">
       <tr className="tabla__grupo" onClick={onAlternar}>
         <td className="col-codigo">{grupo.codigo}</td>
         <td colSpan={2} className="celda-nombre">
@@ -136,7 +125,7 @@ function Grupo({ grupo, plegado, onAlternar, maximo, onAbrir, fichaAbierta }) {
         grupo.filas.map((f) => (
           <Fila key={f.llave} fila={f} maximo={maximo} onAbrir={onAbrir} abierta={f.llave === fichaAbierta} subserie />
         ))}
-    </>
+    </tbody>
   )
 }
 
