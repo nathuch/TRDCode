@@ -14,6 +14,8 @@ const CLASIFICACION = {
   IPR: 'Información pública reservada',
 }
 const ACCESO = { IPU: 'Pública', IPC: 'Clasificada', IPR: 'Reservada' }
+// Etiqueta corta del control de acceso de cada expediente en la ficha.
+const ACCESO_EXPEDIENTE = { IPU: 'Público', IPC: 'Clasificado', IPR: 'Reservado' }
 const SOPORTE = { P: 'Papel', EL: 'Electrónico' }
 
 export const ETIQUETA_ESTADO = {
@@ -32,6 +34,11 @@ export function textoDisposicion(codigos) {
 
 export function textoClasificacion(codigos) {
   return (codigos ?? []).map((c) => CLASIFICACION[c] ?? c).join(', ') || '—'
+}
+
+/** 'IPU' -> 'Público', 'IPC' -> 'Clasificado', 'IPR' -> 'Reservado'; vacío -> 'Sin clasificar'. */
+export function etiquetaAcceso(codigo) {
+  return ACCESO_EXPEDIENTE[codigo] ?? (codigo || 'Sin clasificar')
 }
 
 export function textoAcceso(codigo) {

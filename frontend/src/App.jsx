@@ -87,6 +87,16 @@ export default function App() {
     document.getElementById({ inicio: 'inicio-titulo', consulta: 'resultados', actualizar: 'actualizar-titulo' }[vista])?.focus()
   }, [vista])
 
+  // Al cerrar la ficha, el foco vuelve a la fila que la abrió (o a los resultados si esa fila ya no se ve).
+  const fichaPrevia = useRef(llaveFicha)
+  useEffect(() => {
+    const previa = fichaPrevia.current
+    fichaPrevia.current = llaveFicha
+    if (llaveFicha !== null || previa === null || vista !== 'consulta') return
+    const fila = [...document.querySelectorAll('tr[data-llave]')].find((tr) => tr.dataset.llave === previa)
+    ;(fila?.querySelector('.fila__boton') ?? document.getElementById('resultados'))?.focus()
+  }, [llaveFicha, vista])
+
   const abrirActualizar = () => {
     if (vista !== 'actualizar') irAActualizar()
     setLlaveFicha(null)
@@ -150,6 +160,19 @@ export default function App() {
   const leyendaDisposicion = disposiciones(ORDEN_SIGLAS.filter((s) => siglas.has(s)))
     .map((d) => `${d.sigla} ${d.nombre.toLowerCase()}`)
     .join(', ')
+
+  // Pestañas con el teclado (patrón de pestañas de ARIA): flechas, Inicio y Fin mueven y activan.
+  const moverPestana = (e, i) => {
+    const pasos = { ArrowRight: 1, ArrowLeft: -1 }
+    let j
+    if (e.key in pasos) j = (i + pasos[e.key] + PESTANAS.length) % PESTANAS.length
+    else if (e.key === 'Home') j = 0
+    else if (e.key === 'End') j = PESTANAS.length - 1
+    else return
+    e.preventDefault()
+    setPestana(PESTANAS[j].valor)
+    document.getElementById(`pestana-${PESTANAS[j].valor}`)?.focus()
+  }
 
   const exportar = async (filasAExportar) => {
     setExportando(true)
@@ -244,10 +267,12 @@ export default function App() {
 
           {datos && (
             <>
+              <h2 className="solo-lector">Resultados de la consulta</h2>
               {!datos.carga && <p className="aviso-ambar">Todavía no hay expedientes cargados: se muestra solo la TRD.</p>}
 
               <div className="total">
-                <p className="total__texto">
+                {/* Se anuncia a los lectores de pantalla cada vez que cambia con los filtros. */}
+                <p className="total__texto" aria-live="polite" aria-atomic="true">
                   <span className="total__numero">{formatoNumero(totales.expedientes)}</span> expedientes en{' '}
                   <strong>
                     {formatoNumero(filas.length)} {filas.length === 1 ? 'serie o subserie' : 'series y subseries'}
@@ -265,15 +290,18 @@ export default function App() {
               </div>
 
               <div className="pestanas" role="tablist" aria-label="Ver series y subseries">
-                {PESTANAS.map((p) => (
+                {PESTANAS.map((p, i) => (
                   <button
                     key={p.valor}
+                    id={`pestana-${p.valor}`}
                     type="button"
                     role="tab"
                     aria-selected={pestana === p.valor}
                     aria-controls="tabla-resultados"
+                    tabIndex={pestana === p.valor ? 0 : -1}
                     className="pestana"
                     onClick={() => setPestana(p.valor)}
+                    onKeyDown={(e) => moverPestana(e, i)}
                   >
                     {p.texto}
                     <span className="contador">{formatoNumero(filas.filter(p.incluye).length)}</span>
@@ -315,7 +343,7 @@ export default function App() {
                 </div>
               )}
 
-              <div id="tabla-resultados" role="tabpanel" aria-label={pestanaActual.texto}>
+              <div id="tabla-resultados" role="tabpanel" aria-labelledby={`pestana-${pestana}`}>
                 <TablaResultados
                   filas={visibles}
                   nombrePlantilla={nombres.nombrePlantilla}

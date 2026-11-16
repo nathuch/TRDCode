@@ -813,9 +813,11 @@ summary {
 }
 
 .selector__quitar {
-  margin: 4px 8px;
-  padding: 0;
+  min-height: 32px;
+  margin: 2px 0;
+  padding: 0 8px;
   border: 0;
+  border-radius: 6px;
   background: none;
   color: var(--verde);
   font-size: 0.85rem;
@@ -885,8 +887,9 @@ summary {
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  width: 22px;
-  height: 22px;
+  /* 24 px: tamaño mínimo de una zona táctil (WCAG 2.5.8) */
+  width: 24px;
+  height: 24px;
   padding: 0;
   border: 0;
   border-radius: 50%;
@@ -1062,6 +1065,12 @@ summary {
   font-size: 0.87rem;
 }
 
+/* La tabla de resultados cabe en una tableta (720 px útiles a 768) sin desplazarse de lado:
+   el nombre se corta en líneas. En celular pasa a tarjetas. */
+.tabla--resultados {
+  min-width: 0;
+}
+
 .tabla th,
 .tabla td {
   padding: 12px 14px;
@@ -1164,6 +1173,7 @@ summary {
 }
 
 .fila__boton {
+  min-height: 24px;
   padding: 0;
   border: 0;
   background: none;
@@ -1411,7 +1421,8 @@ summary {
 
 .expediente {
   display: grid;
-  grid-template-columns: 120px minmax(0, 1fr) 90px;
+  grid-template-columns: 120px minmax(0, 1fr) auto 90px;
+  align-items: start;
   gap: 12px;
   padding: 9px 14px;
   font-size: 0.85rem;
@@ -1641,6 +1652,14 @@ summary {
   .revision__tarjetas {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .tabla--resultados .col-disposicion {
+    width: 180px;
+  }
+
+  .tabla--resultados .col-expedientes {
+    width: 110px;
+  }
 }
 
 @media (max-width: 640px) {
@@ -1700,8 +1719,319 @@ summary {
     grid-template-columns: 1fr auto;
   }
 
+  .expediente__codigo {
+    grid-area: 1 / 1;
+  }
+
+  .expediente__fecha {
+    grid-area: 1 / 2;
+  }
+
   .expediente__nombre {
     grid-column: 1 / -1;
-    order: 3;
+    grid-row: 2;
+  }
+
+  .expediente .etiqueta-acceso {
+    grid-column: 1 / -1;
+    grid-row: 3;
+    justify-self: start;
+  }
+}
+
+/* Fase 7: ficha, actualizar datos y pantallas angostas */
+.ficha__cantidad {
+  display: inline-block;
+  margin-top: 8px;
+  padding: 3px 10px;
+  border-radius: 999px;
+  background: var(--verde-claro);
+  color: var(--verde-texto);
+  font-size: 0.8rem;
+  font-weight: 700;
+}
+
+/* Control de acceso de cada expediente en la ficha (no confundir con .acceso, el del encabezado) */
+.etiqueta-acceso {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--gris-fondo);
+  color: var(--texto-suave);
+  font-size: 0.75rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.etiqueta-acceso--restringida {
+  background: var(--ambar-fondo);
+  color: var(--ambar-texto);
+}
+
+/* Zona para arrastrar el reporte */
+.zona-archivo {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  padding: 28px 20px;
+  border: 2px dashed var(--borde-fuerte);
+  border-radius: var(--radio);
+  background: var(--superficie-suave);
+  text-align: center;
+}
+
+.zona-archivo.arrastrando {
+  border-color: var(--verde);
+  background: var(--verde-claro);
+}
+
+.zona-archivo__icono {
+  color: var(--verde);
+}
+
+.zona-archivo__texto {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+}
+
+.zona-archivo__boton:focus-within {
+  outline: 3px solid var(--verde);
+  outline-offset: 2px;
+}
+
+.zona-archivo__elegido {
+  font-size: 0.87rem;
+  color: var(--texto-suave);
+  overflow-wrap: anywhere;
+}
+
+.revision__resumen {
+  display: flex;
+  align-items: center;
+  min-height: 40px;
+  padding: 8px 12px;
+  border: 1px solid var(--borde);
+  border-radius: 8px;
+  background: var(--superficie-suave);
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.revision__problemas[open] .revision__resumen {
+  margin-bottom: 10px;
+}
+
+@media (max-width: 640px) {
+  /* Resultados como tarjetas: arriba código y nombre; debajo retención, disposición y expedientes */
+  #tabla-resultados .tabla-caja {
+    overflow: visible;
+    border: 0;
+    border-radius: 0;
+    background: none;
+  }
+
+  .tabla--resultados,
+  .tabla--resultados tbody {
+    display: block;
+    min-width: 0;
+  }
+
+  .tabla--resultados thead,
+  .tabla--apilable thead {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+
+  .tabla--resultados tbody + tbody {
+    margin-top: 16px;
+  }
+
+  .tabla--resultados tr {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr) auto;
+    gap: 8px 14px;
+    align-items: start;
+    margin-top: 8px;
+    padding: 12px 14px;
+    border: 1px solid var(--borde);
+    border-radius: var(--radio);
+    background: var(--superficie);
+  }
+
+  .tabla--resultados td,
+  .tabla--resultados th {
+    width: auto;
+    padding: 0;
+    border: 0;
+  }
+
+  /* Las pestañas pasan a una segunda línea en lugar de desplazarse de lado */
+  .pestanas {
+    flex-wrap: wrap;
+    overflow: visible;
+  }
+
+  .tabla--resultados .col-codigo {
+    grid-area: 1 / 1;
+    width: auto;
+  }
+
+  .tabla--resultados .celda-nombre {
+    grid-column: 2 / -1;
+    grid-row: 1;
+  }
+
+  .tabla--resultados .col-retencion {
+    grid-area: 2 / 1;
+  }
+
+  .tabla--resultados .col-disposicion {
+    grid-area: 2 / 2;
+  }
+
+  .tabla--resultados .col-expedientes {
+    grid-area: 2 / 3;
+    width: auto;
+    max-width: 6.5rem;
+    white-space: normal;
+  }
+
+  /* En la tarjeta los textos largos se cortan en líneas en lugar de ensanchar la página */
+  .tabla--resultados .disp {
+    white-space: normal;
+  }
+
+  .tabla--resultados .tabla__fila--subserie td {
+    padding-left: 0;
+  }
+
+  .tabla--resultados .col-accion {
+    display: none;
+  }
+
+  .tabla--resultados td[data-etiqueta]::before {
+    content: attr(data-etiqueta);
+    display: block;
+    margin-bottom: 4px;
+    font-size: 0.7rem;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--texto-suave);
+  }
+
+  .tabla--resultados .barra {
+    display: none;
+  }
+
+  /* Grupo de serie: se pliega igual que en la tabla */
+  .tabla--resultados .tabla__grupo {
+    background: var(--superficie-suave);
+  }
+
+  .tabla--resultados .tabla__grupo .celda-nombre {
+    grid-column: 2;
+  }
+
+  .tabla--resultados .tabla__grupo .col-accion {
+    display: block;
+    grid-area: 1 / 3;
+  }
+
+  .tabla--resultados .celda-subseries {
+    grid-column: 1 / 3;
+    grid-row: 2;
+    align-self: end;
+  }
+
+  .tabla--resultados .tabla__fila--subserie {
+    margin-left: 14px;
+  }
+
+  .tabla--resultados .tabla__seccion {
+    display: block;
+    margin-top: 0;
+    padding: 0;
+    border: 0;
+    background: none;
+  }
+
+  .tabla--resultados .tabla__seccion th {
+    display: block;
+    padding: 8px 12px;
+    border-radius: 8px;
+  }
+
+  /* Historial de cargas y filas con problemas: cada fila apilada, con el rótulo de cada dato */
+  .tabla--apilable,
+  .tabla--apilable tbody,
+  .tabla--apilable tr {
+    display: block;
+    min-width: 0;
+  }
+
+  .tabla--apilable tr {
+    padding: 10px 12px;
+    border-bottom: 1px solid var(--borde);
+  }
+
+  .tabla--apilable tbody tr:last-child {
+    border-bottom: 0;
+  }
+
+  .tabla--apilable td,
+  .tabla--compacta.tabla--apilable td {
+    display: flex;
+    justify-content: space-between;
+    gap: 12px;
+    padding: 3px 0;
+    border: 0;
+    text-align: right;
+  }
+
+  .tabla--apilable td[data-etiqueta]::before {
+    content: attr(data-etiqueta);
+    color: var(--texto-suave);
+    font-weight: 600;
+    text-align: left;
+  }
+
+  .tabla--apilable .celda-accion {
+    justify-content: flex-end;
+    padding-top: 8px;
+  }
+
+  .tabla--apilable tr.fila-repetida {
+    background: var(--ambar-fondo);
+  }
+
+  .zona-archivo {
+    padding: 22px 14px;
+  }
+}
+
+/* Pantallas muy angostas (320 px): la retención, la disposición y los expedientes no caben en una
+   sola fila de la tarjeta; la disposición pasa a su propia línea. */
+@media (max-width: 380px) {
+  .tabla--resultados tr.tabla__fila {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .tabla--resultados .tabla__fila .col-expedientes {
+    grid-area: 2 / 2;
+    justify-self: end;
+  }
+
+  .tabla--resultados .tabla__fila .col-disposicion {
+    grid-column: 1 / -1;
+    grid-row: 3;
   }
 }

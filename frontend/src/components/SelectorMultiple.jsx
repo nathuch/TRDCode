@@ -1,10 +1,12 @@
 import { useEffect, useId, useRef } from 'react'
 import { nombreLegible } from '../utils/formato.js'
+import { encajarMenu } from '../utils/menus.js'
 import { IconoFlecha } from './Iconos.jsx'
 
 /** Lista desplegable con casillas para elegir uno o varios valores. Sin selección muestra "Todas"/"Todos". */
 export default function SelectorMultiple({ etiqueta, opciones, seleccion, onCambiar, todos, plural, conCodigo }) {
   const ref = useRef(null)
+  const lista = useRef(null)
   const id = useId()
 
   // Se cierra al hacer clic fuera o con Escape.
@@ -36,12 +38,13 @@ export default function SelectorMultiple({ etiqueta, opciones, seleccion, onCamb
       <span className="campo__etiqueta" id={id}>
         {etiqueta}
       </span>
-      <details className="selector" ref={ref}>
+      {/* Al abrir, la lista se encaja en la pantalla (en celular o en la columna derecha no cabe hacia la derecha). */}
+      <details className="selector" ref={ref} onToggle={(e) => e.currentTarget.open && encajarMenu(lista.current)}>
         <summary aria-labelledby={id} className={seleccion.length ? 'selector__resumen activo' : 'selector__resumen'}>
           <span className="selector__texto">{resumen}</span>
           <IconoFlecha className="selector__flecha" />
         </summary>
-        <div className="selector__lista" role="group" aria-labelledby={id}>
+        <div className="selector__lista" role="group" aria-labelledby={id} ref={lista}>
           {opciones.length === 0 && <p className="selector__vacio">No hay opciones con los filtros anteriores.</p>}
           {opciones.map((o) => (
             <label key={o.valor} className="selector__opcion">

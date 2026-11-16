@@ -77,3 +77,11 @@ export const IconoCerrar = (p) => (
     <path d="M6 6l12 12M18 6 6 18" />
   </Icono>
 )
+
+export const IconoSubir = (p) => (
+  <Icono {...p}>
+    <path d="M12 15V4" />
+    <path d="m7 9 5-5 5 5" />
+    <path d="M5 20h14" />
+  </Icono>
+)
