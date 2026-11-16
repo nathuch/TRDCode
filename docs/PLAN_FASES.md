@@ -18,7 +18,7 @@ Actualizado el 15 de noviembre de 2026.
 | 5 | Cruce de expedientes con la TRD | [Fase 5](https://github.com/nathuch/TRDCode/milestone/6) | `main` (MVP) | completa en el código; issues abiertos |
 | 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `main` (MVP) y `fase-7-vista` (#39 en celular) | en curso: todo hecho en la rama, falta fusionar |
 | 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | en curso: todo hecho en la rama, falta fusionar |
-| 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | sin empezar (Excel hecho en el MVP) |
+| 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | completa en `fase-8-exportar` (sin PR) |
 | 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | sin empezar (parte hecha en el MVP) |
 | 10 | Pruebas con la usuaria y ajustes | [Fase 10](https://github.com/nathuch/TRDCode/milestone/11) | `fase-10-ajustes` | sin empezar |
 | 11 | Guía y entrega al SENA | [Fase 11](https://github.com/nathuch/TRDCode/milestone/12) | `main` | sin empezar |
@@ -311,7 +311,7 @@ La aplicación ya no abre con todos los resultados a la vista.
 | #46 | Crear `frontend/src/components/Resumen.jsx` | hecha de otra forma (rediseño del MVP): sin las cuatro tarjetas; el total grande y las pestañas Todas / Con / Sin / Fuera de la TRD, cada una con su número | navegador |
 | #47 | Crear `frontend/src/components/TablaResultados.jsx` | hecha: agrupada por serie (grupos plegables), disposición con sigla y nombre completo, etiquetas de estado y orden por código. La retención va en una columna ("2 + 8 años") en lugar de AG y AC por separado | P-09 (las filas de la pantalla); navegador |
 | #48 | Mostrar el aviso de subseries que no están en la TRD | hecha (recuadro amarillo con código, nombre y cantidad) | A-06 (85.18); navegador |
-| #49 | Crear `frontend/src/components/Ficha.jsx` | hecha: panel a la derecha, pantalla completa en celular, Esc y ×, **"N expedientes" en el encabezado**, retención con cuándo empieza a contar, disposición, clasificación, soporte, tipos documentales, listado en páginas de 50 del más reciente al más antiguo, "Nombre reservado (IPC/IPR)", **el control de acceso de cada expediente** ("Público", "Clasificado" o "Reservado", con candado en los dos últimos) y "Exportar a Excel". "Exportar a PDF" e "Imprimir" quedan para la Fase 8 | navegador: 85.15 con "17 expedientes" y 17 "Clasificado" con candado; 37 con "Público" sin candado |
+| #49 | Crear `frontend/src/components/Ficha.jsx` | hecha: panel a la derecha, pantalla completa en celular, Esc y ×, **"N expedientes" en el encabezado**, retención con cuándo empieza a contar, disposición, clasificación, soporte, tipos documentales, listado en páginas de 50 del más reciente al más antiguo, "Nombre reservado (IPC/IPR)", **el control de acceso de cada expediente** ("Público", "Clasificado" o "Reservado", con candado en los dos últimos) y "Exportar a Excel". "Exportar a PDF" e "Imprimir" se hicieron en la Fase 8 | navegador: 85.15 con "17 expedientes" y 17 "Clasificado" con candado; 37 con "Público" sin candado |
 | #50 | Mostrar "Datos al [fecha]" de la carga activa | hecha (en la consulta y abajo en el inicio) | navegador: "Datos al 10 de agosto de 2026" |
 | #51 | Ajustar la vista para celular | hecha. En pantallas de hasta 640 px la tabla de resultados pasa a **tarjetas**, sin desplazamiento lateral: arriba el código y el nombre, y debajo, en una fila, la retención, la disposición (su etiqueta de color) y los expedientes. Los grupos de serie se pliegan igual; las pestañas pasan a una segunda línea; el historial de cargas y la lista de problemas se apilan con el rótulo de cada dato; la ficha ocupa toda la pantalla y el panel de filtros arranca cerrado (#39) | navegador a 390 px: inicio, consulta (filtros cerrados y abiertos), ficha, ingreso y actualizar datos (revisión con problemas) sin desplazamiento lateral; 29 de 29 tarjetas con el orden pedido; grupo 02 plegado y desplegado |
 | #52 | Revisar la accesibilidad básica | hecha. Ya estaban: contraste sin fallas, botones reales, controles con nombre, foco visible y `lang="es"`. Se corrigió: al cerrar la ficha el foco **vuelve a la fila que la abrió** (o a los resultados si ya no se ve); con la ficha abierta **Tab y Mayús+Tab no salen de ella** (`utils/foco.js`, también en los diálogos); las pestañas siguen el patrón de ARIA (**flechas**, Inicio y Fin; un solo punto de Tab); encabezados **h2 por sección** ("Buscar y filtrar" y "Resultados de la consulta", para lectores de pantalla); el total se anuncia con **`aria-live`** al filtrar; las zonas táctiles miden **24 px o más** (la × de las etiquetas, "Quitar selección" y los nombres de las filas) | navegador: flechas, Inicio y Fin; 30 Tab y 8 Mayús+Tab dentro de la ficha; foco de vuelta en 85.15 (Esc) y en 37 (×); h2; `aria-live`; ninguna zona táctil de menos de 24 px en computador ni en celular |
@@ -321,23 +321,34 @@ La aplicación ya no abre con todos los resultados a la vista.
 - [x] La ficha de 85.15 muestra retención de 2 + 8 años, cuándo empieza a contar, conservación total y 17 expedientes (P-07). *(navegador: "10 años en total, 2 años en gestión + 8 en archivo central", el texto de inicio de la retención, "CT Conservación total" y "Expedientes (17)" con los 17 reservados; `exportar.test.js` comprueba los 17 al exportar desde la ficha)*
 - [x] La vista se usa sin zoom en un celular. *(navegador a 390 px: sin desplazamiento lateral en ninguna pantalla, resultados en tarjetas con los expedientes a la vista y filtros cerrados al entrar; ver #51)*
 
-## Fase 8 – Exportar e imprimir · sin empezar
+## Fase 8 – Exportar e imprimir · completa en `fase-8-exportar`
 
 **Objetivo:** que el usuario pueda llevarse exactamente lo que está viendo.
 **Requisitos:** RF-09, RF-10, RF-11 y RNF-09.
 
-| Issue | Tarea | Estado |
-|---|---|---|
-| #53 | Crear `frontend/src/utils/exportar.js` | sin empezar |
-| #54 | Exportar a Excel con tres hojas | sin empezar |
-| #55 | Exportar a PDF | sin empezar |
-| #56 | Imprimir con estilos de impresión | sin empezar |
-| #57 | Probar las exportaciones y la impresión | sin empezar |
+La rama `fase-8-exportar` sale de `main` después de los PR #87 (`fase-7-vista`) y #88 (`usuarios`). En la consulta, el botón "Exportar a Excel" pasó a un menú **"Exportar"** (Excel o PDF) con un botón **"Imprimir"** al lado; la ficha tiene los mismos (`components/BotonesExportar.jsx`). El menú usa `encajarMenu()`, como los demás, y se cierra con Esc (en la ficha, Esc cierra el menú y no la ficha) o con un clic fuera.
+
+| Issue | Tarea | Estado | Prueba |
+|---|---|---|---|
+| #53 | Crear `frontend/src/utils/exportar.js` | hecha (MVP), revisada: todo sale de las filas de `aplicarFiltros()` y de la pestaña elegida, o de la ficha abierta, igual que en pantalla (RNF-09). Se agregaron los filtros aplicados en texto (`filtrosAplicados()` y `lineaFiltros()`), que usan el PDF y la impresión, y el agrupado de la tabla pasó a `utils/agrupar.js`, compartido por la tabla, el PDF y la impresión | `exportar.test.js`, `pdf.test.js` |
+| #54 | Exportar a Excel con tres hojas | hecha (MVP), revisada con y sin ficha: "Series y subseries", "Expedientes" y "Filtros", con las mismas filas que se ven. Dos ajustes: la hoja "Filtros" dice de dónde sale ("Consulta, pestaña …" o "Ficha de 85.15") y el control de acceso usa las palabras de la ficha (Público, Clasificado, Reservado). Nombre: `TRDCode-AAAA-MM-DD.xlsx`, como pide el issue | P-09: 643 expedientes; pestaña "Con expedientes": 16 filas y 604 expedientes; ficha de 85.15: 1 fila y 17 expedientes |
+| #55 | Exportar a PDF | hecha (`utils/pdf.js`, con jsPDF y jspdf-autotable, que se cargan solo al exportar). Hoja A4 horizontal. Sin ficha: título, "Datos al…", filtros en texto, total y la tabla (código, serie o subserie, retención, disposición y expedientes) agrupada como en pantalla, con una sección por dependencia si hay varias. Desde la ficha: lo mismo de esa serie o subserie más su detalle (retención, cuándo empieza a contar, disposición, soporte, clasificación, procedimiento y tipos documentales) y el listado completo de expedientes con su control de acceso. En cada página: TRDCode · SENA Regional Tolima, fecha de generación y "Página N de M". Nombre: `TRDCode_consulta_AAAA-MM-DD.pdf` o `TRDCode_ficha_85.15_AAAA-MM-DD.pdf`. Con las fuentes estándar, jsPDF solo escribe bien hasta el carácter 255: las tildes, la ñ, ¿ y ¡ salen bien; la raya, las comillas curvas y los puntos suspensivos se cambian por equivalentes simples (`textoPdf()`), para que nunca salga basura. Los nombres IPC e IPR llegan ya ocultos de la API ("Nombre reservado (IPC)"), igual que en pantalla | P-10 |
+| #56 | Imprimir con estilos de impresión | hecha (`@media print` en `styles.css`). Se imprime solo lo que se ve, sin el encabezado interactivo, los filtros, los botones, las pestañas ni los menús; arriba va una línea con la fecha de los datos y los filtros aplicados. Con la ficha abierta se imprime solo la ficha, completa: todos los expedientes (no solo la página de 50), todos los tipos documentales y el procedimiento. Cada grupo de serie va en su propio `<tbody>` y no se corta entre páginas, igual que las tarjetas y los expedientes; la cabecera de la tabla se repite en cada hoja | P-11 |
+| #57 | Probar las exportaciones y la impresión | hecha: `pdf.test.js` en `npm test` y `scripts/pruebas-navegador/exportar.mjs` (ver abajo) | — |
+
+**Pruebas:**
+- `npm test`: 61 pruebas. `pdf.test.js` (14) revisa el armado del PDF con el reporte de agosto: título, "Datos al", filtros, total, la tabla agrupada como en pantalla (grupos, subseries bajo su serie, 85.18 "No está en la TRD" con 39), la pestaña en los filtros, las secciones por dependencia, la ficha de 85.15 con su detalle y sus 17 expedientes, y `textoPdf()`. También dibuja los dos PDF con jsPDF y los lee: encabezado y pie en cada página, los 17 códigos y ningún nombre reservado.
+- `scripts/pruebas-navegador/exportar.mjs` (43 comprobaciones; solo lee, no crea cuentas ni cargas):
+  - Descarga de verdad el PDF y el Excel, de la consulta y de la ficha de 85.15, y los lee: el PDF con `leer_pdf.mjs` (jsPDF no comprime el texto) y el Excel con SheetJS. Compara con lo que se ve: los códigos de la tabla, los 17 expedientes, ningún nombre reservado y "Página N de M" en cada página.
+  - Revisa la impresión con la emulación de impresión del navegador (`Emulation.setEmulatedMedia`): la consulta sin controles y con la línea de filtros, la ficha sola, y una ficha con 308 expedientes (serie 37) que imprime los 308.
+  - Revisa el menú "Exportar" a 320 y 390 px, en la consulta y en la ficha.
+  - Deja junto a las capturas la hoja impresa (`exportar-impresion-*.pdf`) para revisarla a ojo.
+- Pasan en desarrollo y en Apache, con todas las demás: `inicio` (25), `ingreso` (15), `vista` (27), `menus` (20), `usuarios` (31), `probar_auth.php` (51) y `probar_usuarios.php` (62). En la base temporal pasan también `actualizar` (35), `probar_importacion.php` (56) y `probar_usuarios.php` (64).
 
 **Criterios de aceptación**
-- [ ] El Excel tiene las tres hojas con lo que se ve.
-- [ ] El PDF sin ficha trae solo el resumen; con la ficha de 85.15 abierta incluye los 17 expedientes (P-10).
-- [ ] La impresión no muestra filtros ni botones.
+- [x] El Excel tiene las tres hojas con lo que se ve. *(navegador y `exportar.test.js`: pestaña "Con expedientes", 16 series y subseries y 604 expedientes; desde la ficha de 85.15, 1 fila y sus 17 expedientes; sin ficha, P-09 con 643)*
+- [x] El PDF sin ficha trae solo el resumen; con la ficha de 85.15 abierta incluye los 17 expedientes (P-10). *(navegador: el PDF de la consulta tiene los 37 códigos de la tabla y ningún expediente; el de la ficha, los 17 códigos, cada uno con "Nombre reservado (IPC)" y "Clasificado"; `pdf.test.js` lo mismo con el PDF dibujado)*
+- [x] La impresión no muestra filtros ni botones (P-11). *(navegador con la emulación de impresión: ni encabezado interactivo, ni filtros, ni pestañas, ni botones ni menús; la línea de filtros y "Datos al" arriba; desde la ficha, todos sus expedientes)*
 
 ## Fase 9 – Instalación local y paquete de entrega · sin empezar
 
