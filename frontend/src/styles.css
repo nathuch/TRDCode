@@ -1065,6 +1065,12 @@ summary {
   font-size: 0.87rem;
 }
 
+/* La tabla de resultados cabe en una tableta (720 px útiles a 768) sin desplazarse de lado:
+   el nombre se corta en líneas. En celular pasa a tarjetas. */
+.tabla--resultados {
+  min-width: 0;
+}
+
 .tabla th,
 .tabla td {
   padding: 12px 14px;
@@ -1646,6 +1652,14 @@ summary {
   .revision__tarjetas {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+
+  .tabla--resultados .col-disposicion {
+    width: 180px;
+  }
+
+  .tabla--resultados .col-expedientes {
+    width: 110px;
+  }
 }
 
 @media (max-width: 640px) {
@@ -2001,5 +2015,23 @@ summary {
 
   .zona-archivo {
     padding: 22px 14px;
+  }
+}
+
+/* Pantallas muy angostas (320 px): la retención, la disposición y los expedientes no caben en una
+   sola fila de la tarjeta; la disposición pasa a su propia línea. */
+@media (max-width: 380px) {
+  .tabla--resultados tr.tabla__fila {
+    grid-template-columns: auto minmax(0, 1fr);
+  }
+
+  .tabla--resultados .tabla__fila .col-expedientes {
+    grid-area: 2 / 2;
+    justify-self: end;
+  }
+
+  .tabla--resultados .tabla__fila .col-disposicion {
+    grid-column: 1 / -1;
+    grid-row: 3;
   }
 }

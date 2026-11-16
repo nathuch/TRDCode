@@ -259,7 +259,7 @@ La aplicación ya no abre con todos los resultados a la vista.
 - [x] "Volver a esta carga" recupera la carga anterior.
 
 > **Revisión del 15 de noviembre de 2026.** Las Fases 5, 6 y 7 se revisaron contra el código de `main` (todo llegó con el MVP y está fusionado con el PR #84). Las pruebas citadas son de `npm test` (`cruce.test.js`, `filtros.test.js`, `exportar.test.js`, `estadoUrl.test.js`) salvo cuando dice "navegador": esas comprobaciones se hicieron en Edge sin ventana con scripts de prueba que no están en el repositorio (auditoría de solo lectura de la consulta, celular de 390 px y pruebas de la pantalla de inicio). Los issues siguen abiertos en GitHub.
-> Después, en `fase-7-vista`, se completaron #39 (con la decisión de la usuaria), #49, #51, #52 y lo pendiente de #27; las pruebas en el navegador sumaron los casos de teclado y de celular a 390 px, y quedaron versionadas en `scripts/pruebas-navegador/` (inicio, ingreso, vista y actualizar; 102 comprobaciones, sin datos reales).
+> Después, en `fase-7-vista`, se completaron #39 (con la decisión de la usuaria), #49, #51, #52 y lo pendiente de #27; las pruebas en el navegador sumaron los casos de teclado y de celular a 390 px, y quedaron versionadas en `scripts/pruebas-navegador/` (inicio, ingreso, vista, menus y actualizar; 122 comprobaciones, sin datos reales). Los menús desplegables (el de la usuaria y los selectores de filtros) se encajan al abrirse para quedar completos en la pantalla, alineados a su botón y sin pasar los márgenes, a 320, 390, 768 px y en computador; a 768 px la tabla de resultados cabe sin desplazarse de lado, y a 320 px la tarjeta pone la disposición en su propia línea.
 
 ## Fase 5 – Cruce de expedientes con la TRD · completa en `main` (MVP)
 

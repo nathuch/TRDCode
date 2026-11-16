@@ -9,6 +9,7 @@ No llevan datos reales: las cuentas son temporales (correo `prueba-…@trdcode.l
 | `inicio.mjs` | Pantalla de inicio, paso a la consulta, atrás/adelante, enlaces compartidos, celular | No |
 | `ingreso.mjs` | Ingreso, errores, bloqueo, menú, cambio de contraseña y salida | Solo su cuenta temporal |
 | `vista.mjs` | Pestañas y ficha con el teclado, control de acceso, h2, `aria-live`, zonas táctiles; celular a 390 px en todas las pantallas | Solo su cuenta temporal |
+| `menus.mjs` | Menú de la usuaria y selectores de filtros abiertos: completos dentro de la pantalla, sin pasar los márgenes y alineados a su botón, a 320, 390, 768 y 1.280 px | Solo su cuenta temporal |
 | `actualizar.mjs` | "Actualizar datos" completo: arrastrar, vista previa, carga, historial y volver a una carga | **Sí: crea cargas.** Solo en una base temporal |
 
 ## Cómo correrlas
@@ -36,7 +37,7 @@ unset TRDCODE_ENV
 C:/xampp/php/php.exe scripts/pruebas-navegador/base_temporal.php borrar
 ```
 
-Antes de crear cuentas o cargas, `ingreso.mjs`, `vista.mjs` y `actualizar.mjs` comprueban que la aplicación probada use la misma base que ellas (comparan la carga activa que entrega `datos.php`); si no coincide, se detienen sin escribir nada.
+Antes de crear cuentas o cargas, `ingreso.mjs`, `vista.mjs`, `menus.mjs` y `actualizar.mjs` comprueban que la aplicación probada use la misma base que ellas (comparan la carga activa que entrega `datos.php`); si no coincide, se detienen sin escribir nada.
 
 `base_temporal.php` crea `trdcode_prueba` con los scripts de `database/` y `datos-prueba/expedientes.sql`, y escribe `datos-prueba/prueba.env` (no va al repositorio). Necesita `datos-prueba/reporte-tolima-2026-08-10.xlsx`. El Excel inventado con filas con problemas lo genera la prueba al correr (los `.xlsx` no van al repositorio).
 

@@ -138,6 +138,9 @@ export async function abrirNavegador({ ancho = 1280, alto = 900, prefijo = 'prue
     await espera(250)
   }
   const celular = () => cdp('Emulation.setDeviceMetricsOverride', { width: 390, height: 844, deviceScaleFactor: 2, mobile: true })
+  /** Pantalla de cierto ancho (menos de 1.024 px se trata como celular o tableta). */
+  const tamano = (ancho) =>
+    cdp('Emulation.setDeviceMetricsOverride', { width: ancho, height: ancho < 1024 ? 844 : 900, deviceScaleFactor: 1, mobile: ancho < 1024 })
   const computador = () => cdp('Emulation.clearDeviceMetricsOverride')
   const foto = async (nombre) => {
     const r = await cdp('Page.captureScreenshot', { format: 'png' })
@@ -151,7 +154,7 @@ export async function abrirNavegador({ ancho = 1280, alto = 900, prefijo = 'prue
   }
   await cdp('Page.enable')
   await cdp('DOM.enable')
-  return { cdp, ev, esperarA, tecla, clic, escribir, elegirArchivo, ir, celular, computador, foto, cerrar }
+  return { cdp, ev, esperarA, tecla, clic, escribir, elegirArchivo, ir, celular, tamano, computador, foto, cerrar }
 }
 
 /** Registro de comprobaciones: imprime "ok" o "FALLA" y cuenta las fallas. */

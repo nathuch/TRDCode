@@ -1,5 +1,6 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { cambiarClave, cerrarSesion, iniciarSesion } from '../api/cliente.js'
+import { encajarMenu } from '../utils/menus.js'
 import DialogoClave from './DialogoClave.jsx'
 import DialogoIngreso from './DialogoIngreso.jsx'
 import { IconoFlecha } from './Iconos.jsx'
@@ -16,6 +17,7 @@ export default function Acceso({ nombre, onCambiarNombre: setNombre, onActualiza
   const contenedor = useRef(null)
   const botonUsuaria = useRef(null)
   const botonIngresar = useRef(null)
+  const menu = useRef(null)
   // Al cerrar un diálogo, entrar o salir, el foco vuelve al botón del encabezado que corresponda
   // (al entrar o salir, el que se usó desaparece).
   const moverFoco = useRef(false)
@@ -27,6 +29,15 @@ export default function Acceso({ nombre, onCambiarNombre: setNombre, onActualiza
   }, [nombre, dialogo])
 
   // El menú se cierra con Esc o con un clic fuera de él.
+  // El menú queda completo en la pantalla (en celular el botón queda a la izquierda), también al girarla.
+  useLayoutEffect(() => {
+    if (!menuAbierto) return undefined
+    const encajar = () => encajarMenu(menu.current)
+    encajar()
+    window.addEventListener('resize', encajar)
+    return () => window.removeEventListener('resize', encajar)
+  }, [menuAbierto])
+
   useEffect(() => {
     if (!menuAbierto) return undefined
     const alHacerClic = (e) => !contenedor.current?.contains(e.target) && setMenuAbierto(false)
@@ -110,7 +121,7 @@ export default function Acceso({ nombre, onCambiarNombre: setNombre, onActualiza
             <IconoFlecha direccion={menuAbierto ? 'arriba' : 'abajo'} />
           </button>
           {menuAbierto && (
-            <div className="acceso__menu" id="acceso-menu">
+            <div className="acceso__menu" id="acceso-menu" ref={menu}>
               <button
                 type="button"
                 className="acceso__opcion"
