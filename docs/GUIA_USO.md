@@ -283,7 +283,7 @@ Hay dos botones **Exportar a Excel**:
 | Junto al total | Las series y subseries de la **pestaña que se está viendo**, con todos sus expedientes. Desde la pestaña **Todas**, descarga toda la consulta. |
 | Dentro de la ficha | Solo esa serie o subserie y sus expedientes. |
 
-El archivo se guarda en la carpeta **Descargas** con el nombre **`TRDCode-AAAA-MM-DD.xlsx`** (la fecha del día en que se descarga) y trae tres hojas:
+El archivo se guarda en la carpeta **Descargas** con el nombre **`TRDCode_consulta_AAAA-MM-DD.xlsx`** (la fecha del día en que se descarga; desde la ficha, **`TRDCode_ficha_<código>_AAAA-MM-DD.xlsx`**) y trae tres hojas:
 
 | Hoja | Columnas |
 |---|---|

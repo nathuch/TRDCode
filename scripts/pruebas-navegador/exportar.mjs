@@ -43,10 +43,10 @@ const opcion = (zona, texto) => `[...document.querySelectorAll('${zona} .menu-ex
 // Visible = ocupa lugar en la página (display: none no deja rectángulos).
 const VISIBLE = `const visible = (e) => !!e && e.getClientRects().length > 0`
 
-/** Espera un archivo descargado que empiece con el prefijo; devuelve su ruta (o null). */
-async function descargado(prefijo, ms = 20000) {
+/** Espera el archivo descargado con ese nombre; devuelve su ruta (o null si no llega). */
+async function descargado(nombre, ms = 20000) {
   for (let t = 0; t < ms; t += 200) {
-    const archivo = readdirSync(descargas).find((a) => a.startsWith(prefijo) && !a.endsWith('.crdownload'))
+    const archivo = readdirSync(descargas).find((a) => a === nombre)
     if (archivo) {
       await espera(300)
       return join(descargas, archivo)
@@ -56,13 +56,13 @@ async function descargado(prefijo, ms = 20000) {
   return null
 }
 
-/** Abre el menú "Exportar" de la zona, elige el formato y devuelve la ruta del archivo descargado. */
-async function exportar(zona, formato, prefijo) {
+/** Abre el menú "Exportar" de la zona, elige el formato y devuelve la ruta del archivo con el nombre esperado. */
+async function exportar(zona, formato, nombre) {
   for (const a of readdirSync(descargas)) rmSync(join(descargas, a))
   await clic(BOTON_EXPORTAR(zona))
   await esperarA(dentroDe(`${zona} .menu-exportar__menu`))
   await clic(opcion(zona, formato))
-  return descargado(prefijo)
+  return descargado(nombre)
 }
 
 /** El menú queda completo en la pantalla, sin pasar los márgenes de 16 px. */
@@ -107,8 +107,8 @@ try {
   r.comprobar('Esc lo cierra y el foco vuelve a "Exportar"', await esperarA(`!${MENU('.total')} && document.activeElement === ${BOTON_EXPORTAR('.total')}`))
 
   // PDF de la consulta: el resumen de lo que se ve.
-  const rutaResumen = await exportar('.total', 'PDF', 'TRDCode_consulta_')
-  r.comprobar(`descarga TRDCode_consulta_${FECHA}.pdf`, rutaResumen?.endsWith(`TRDCode_consulta_${FECHA}.pdf`))
+  const rutaResumen = await exportar('.total', 'PDF', `TRDCode_consulta_${FECHA}.pdf`)
+  r.comprobar(`descarga TRDCode_consulta_${FECHA}.pdf`, !!rutaResumen)
   const resumen = leerPdf(readFileSync(rutaResumen, 'latin1'))
   const codigosPantalla = await ev(`[...document.querySelectorAll('#tabla-resultados .col-codigo')].map(c => c.textContent.trim()).filter(Boolean)`)
   r.comprobar(`el PDF tiene título, "${sello}" y los filtros en texto`, resumen.texto.includes('Consulta de series y subseries documentales') && resumen.texto.includes(sello) && resumen.texto.includes('Filtros: TRD 11 (vigente, 2025) · Centro: Industria y Construcción · Dependencia: '))
@@ -122,14 +122,14 @@ try {
   await clic(`document.querySelector('#pestana-con')`)
   await esperarA(`document.querySelector('#pestana-con').getAttribute('aria-selected') === 'true'`)
   const filasCon = await ev(`document.querySelectorAll('#tabla-resultados tr.tabla__fila').length`)
-  const rutaExcel = await exportar('.total', 'Excel (.xlsx)', 'TRDCode-')
-  r.comprobar(`descarga TRDCode-${FECHA}.xlsx`, rutaExcel?.endsWith(`TRDCode-${FECHA}.xlsx`))
+  const rutaExcel = await exportar('.total', 'Excel (.xlsx)', `TRDCode_consulta_${FECHA}.xlsx`)
+  r.comprobar(`descarga TRDCode_consulta_${FECHA}.xlsx (el mismo nombre que el PDF)`, !!rutaExcel)
   const libro = hojas(rutaExcel)
   r.comprobar('el Excel tiene las tres hojas', libro.nombres.join('|') === 'Series y subseries|Expedientes|Filtros')
   r.comprobar(`  con la pestaña "Con expedientes": ${filasCon} series y subseries y ${totalCon} expedientes, como en pantalla`, libro.series.length === filasCon && libro.expedientes.length === totalCon)
   r.comprobar('  la hoja Filtros dice de qué pestaña sale', filtro(libro, 'Exportado desde') === 'Consulta, pestaña "Con expedientes"' && filtro(libro, 'Centros') === 'Industria y Construcción')
   r.comprobar('  los reservados sin nombre y el acceso con las palabras de la ficha', libro.expedientes.filter((e) => e['Control de acceso'] !== 'Público').every((e) => e['Nombre del expediente'].startsWith('Nombre reservado')) && libro.expedientes.every((e) => ['Público', 'Clasificado', 'Reservado', 'Sin clasificar'].includes(e['Control de acceso'])))
-  const rutaPdfCon = await exportar('.total', 'PDF', 'TRDCode_consulta_')
+  const rutaPdfCon = await exportar('.total', 'PDF', `TRDCode_consulta_${FECHA}.pdf`)
   r.comprobar('el PDF de esa pestaña la anota en los filtros', leerPdf(readFileSync(rutaPdfCon, 'latin1')).texto.includes('Pestaña: Con expedientes'))
   await clic(`document.querySelector('#pestana-todas')`)
 
@@ -143,8 +143,8 @@ try {
   await tecla('Escape')
   r.comprobar('  Esc cierra el menú pero no la ficha', await esperarA(`!${MENU('.ficha')} && !!document.querySelector('.ficha') && document.activeElement === ${BOTON_EXPORTAR('.ficha')}`))
 
-  const rutaFicha = await exportar('.ficha', 'PDF', 'TRDCode_ficha_')
-  r.comprobar(`descarga TRDCode_ficha_85.15_${FECHA}.pdf`, rutaFicha?.endsWith(`TRDCode_ficha_85.15_${FECHA}.pdf`))
+  const rutaFicha = await exportar('.ficha', 'PDF', `TRDCode_ficha_85.15_${FECHA}.pdf`)
+  r.comprobar(`descarga TRDCode_ficha_85.15_${FECHA}.pdf`, !!rutaFicha)
   const pdfFicha = leerPdf(readFileSync(rutaFicha, 'latin1'))
   const codigosFicha = await ev(`[...document.querySelectorAll('.ficha .expedientes:not(.solo-impresion) .expediente__codigo')].map(c => c.textContent.trim())`)
   r.comprobar('el PDF lleva título, filtros, total y la fila de 85.15', pdfFicha.texto.includes('Ficha de la subserie 85.15') && pdfFicha.texto.includes('Filtros: TRD 11') && pdfFicha.texto.includes('17 expedientes') && pdfFicha.paginas[0].includes('85.15'))
@@ -153,7 +153,8 @@ try {
   r.comprobar('  ningún nombre reservado: los IPC e IPR salen como "Nombre reservado"', sinNombresReservados(pdfFicha, f8515.expedientes))
   r.comprobar(`  encabezado y pie en las ${pdfFicha.paginas.length} páginas`, encabezadoYPie(pdfFicha))
 
-  const rutaExcelFicha = await exportar('.ficha', 'Excel (.xlsx)', 'TRDCode-')
+  const rutaExcelFicha = await exportar('.ficha', 'Excel (.xlsx)', `TRDCode_ficha_85.15_${FECHA}.xlsx`)
+  r.comprobar(`descarga TRDCode_ficha_85.15_${FECHA}.xlsx`, !!rutaExcelFicha)
   const libroFicha = hojas(rutaExcelFicha)
   r.comprobar('el Excel de la ficha: 1 subserie, sus 17 expedientes y "Ficha de 85.15" en Filtros', libroFicha.series.length === 1 && libroFicha.series[0]['Código subserie'] === '85.15' && libroFicha.expedientes.length === 17 && f8515.expedientes.every((e) => libroFicha.expedientes.some((x) => x['Código expediente'] === e.codigo)) && filtro(libroFicha, 'Exportado desde') === 'Ficha de 85.15')
 

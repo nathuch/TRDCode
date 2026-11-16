@@ -9,7 +9,7 @@
  * dibuja con jsPDF y jspdf-autotable, que se cargan solo al exportar.
  */
 import { agrupar, enSecciones } from './agrupar.js'
-import { fechaArchivo, lineaFiltros, textoDatosAl, textoTrd } from './exportar.js'
+import { lineaFiltros, nombreArchivo, textoDatosAl, textoTrd } from './exportar.js'
 import {
   codigoFila,
   disposiciones,
@@ -120,10 +120,6 @@ function expedientesFicha(ficha, nombreCentroDeDependencia) {
   return { columnas, filas, reservados: lista.map((e) => e.control_acceso !== 'IPU') }
 }
 
-export function nombreArchivoPdf(ficha, fecha = new Date()) {
-  return ficha ? `TRDCode_ficha_${codigoFila(ficha)}_${fechaArchivo(fecha)}.pdf` : `TRDCode_consulta_${fechaArchivo(fecha)}.pdf`
-}
-
 /**
  * Todo el contenido del PDF. filas son las que se ven (pestaña elegida) o [ficha]; contexto trae
  * los nombres (nombrePlantilla, nombreCentro, nombreCentroDeDependencia), la carga y la pestaña.
@@ -132,7 +128,7 @@ export function contenidoPdf(filas, estado, contexto, { ficha = null, generado =
   const { nombrePlantilla, nombreCentroDeDependencia, carga } = contexto
   const total = filas.reduce((suma, f) => suma + f.cantidad, 0)
   const contenido = {
-    nombreArchivo: nombreArchivoPdf(ficha, generado),
+    nombreArchivo: nombreArchivo(ficha, 'pdf', generado),
     generado: generado.toLocaleString('es-CO', { day: 'numeric', month: 'long', year: 'numeric', hour: 'numeric', minute: '2-digit' }),
     titulo: 'Consulta de series y subseries documentales',
     subtitulo: null,

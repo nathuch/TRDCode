@@ -6,7 +6,7 @@ import { armarIndice } from '../datos/cruce.js'
 import { cargarDatosReales, hayDatosReales } from '../datos/datosPrueba.js'
 import { aplicarFiltros, ESTADO_INICIAL } from '../datos/filtros.js'
 import { lineaFiltros } from './exportar.js'
-import { contenidoPdf, dibujarPdf, nombreArchivoPdf, textoPdf } from './pdf.js'
+import { contenidoPdf, dibujarPdf, textoPdf } from './pdf.js'
 
 const ACCESOS = new Set(['Público', 'Clasificado', 'Reservado', 'Sin clasificar'])
 
@@ -21,13 +21,6 @@ describe('textoPdf: lo que las fuentes estándar del PDF pueden escribir', () =>
     expect(textoPdf(`Informacio${String.fromCodePoint(0x301)}n`)).toBe('Información')
     expect(textoPdf('Erdős Ω')).toBe('Erdos ?')
     expect(textoPdf(`3:42${String.fromCodePoint(0x202f)}p.${String.fromCodePoint(0xa0)}m.`)).toBe('3:42 p. m.')
-  })
-})
-
-describe('nombre del PDF', () => {
-  it('lleva la fecha: TRDCode_consulta_AAAA-MM-DD.pdf, o el código de la ficha', () => {
-    expect(nombreArchivoPdf(null, new Date(2026, 10, 15))).toBe('TRDCode_consulta_2026-11-15.pdf')
-    expect(nombreArchivoPdf({ codigo_serie: '85', codigo_subserie: '85.15' }, new Date(2026, 10, 5))).toBe('TRDCode_ficha_85.15_2026-11-05.pdf')
   })
 })
 

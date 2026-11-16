@@ -102,8 +102,13 @@ export function fechaArchivo(fecha = new Date()) {
   return `${fecha.getFullYear()}-${dos(fecha.getMonth() + 1)}-${dos(fecha.getDate())}`
 }
 
-export function nombreArchivo(fecha = new Date()) {
-  return `TRDCode-${fechaArchivo(fecha)}.xlsx`
+/**
+ * Nombre del Excel o del PDF, con la fecha de descarga: TRDCode_consulta_2026-11-15.xlsx, o desde la
+ * ficha TRDCode_ficha_85.15_2026-11-15.pdf.
+ */
+export function nombreArchivo(ficha, extension, fecha = new Date()) {
+  const origen = ficha ? `ficha_${codigoFila(ficha)}` : 'consulta'
+  return `TRDCode_${origen}_${fechaArchivo(fecha)}.${extension}`
 }
 
 export async function exportarExcel(filas, estado, contexto, opciones = {}) {
@@ -116,7 +121,7 @@ export async function exportarExcel(filas, estado, contexto, opciones = {}) {
     : XLSX.utils.aoa_to_sheet([['No hay expedientes en lo filtrado.']])
   XLSX.utils.book_append_sheet(libro, hojaExpedientes, 'Expedientes')
   XLSX.utils.book_append_sheet(libro, XLSX.utils.aoa_to_sheet(filtros), 'Filtros')
-  const nombre = nombreArchivo()
+  const nombre = nombreArchivo(opciones.ficha, 'xlsx')
   XLSX.writeFile(libro, nombre)
   return nombre
 }
