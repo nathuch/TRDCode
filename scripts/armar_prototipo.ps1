@@ -37,6 +37,8 @@ New-Item -ItemType Directory -Path $database -Force | Out-Null
 foreach ($archivo in 'schema.sql', 'datos_iniciales.sql', 'trd.sql') {
     Copy-Item -Path (Join-Path $raiz "database\$archivo") -Destination $database
 }
+# Migraciones para actualizar una base ya instalada (ver LEEME.txt).
+Copy-Item -Path (Join-Path $raiz 'database\migraciones') -Destination (Join-Path $database 'migraciones') -Recurse
 
 Copy-Item -Path (Join-Path $raiz '.env.example') -Destination $destino
 Copy-Item -Path (Join-Path $raiz 'scripts\prototipo\LEEME.txt') -Destination $destino
