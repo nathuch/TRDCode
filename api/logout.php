@@ -6,7 +6,7 @@ require __DIR__ . '/lib/auth.php';
 exigirMetodo('POST');
 
 try {
-    requerirSesion();
+    requerirSesion(true);
     requerirCsrf();
     cerrarSesion();
     responderOk(['sesion' => false]);

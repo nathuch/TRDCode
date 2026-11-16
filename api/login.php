@@ -22,7 +22,9 @@ try {
     }
 
     $pdo = conexion();
-    $consulta = $pdo->prepare('SELECT id, nombre, clave_hash, activo FROM usuarios WHERE correo = ?');
+    $consulta = $pdo->prepare(
+        'SELECT id, nombre, clave_hash, activo, debe_cambiar_clave, sesion_version FROM usuarios WHERE correo = ?'
+    );
     $consulta->execute([$correo]);
     $usuario = $consulta->fetch() ?: null;
 
@@ -41,8 +43,10 @@ try {
             ->execute([password_hash($clave, PASSWORD_DEFAULT), (int) $usuario['id']]);
     }
     limpiarFallos($correo);
-    iniciarSesionUsuario((int) $usuario['id']);
-    responderOk(datosDeSesion($usuario['nombre']));
+    $pdo->prepare('UPDATE usuarios SET ultimo_ingreso = NOW() WHERE id = ?')->execute([(int) $usuario['id']]);
+    iniciarSesionUsuario((int) $usuario['id'], (int) $usuario['sesion_version']);
+    // Con una contraseña temporal, el frontend obliga a cambiarla y el servidor no deja hacer nada más.
+    responderOk(datosDeSesion($usuario['nombre'], (int) $usuario['debe_cambiar_clave'] === 1));
 } catch (Throwable $e) {
     error_log('TRDCode login.php: ' . $e->getMessage());
     responderError('No se pudo iniciar sesión. Intente de nuevo más tarde.');
