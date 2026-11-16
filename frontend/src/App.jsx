@@ -3,9 +3,10 @@ import { cambiarClave, cerrarSesion, obtenerDatos, obtenerSesion } from './api/c
 import Acceso from './components/Acceso.jsx'
 import ActualizarDatos from './components/ActualizarDatos.jsx'
 import BarraConsulta from './components/BarraConsulta.jsx'
+import BotonesExportar from './components/BotonesExportar.jsx'
 import DialogoClave from './components/DialogoClave.jsx'
 import Ficha from './components/Ficha.jsx'
-import { IconoAlerta, IconoCalendario, IconoDescarga } from './components/Iconos.jsx'
+import { IconoAlerta, IconoCalendario } from './components/Iconos.jsx'
 import Inicio from './components/Inicio.jsx'
 import MiCuenta from './components/MiCuenta.jsx'
 import TablaResultados from './components/TablaResultados.jsx'
@@ -19,7 +20,8 @@ import {
   resultadosEnOtraVersion,
 } from './datos/filtros.js'
 import { escribirUrl, irAConsulta, irAInicio, irAVista, leerUrl, VISTAS_CON_SESION } from './estadoUrl.js'
-import { exportarExcel } from './utils/exportar.js'
+import { exportarExcel, lineaFiltros, textoDatosAl } from './utils/exportar.js'
+import { exportarPdf } from './utils/pdf.js'
 import { codigoFila, disposiciones, fechaLarga, formatoNumero, nombreFila, nombreLegible } from './utils/formato.js'
 
 const inicial = leerUrl()
@@ -38,7 +40,8 @@ export default function App() {
   const [estado, setEstado] = useState(inicial.estado)
   const [llaveFicha, setLlaveFicha] = useState(inicial.ficha)
   const [pestana, setPestana] = useState('todas')
-  const [exportando, setExportando] = useState(false)
+  // Formato que se está generando ('excel' o 'pdf'), o null.
+  const [generando, setGenerando] = useState(null)
   // 'inicio' (sin resultados a la vista), 'consulta' o 'actualizar' (solo con sesión).
   // Una dirección con filtros o ficha abre la consulta.
   const [vista, setVista] = useState(inicial.vista)
@@ -199,14 +202,18 @@ export default function App() {
     document.getElementById(`pestana-${PESTANAS[j].valor}`)?.focus()
   }
 
-  const exportar = async (filasAExportar) => {
-    setExportando(true)
+  // Excel, PDF e impresión parten de lo mismo que se ve: la pestaña elegida o la ficha abierta.
+  const contexto = { ...nombres, carga: datos?.carga, pestana: pestanaActual.texto }
+  const lineaImpresion = `${textoDatosAl(datos?.carga)} · Filtros: ${lineaFiltros(estado, contexto)}`
+  const exportar = async (formato, filasAExportar, desdeFicha = null) => {
+    setGenerando(formato)
     try {
-      await exportarExcel(filasAExportar, estado, { ...nombres, carga: datos?.carga })
+      const generar = formato === 'pdf' ? exportarPdf : exportarExcel
+      await generar(filasAExportar, estado, contexto, { ficha: desdeFicha })
     } catch (e) {
-      window.alert(`No se pudo generar el Excel: ${e.message}`)
+      window.alert(`No se pudo generar el ${formato === 'pdf' ? 'PDF' : 'Excel'}: ${e.message}`)
     } finally {
-      setExportando(false)
+      setGenerando(null)
     }
   }
 
@@ -298,6 +305,12 @@ export default function App() {
           {datos && (
             <>
               <h2 className="solo-lector">Resultados de la consulta</h2>
+              {/* Solo al imprimir: en lugar del encabezado y los filtros, una línea con lo aplicado. */}
+              <div className="solo-impresion impresion-cabecera">
+                <p className="impresion-cabecera__marca">TRDCode · SENA Regional Tolima</p>
+                <p className="impresion-cabecera__titulo">Consulta de series y subseries documentales</p>
+                <p className="impresion-cabecera__linea">{lineaImpresion}</p>
+              </div>
               {!datos.carga && <p className="aviso-ambar">Todavía no hay expedientes cargados: se muestra solo la TRD.</p>}
 
               <div className="total">
@@ -308,15 +321,12 @@ export default function App() {
                     {formatoNumero(filas.length)} {filas.length === 1 ? 'serie o subserie' : 'series y subseries'}
                   </strong>
                 </p>
-                <button
-                  type="button"
-                  className="boton boton--primario"
-                  onClick={() => exportar(visibles)}
-                  disabled={exportando || visibles.length === 0}
-                >
-                  <IconoDescarga />
-                  {exportando ? 'Generando…' : 'Exportar a Excel'}
-                </button>
+                <BotonesExportar
+                  id="exportar-consulta"
+                  onExportar={(formato) => exportar(formato, visibles)}
+                  generando={generando}
+                  deshabilitado={visibles.length === 0}
+                />
               </div>
 
               <div className="pestanas" role="tablist" aria-label="Ver series y subseries">
@@ -397,8 +407,9 @@ export default function App() {
           nombrePlantilla={nombres.nombrePlantilla}
           nombreCentroDeDependencia={nombres.nombreCentroDeDependencia}
           onCerrar={cerrarFicha}
-          onExportar={() => exportar([ficha])}
-          exportando={exportando}
+          onExportar={(formato) => exportar(formato, [ficha], ficha)}
+          generando={generando}
+          lineaImpresion={`${textoDatosAl(datos?.carga)} · Filtros: ${lineaFiltros(estado, { ...contexto, pestana: null })}`}
         />
       )}
 

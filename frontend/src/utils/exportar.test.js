@@ -31,14 +31,25 @@ describe.skipIf(!hayDatosReales)('exportar con el reporte de agosto (datos-prueb
 
   it('desde la ficha de 85.15 salen sus 17 expedientes', () => {
     const ficha = filas.find((f) => f.codigo_subserie === '85.15')
-    const libro = datosLibro([ficha], estado, contexto)
+    const libro = datosLibro([ficha], estado, contexto, { ficha })
     expect(libro.series).toHaveLength(1)
     expect(libro.expedientes).toHaveLength(17)
     expect(libro.expedientes[0].Centro).toBe('Industria y Construcción')
+    expect(libro.filtros.find(([f]) => f === 'Exportado desde')[1]).toBe('Ficha de 85.15')
+  })
+
+  it('sin ficha, la hoja Filtros dice de qué pestaña sale', () => {
+    const libro = datosLibro(filas, estado, { ...contexto, pestana: 'Con expedientes' })
+    expect(libro.filtros.find(([f]) => f === 'Exportado desde')[1]).toBe('Consulta, pestaña "Con expedientes"')
+  })
+
+  it('el control de acceso usa las palabras de la ficha', () => {
+    const accesos = new Set(datosLibro(filas, estado, contexto).expedientes.map((e) => e['Control de acceso']))
+    expect([...accesos].every((a) => ['Público', 'Clasificado', 'Reservado', 'Sin clasificar'].includes(a))).toBe(true)
   })
 
   it('RNF-09: los nombres reservados salen ocultos en el Excel', () => {
-    const reservados = datosLibro(filas, estado, contexto).expedientes.filter((e) => e['Control de acceso'] !== 'Pública')
+    const reservados = datosLibro(filas, estado, contexto).expedientes.filter((e) => e['Control de acceso'] !== 'Público')
     expect(reservados.length).toBeGreaterThan(0)
     expect(reservados.every((e) => e['Nombre del expediente'].startsWith('Nombre reservado ('))).toBe(true)
   })
