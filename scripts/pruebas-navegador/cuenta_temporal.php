@@ -30,14 +30,20 @@ if ($accion === 'crear') {
         ->execute([$argv[2], 'Cuenta de prueba temporal', password_hash($argv[3], PASSWORD_DEFAULT)]);
     echo "cuenta temporal creada\n";
 } elseif ($accion === 'borrar') {
-    $consulta = $pdo->prepare("SELECT id FROM usuarios WHERE correo = ? AND correo LIKE 'prueba-%@trdcode.local'");
-    $consulta->execute([$argv[2] ?? '']);
-    $id = (int) $consulta->fetchColumn();
-    if ($id > 0) {
-        // Las cargas de la cuenta temporal se borran con sus expedientes (ON DELETE CASCADE).
-        $pdo->prepare('DELETE FROM cargas WHERE usuario_id = ?')->execute([$id]);
-        $pdo->prepare('DELETE FROM intentos_login WHERE correo = ?')->execute([$argv[2]]);
-        $pdo->prepare('DELETE FROM usuarios WHERE id = ?')->execute([$id]);
+    // Acepta varios correos (los que tuvo la cuenta si se le cambió el correo durante la prueba).
+    foreach (array_slice($argv, 2) as $correo) {
+        if (!preg_match('/^prueba-[a-z0-9-]+@trdcode\.local$/', $correo)) {
+            continue;
+        }
+        $pdo->prepare('DELETE FROM intentos_login WHERE correo = ?')->execute([$correo]);
+        $consulta = $pdo->prepare('SELECT id FROM usuarios WHERE correo = ?');
+        $consulta->execute([$correo]);
+        $id = (int) $consulta->fetchColumn();
+        if ($id > 0) {
+            // Las cargas de la cuenta temporal se borran con sus expedientes (ON DELETE CASCADE).
+            $pdo->prepare('DELETE FROM cargas WHERE usuario_id = ?')->execute([$id]);
+            $pdo->prepare('DELETE FROM usuarios WHERE id = ?')->execute([$id]);
+        }
     }
     echo "cuenta temporal borrada\n";
 } elseif ($accion === 'revisar-cargas') {

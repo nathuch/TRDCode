@@ -8,7 +8,7 @@ exigirMetodo('GET');
 
 try {
     $usuario = abrirSesion(false) ? usuarioActual() : null;
-    responderOk($usuario === null ? ['sesion' => false] : datosDeSesion($usuario['nombre']));
+    responderOk($usuario === null ? ['sesion' => false] : datosDeSesion($usuario['nombre'], $usuario['debe_cambiar_clave']));
 } catch (Throwable $e) {
     error_log('TRDCode sesion.php: ' . $e->getMessage());
     responderError('No se pudo consultar la sesión.');

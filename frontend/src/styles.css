@@ -1999,9 +1999,16 @@ summary {
 
   .tabla--apilable td[data-etiqueta]::before {
     content: attr(data-etiqueta);
+    flex-shrink: 0;
     color: var(--texto-suave);
     font-weight: 600;
     text-align: left;
+  }
+
+  /* Un dato largo (un correo) se corta en líneas sin aplastar su rótulo */
+  .tabla--apilable td {
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 
   .tabla--apilable .celda-accion {
@@ -2034,4 +2041,58 @@ summary {
     grid-column: 1 / -1;
     grid-row: 3;
   }
+}
+
+/* Usuarios y Mi cuenta (RF-17) */
+.panel__cabeza {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.campo--ancho {
+  max-width: 420px;
+}
+
+.insignia--gris {
+  background: var(--gris-fondo);
+  color: var(--texto-suave);
+}
+
+.insignia--ambar {
+  background: var(--ambar-fondo);
+  color: var(--ambar-texto);
+}
+
+.cuenta__nombre,
+.cuenta__estado {
+  display: inline-flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px;
+}
+
+.cuenta__nombre {
+  font-weight: 600;
+}
+
+.cuenta__acciones {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+  gap: 6px;
+}
+
+.celda-correo {
+  overflow-wrap: anywhere;
+}
+
+.cuenta-inactiva td {
+  color: var(--texto-suave);
+}
+
+.tabla--usuarios .celda-accion {
+  white-space: normal;
 }

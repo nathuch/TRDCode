@@ -49,6 +49,7 @@ Las fases 3 a 9 siguen "sin empezar" como fases, pero el MVP (rama `mvp-prototip
 - **El "Reporte Tolima" de OnBase es la fuente de expedientes.** No se sube al repositorio.
 - **La propuesta de pantallas** no está en el repositorio; las decisiones de diseño quedaron en los issues #27, #39, #43 y #49.
 - **Prototipo (MVP) antes de terminar las fases.** Se armó una versión de solo consulta para mostrarla a la usuaria; ver la sección siguiente.
+- **RF-17, usuarios editables (nuevo requisito).** Las cuentas se administran desde la aplicación ("Usuarios" y "Mi cuenta"); `scripts/crear_usuario.php` queda solo para la primera cuenta. Ver la sección "RF-17".
 
 ---
 
@@ -354,6 +355,8 @@ La aplicación ya no abre con todos los resultados a la vista.
 | #64 | Redactar `docs/INSTALACION.md` para el área de sistemas del SENA | sin empezar |
 | — | [MANUAL] Instalar PHP 8.1 (por ejemplo con Laragon) antes de la prueba P-29 | sin empezar |
 | #65 | Probar el paquete en una instalación limpia | sin empezar |
+| — | Probar en MariaDB 10.4 la instalación completa: `schema.sql`, `datos_iniciales.sql`, `trd.sql`, `expedientes.sql` y la migración `001_usuarios.sql` (también aplicada a una base anterior, dos veces). Con la MySQL de XAMPP encendida en otro puerto (por ejemplo 3307) y su propia carpeta de datos, sin tocar MySQL80. Hasta ahora todo se probó en MySQL 8.0.41 | sin empezar (pendiente encontrado en RF-17) |
+| — | Crear la primera cuenta en una instalación nueva del paquete: un script de consola incluido en el paquete, dentro de una carpeta que no se pueda abrir desde la web (bloqueada por `.htaccess`), al que se le indica la ruta del `.env` (por ejemplo `C:\xampp\TRDCode.env`). No una página web de instalación. Hoy `scripts/crear_usuario.php` no va en el paquete y desde la consola solo encuentra el `.env` de la raíz del proyecto o el de `TRDCODE_ENV`. Las demás cuentas ya se crean desde "Usuarios" (RF-17) | sin empezar (pendiente encontrado en RF-17) |
 
 **Criterios de aceptación**
 - [ ] La aplicación funciona en `http://localhost/TRDCode/` y desde el celular.
@@ -399,9 +402,35 @@ La aplicación ya no abre con todos los resultados a la vista.
 
 ---
 
+## RF-17 – Usuarios editables (fuera del plan original) · completo en la rama `usuarios`
+
+**Requisito:** las personas encargadas administran sus cuentas desde la aplicación, sin scripts ni SQL. Todas las cuentas activas son administradoras. Se pidió el 15 de noviembre de 2026; la rama `usuarios` sale de `main` después del PR #87 (la Fase 8 todavía no está hecha).
+
+**Mi cuenta** (`#cuenta`, en el menú de la usuaria; reemplaza "Cambiar contraseña"):
+- Editar el nombre completo (`api/mi_cuenta.php`).
+- Cambiar el correo de ingreso (`api/cambiar_correo.php`): pide la contraseña actual, valida el formato y que no lo use otra cuenta.
+- Cambiar la contraseña, como antes (`api/cambiar_clave.php`); ahora cierra las otras sesiones de la cuenta.
+- Los fallos con la contraseña actual (al cambiar el correo o la contraseña) cuentan para el bloqueo.
+
+**Usuarios** (`#usuarios`, en el menú):
+- Lista de cuentas con nombre, correo, estado (activa o inactiva, y si tiene contraseña temporal) y último ingreso (`api/usuarios.php`). La propia sale como "Usted" y se edita en "Mi cuenta"; el usuario técnico de `expedientes.sql` (`carga-inicial@trdcode.local`) sale como "Sistema", sin acciones.
+- Crear una cuenta con nombre, correo y contraseña temporal; editar el nombre y el correo de otra (`api/usuario_guardar.php`).
+- Poner una contraseña temporal a otra cuenta (`api/usuario_clave_temporal.php`).
+- Activar y desactivar (`api/usuario_estado.php`). Nadie puede desactivarse a sí misma y siempre queda al menos una cuenta activa. Las cuentas no se borran, porque las cargas guardan quién las hizo.
+- Con una contraseña temporal, al entrar una ventana que no se puede cerrar obliga a cambiarla; el servidor responde 403 (`debe_cambiar_clave`) a todo menos ver la sesión, cambiar la contraseña y salir.
+- Al desactivar una cuenta o ponerle una contraseña temporal, sus sesiones abiertas se cierran (`sesion_version`).
+- Todo lo que cambia datos exige sesión y CSRF; las respuestas nunca traen contraseñas ni hashes.
+
+**Base de datos:** `database/migraciones/001_usuarios.sql` agrega a `usuarios` las columnas `debe_cambiar_clave`, `ultimo_ingreso` y `sesion_version`. Se aplica a una base existente sin perder datos y se puede repetir (revisa `information_schema` antes de cada `ALTER TABLE`, porque MySQL 8 no tiene `ADD COLUMN IF NOT EXISTS`). Se probó dos veces sobre una copia con el `schema.sql` anterior en MySQL 8.0.41 y se aplicó a la base del equipo sin cambios en sus datos; en MariaDB 10.4 no se ejecutó (en este equipo no se enciende la MySQL de XAMPP), pero solo usa lo que MariaDB 10.4 también tiene (`PREPARE`, `information_schema`, `IF()`, `DO`). `schema.sql` ya trae las columnas y el LEEME del prototipo explica cómo importar la migración en una instalación anterior.
+
+**Pruebas:**
+- `scripts/probar_usuarios.php`: 64 comprobaciones con cuentas temporales que se borran (401, 403 y 405; lista sin hashes; cuenta "Sistema"; crear; correo repetido o inválido; contraseña temporal que obliga a cambiarla; editar; contraseña temporal y desactivar que cierran la sesión; no desactivarse a sí misma; la última cuenta activa, solo en la base temporal; Mi cuenta; bloqueo; las demás cuentas y cargas no cambian).
+- `scripts/pruebas-navegador/usuarios.mjs`: 31 comprobaciones, también a 390 px.
+- Siguen pasando `npm test` (45), `probar_auth.php` (51), `probar_importacion.php` (56) y las demás pruebas en el navegador (`inicio`, `ingreso`, `vista`, `menus` y `actualizar`).
+
 ## Pendientes para la entrega
 
-- Crear la cuenta real de la encargada con su correo institucional (`scripts/crear_usuario.php`) y desactivar la cuenta de prueba (`UPDATE usuarios SET activo = 0 WHERE correo = ...`).
+- La encargada crea su cuenta desde "Usuarios", con su correo institucional (entra con la contraseña temporal y la cambia), y desde esa cuenta desactiva la cuenta de prueba. Las cuentas no se borran: las cargas guardan quién las hizo.
 - Actualizar el manual de usuario (`docs/GUIA_USO.md`, las capturas de `docs/img/` y el PDF): todavía dice que la aplicación abre con los 2.530 expedientes a la vista y no describe la pantalla de inicio, el ingreso de la encargada ni "Actualizar datos" (la sección 11 todavía dice que la carga de reportes llegará después).
 
 ## Decisiones pendientes

@@ -44,9 +44,11 @@ Sirven para las pruebas; no se cambian.
 
 ## Comandos
 - TRD: `.venv/Scripts/python scripts/extraer_trd.py` genera `database/trd.sql`; las correcciones van en `scripts/correcciones.json`.
-- Usuaria encargada: `C:\xampp\php\php.exe scripts/crear_usuario.php`.
+- Usuaria encargada: la primera cuenta se crea con `C:\xampp\php\php.exe scripts/crear_usuario.php`; las demás, desde "Usuarios" en la aplicación (RF-17).
+- Migraciones de la base: `database/migraciones/` (se aplican en orden a una base existente; las bases nuevas ya las traen en `schema.sql`). Deben funcionar en MySQL 8 y MariaDB 10.4 y poder repetirse.
 - Desarrollo: en la raíz, `C:\xampp\php\php.exe -S 127.0.0.1:8000 scripts/servidor_dev.php` (solo sirve `api/*.php`), y en `frontend/`, `npm run dev`. Vite reenvía `api/` a ese PHP.
 - Pruebas de la sesión: con el servidor de desarrollo encendido, `C:\xampp\php\php.exe scripts/probar_auth.php`; contra Apache, `C:\php\php.exe scripts/probar_auth.php http://localhost/TRDCode` (el mismo PHP de Apache, para la prueba de inactividad). Crea y borra sus propias cuentas temporales; nunca usa la cuenta real.
+- Pruebas de las cuentas (RF-17): con el servidor encendido, `C:\xampp\php\php.exe scripts/probar_usuarios.php [url]`. Usa cuentas temporales que borra; el caso "la última cuenta activa" solo corre en la base temporal `trdcode_prueba`.
 - Pruebas de la importación: con el servidor encendido, `C:\xampp\php\php.exe scripts/probar_importacion.php [url]`. Usa los expedientes de la carga activa y una cuenta temporal, y deja la base como estaba; no corre si ya hay cargas reemplazadas.
 - Pruebas en el navegador: `scripts/pruebas-navegador/` (vea su README): `inicio`, `ingreso`, `vista` y `actualizar` con `node scripts/pruebas-navegador/<prueba>.mjs [url]`. `actualizar.mjs` crea cargas: solo contra la base temporal de `base_temporal.php`, con `TRDCODE_ENV` en ruta completa (con una relativa, `php -S` vuelve al `.env` real).
 - Copia en Apache: `C:\xampp\htdocs\TRDCode` (paquete del prototipo) con `C:\xampp\TRDCode.env`. Se enciende solo Apache, nunca la MySQL de XAMPP (choca con MySQL80 en el puerto 3306).

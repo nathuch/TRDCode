@@ -1,12 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { obtenerDatos, obtenerSesion } from './api/cliente.js'
+import { cambiarClave, cerrarSesion, obtenerDatos, obtenerSesion } from './api/cliente.js'
 import Acceso from './components/Acceso.jsx'
 import ActualizarDatos from './components/ActualizarDatos.jsx'
 import BarraConsulta from './components/BarraConsulta.jsx'
+import DialogoClave from './components/DialogoClave.jsx'
 import Ficha from './components/Ficha.jsx'
 import { IconoAlerta, IconoCalendario, IconoDescarga } from './components/Iconos.jsx'
 import Inicio from './components/Inicio.jsx'
+import MiCuenta from './components/MiCuenta.jsx'
 import TablaResultados from './components/TablaResultados.jsx'
+import Usuarios from './components/Usuarios.jsx'
 import { armarIndice, ESTADOS, resumen } from './datos/cruce.js'
 import {
   aplicarFiltros,
@@ -15,7 +18,7 @@ import {
   opcionesDisponibles,
   resultadosEnOtraVersion,
 } from './datos/filtros.js'
-import { escribirUrl, irAActualizar, irAConsulta, irAInicio, leerUrl } from './estadoUrl.js'
+import { escribirUrl, irAConsulta, irAInicio, irAVista, leerUrl, VISTAS_CON_SESION } from './estadoUrl.js'
 import { exportarExcel } from './utils/exportar.js'
 import { codigoFila, disposiciones, fechaLarga, formatoNumero, nombreFila, nombreLegible } from './utils/formato.js'
 
@@ -44,6 +47,14 @@ export default function App() {
   // Nombre de la encargada con sesión iniciada, o null. sesionLista: ya se preguntó al servidor.
   const [nombre, setNombre] = useState(null)
   const [sesionLista, setSesionLista] = useState(false)
+  // Con una contraseña temporal, una ventana obliga a cambiarla antes de hacer cualquier otra cosa.
+  const [debeCambiarClave, setDebeCambiarClave] = useState(false)
+
+  /** Guarda la sesión que entrega la API ({ sesion, nombre, debeCambiarClave }). */
+  const recibirSesion = useCallback((s) => {
+    setNombre(s.sesion ? s.nombre : null)
+    setDebeCambiarClave(Boolean(s.sesion && s.debeCambiarClave))
+  }, [])
 
   const recargarDatos = useCallback(() => {
     obtenerDatos()
@@ -55,12 +66,24 @@ export default function App() {
 
   useEffect(() => {
     obtenerSesion()
-      .then((s) => setNombre(s.sesion ? s.nombre : null))
+      .then(recibirSesion)
       .catch(() => setNombre(null))
       .finally(() => setSesionLista(true))
-  }, [])
+  }, [recibirSesion])
 
   const sesionVencida = useCallback(() => setNombre(null), [])
+
+  /** Para los errores de la API en las pantallas con sesión: sesión terminada o contraseña temporal. */
+  const revisarError = useCallback((e) => {
+    if (e.estado === 401) setNombre(null)
+    if (e.debeCambiarClave) setDebeCambiarClave(true)
+  }, [])
+
+  const salir = async () => {
+    await cerrarSesion()
+    setNombre(null)
+    setDebeCambiarClave(false)
+  }
 
   useEffect(() => {
     if (vista === 'consulta') escribirUrl(estado, llaveFicha)
@@ -84,7 +107,8 @@ export default function App() {
   useEffect(() => {
     if (!enfocarVista.current) return
     enfocarVista.current = false
-    document.getElementById({ inicio: 'inicio-titulo', consulta: 'resultados', actualizar: 'actualizar-titulo' }[vista])?.focus()
+    const titulos = { inicio: 'inicio-titulo', consulta: 'resultados', actualizar: 'actualizar-titulo', usuarios: 'usuarios-titulo', cuenta: 'cuenta-titulo' }
+    document.getElementById(titulos[vista])?.focus()
   }, [vista])
 
   // Al cerrar la ficha, el foco vuelve a la fila que la abrió (o a los resultados si esa fila ya no se ve).
@@ -97,10 +121,11 @@ export default function App() {
     ;(fila?.querySelector('.fila__boton') ?? document.getElementById('resultados'))?.focus()
   }, [llaveFicha, vista])
 
-  const abrirActualizar = () => {
-    if (vista !== 'actualizar') irAActualizar()
+  /** Abre una pantalla con sesión: 'actualizar', 'usuarios' o 'cuenta'. */
+  const abrirVista = (nueva) => {
+    if (vista !== nueva) irAVista(nueva)
     setLlaveFicha(null)
-    setVista('actualizar')
+    setVista(nueva)
     enfocarVista.current = true
     window.scrollTo(0, 0)
   }
@@ -209,7 +234,7 @@ export default function App() {
                 Datos al {fechaLarga(datos.carga.fecha_reporte)}
               </span>
             )}
-            <Acceso nombre={nombre} onCambiarNombre={setNombre} onActualizar={abrirActualizar} />
+            <Acceso nombre={nombre} onSesion={recibirSesion} onIr={abrirVista} onSalir={salir} />
           </div>
         </header>
 
@@ -236,8 +261,19 @@ export default function App() {
           error={error}
           onIr={abrirConsulta}
         />
-      ) : vista === 'actualizar' ? (
-        sesionLista ? (
+      ) : VISTAS_CON_SESION.includes(vista) ? (
+        !sesionLista ? (
+          <main className="contenedor actualizar">
+            <p className="vacio" role="status">
+              Cargando…
+            </p>
+          </main>
+        ) : vista === 'usuarios' ? (
+          <Usuarios nombre={nombre} revisarError={revisarError} onIr={abrirVista} />
+        ) : vista === 'cuenta' ? (
+          // key: el formulario se reinicia al entrar o salir, no al cambiar el nombre.
+          <MiCuenta key={nombre === null ? 'sin-sesion' : 'con-sesion'} nombre={nombre} onNombre={setNombre} revisarError={revisarError} />
+        ) : (
           <ActualizarDatos
             nombre={nombre}
             datos={datos}
@@ -245,12 +281,6 @@ export default function App() {
             onSesionVencida={sesionVencida}
             onVerConsulta={() => abrirConsulta({ ...ESTADO_INICIAL, trd: estado.trd })}
           />
-        ) : (
-          <main className="contenedor actualizar">
-            <p className="vacio" role="status">
-              Cargando…
-            </p>
-          </main>
         )
       ) : (
         <main className="contenedor resultados" id="resultados" tabIndex={-1} aria-label="Resultados de la consulta">
@@ -369,6 +399,23 @@ export default function App() {
           onCerrar={cerrarFicha}
           onExportar={() => exportar([ficha])}
           exportando={exportando}
+        />
+      )}
+
+      {/* Contraseña temporal: no se puede cerrar; solo cambiarla o salir. El servidor tampoco deja hacer nada más. */}
+      {nombre && debeCambiarClave && (
+        <DialogoClave
+          obligatorio
+          onCambiar={async (actual, nueva) => {
+            try {
+              await cambiarClave(actual, nueva)
+            } catch (e) {
+              revisarError(e)
+              throw e
+            }
+          }}
+          onCerrar={() => setDebeCambiarClave(false)}
+          onSalir={() => salir().catch((e) => window.alert(`No se pudo cerrar la sesión: ${e.message}`))}
         />
       )}
     </div>

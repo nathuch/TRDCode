@@ -1,34 +1,39 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
-import { cambiarClave, cerrarSesion, iniciarSesion } from '../api/cliente.js'
+import { iniciarSesion } from '../api/cliente.js'
 import { encajarMenu } from '../utils/menus.js'
-import DialogoClave from './DialogoClave.jsx'
 import DialogoIngreso from './DialogoIngreso.jsx'
 import { IconoFlecha } from './Iconos.jsx'
 
+const OPCIONES = [
+  { vista: 'actualizar', texto: 'Actualizar datos' },
+  { vista: 'usuarios', texto: 'Usuarios' },
+  { vista: 'cuenta', texto: 'Mi cuenta' },
+]
+
 /**
  * Acceso de la persona encargada, en el encabezado. Sin sesión es un enlace discreto "Ingresar";
- * con sesión, su nombre abre un menú con "Actualizar datos", "Cambiar contraseña" y "Salir".
- * La sesión (nombre o null) la guarda App, que la necesita para la pantalla de importación.
+ * con sesión, su nombre abre un menú con "Actualizar datos", "Usuarios", "Mi cuenta" y "Salir".
+ * La sesión la guarda App: onSesion recibe { nombre, debeCambiarClave } al entrar, onIr abre una
+ * pantalla y onSalir cierra la sesión.
  */
-export default function Acceso({ nombre, onCambiarNombre: setNombre, onActualizar }) {
-  const [dialogo, setDialogo] = useState(null)
+export default function Acceso({ nombre, onSesion, onIr, onSalir }) {
+  const [ingresando, setIngresando] = useState(false)
   const [menuAbierto, setMenuAbierto] = useState(false)
   const [saliendo, setSaliendo] = useState(false)
   const contenedor = useRef(null)
   const botonUsuaria = useRef(null)
   const botonIngresar = useRef(null)
   const menu = useRef(null)
-  // Al cerrar un diálogo, entrar o salir, el foco vuelve al botón del encabezado que corresponda
+  // Al cerrar el ingreso, entrar o salir, el foco vuelve al botón del encabezado que corresponda
   // (al entrar o salir, el que se usó desaparece).
   const moverFoco = useRef(false)
 
   useEffect(() => {
-    if (!moverFoco.current || dialogo !== null) return
+    if (!moverFoco.current || ingresando) return
     moverFoco.current = false
     ;(nombre === null ? botonIngresar : botonUsuaria).current?.focus()
-  }, [nombre, dialogo])
+  }, [nombre, ingresando])
 
-  // El menú se cierra con Esc o con un clic fuera de él.
   // El menú queda completo en la pantalla (en celular el botón queda a la izquierda), también al girarla.
   useLayoutEffect(() => {
     if (!menuAbierto) return undefined
@@ -38,6 +43,7 @@ export default function Acceso({ nombre, onCambiarNombre: setNombre, onActualiza
     return () => window.removeEventListener('resize', encajar)
   }, [menuAbierto])
 
+  // El menú se cierra con Esc o con un clic fuera de él.
   useEffect(() => {
     if (!menuAbierto) return undefined
     const alHacerClic = (e) => !contenedor.current?.contains(e.target) && setMenuAbierto(false)
@@ -58,41 +64,22 @@ export default function Acceso({ nombre, onCambiarNombre: setNombre, onActualiza
   const ingresar = async (correo, clave) => {
     const s = await iniciarSesion(correo, clave)
     moverFoco.current = true
-    setNombre(s.nombre)
-    setDialogo(null)
-  }
-
-  const cambiar = async (actual, nueva) => {
-    try {
-      await cambiarClave(actual, nueva)
-    } catch (e) {
-      if (e.estado === 401) setNombre(null)
-      throw e
-    }
+    onSesion(s)
+    setIngresando(false)
   }
 
   const salir = async () => {
     setSaliendo(true)
     try {
-      await cerrarSesion()
-      setMenuAbierto(false)
       moverFoco.current = true
-      setNombre(null)
+      await onSalir()
+      setMenuAbierto(false)
     } catch (e) {
+      moverFoco.current = false
       window.alert(`No se pudo cerrar la sesión: ${e.message}`)
     } finally {
       setSaliendo(false)
     }
-  }
-
-  const abrirDialogo = (cual) => {
-    setMenuAbierto(false)
-    setDialogo(cual)
-  }
-
-  const cerrarDialogo = () => {
-    moverFoco.current = true
-    setDialogo(null)
   }
 
   return (
@@ -102,7 +89,7 @@ export default function Acceso({ nombre, onCambiarNombre: setNombre, onActualiza
           type="button"
           className="acceso__enlace"
           ref={botonIngresar}
-          onClick={() => abrirDialogo('ingreso')}
+          onClick={() => setIngresando(true)}
         >
           Ingresar
         </button>
@@ -122,19 +109,19 @@ export default function Acceso({ nombre, onCambiarNombre: setNombre, onActualiza
           </button>
           {menuAbierto && (
             <div className="acceso__menu" id="acceso-menu" ref={menu}>
-              <button
-                type="button"
-                className="acceso__opcion"
-                onClick={() => {
-                  setMenuAbierto(false)
-                  onActualizar()
-                }}
-              >
-                Actualizar datos
-              </button>
-              <button type="button" className="acceso__opcion" onClick={() => abrirDialogo('clave')}>
-                Cambiar contraseña
-              </button>
+              {OPCIONES.map((o) => (
+                <button
+                  key={o.vista}
+                  type="button"
+                  className="acceso__opcion"
+                  onClick={() => {
+                    setMenuAbierto(false)
+                    onIr(o.vista)
+                  }}
+                >
+                  {o.texto}
+                </button>
+              ))}
               <button type="button" className="acceso__opcion" onClick={salir} disabled={saliendo}>
                 {saliendo ? 'Saliendo…' : 'Salir'}
               </button>
@@ -143,8 +130,15 @@ export default function Acceso({ nombre, onCambiarNombre: setNombre, onActualiza
         </>
       )}
 
-      {dialogo === 'ingreso' && <DialogoIngreso onIngresar={ingresar} onCerrar={cerrarDialogo} />}
-      {dialogo === 'clave' && <DialogoClave onCambiar={cambiar} onCerrar={cerrarDialogo} />}
+      {ingresando && (
+        <DialogoIngreso
+          onIngresar={ingresar}
+          onCerrar={() => {
+            moverFoco.current = true
+            setIngresando(false)
+          }}
+        />
+      )}
     </div>
   )
 }

@@ -3,8 +3,12 @@ import Dialogo from './Dialogo.jsx'
 
 const MINIMO = 10
 
-/** Formulario para cambiar la contraseña: la actual, la nueva (mínimo 10 caracteres) y su confirmación. */
-export default function DialogoClave({ onCambiar, onCerrar }) {
+/**
+ * Formulario para cambiar la contraseña: la actual, la nueva (mínimo 10 caracteres) y su confirmación.
+ * Con obligatorio (contraseña temporal) no se puede cerrar: solo cambiarla o salir (onSalir); al
+ * cambiarla se cierra solo (onCerrar).
+ */
+export default function DialogoClave({ onCambiar, onCerrar, obligatorio = false, onSalir }) {
   const [actual, setActual] = useState('')
   const [nueva, setNueva] = useState('')
   const [repetida, setRepetida] = useState('')
@@ -32,12 +36,15 @@ export default function DialogoClave({ onCambiar, onCerrar }) {
     setError(null)
     try {
       await onCambiar(actual, nueva)
+      if (obligatorio) {
+        onCerrar()
+        return
+      }
       setListo(true)
     } catch (err) {
       setError(err.message)
-    } finally {
-      setEnviando(false)
     }
+    setEnviando(false)
   }
 
   if (listo) {
@@ -72,19 +79,29 @@ export default function DialogoClave({ onCambiar, onCerrar }) {
   )
 
   return (
-    <Dialogo id="clave" titulo="Cambiar contraseña" onCerrar={onCerrar}>
+    <Dialogo
+      id="clave"
+      titulo={obligatorio ? 'Cambie su contraseña temporal' : 'Cambiar contraseña'}
+      descripcion={
+        obligatorio
+          ? 'Su cuenta tiene una contraseña temporal. Para seguir, escriba una nueva que solo usted conozca.'
+          : undefined
+      }
+      onCerrar={onCerrar}
+      cerrable={!obligatorio}
+    >
       <form className="formulario" onSubmit={enviar} noValidate>
         {error && (
           <p className="aviso-error aviso-error--chico" role="alert" id="clave-aviso">
             {error}
           </p>
         )}
-        {campo('Contraseña actual', actual, setActual, 'current-password')}
+        {campo(obligatorio ? 'Contraseña temporal' : 'Contraseña actual', actual, setActual, 'current-password')}
         {campo('Nueva contraseña', nueva, setNueva, 'new-password', `Mínimo ${MINIMO} caracteres.`)}
         {campo('Repita la nueva contraseña', repetida, setRepetida, 'new-password')}
         <div className="formulario__acciones">
-          <button type="button" className="boton boton--contorno-gris" onClick={onCerrar}>
-            Cancelar
+          <button type="button" className="boton boton--contorno-gris" onClick={obligatorio ? onSalir : onCerrar}>
+            {obligatorio ? 'Salir' : 'Cancelar'}
           </button>
           <button type="submit" className="boton boton--primario" disabled={enviando}>
             {enviando ? 'Guardando…' : 'Cambiar contraseña'}

@@ -6,13 +6,18 @@
 -- Cada tabla declara su cotejamiento: en MySQL 8 el de defecto es
 -- utf8mb4_0900_ai_ci, y mezclar cotejamientos hace fallar los cruces.
 
--- Persona encargada de importar el reporte de OnBase.
+-- Personas encargadas de importar el reporte de OnBase (todas administran las cuentas, RF-17).
+-- debe_cambiar_clave: tiene una contraseña temporal. sesion_version: al aumentar se cierran sus sesiones.
+-- Las bases anteriores reciben estas columnas con database/migraciones/001_usuarios.sql.
 CREATE TABLE usuarios (
   id INT AUTO_INCREMENT PRIMARY KEY,
   correo VARCHAR(120) NOT NULL UNIQUE,
   nombre VARCHAR(120) NOT NULL,
   clave_hash VARCHAR(255) NOT NULL,
-  activo TINYINT(1) NOT NULL DEFAULT 1
+  activo TINYINT(1) NOT NULL DEFAULT 1,
+  debe_cambiar_clave TINYINT(1) NOT NULL DEFAULT 0,
+  ultimo_ingreso DATETIME NULL,
+  sesion_version INT UNSIGNED NOT NULL DEFAULT 0
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Intentos fallidos de inicio de sesión, para bloquear tras cinco fallos en 15 minutos.

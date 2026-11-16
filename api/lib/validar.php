@@ -76,15 +76,6 @@ function motivoInvalido($e): ?string
     return null;
 }
 
-/**
- * Mensaje de un error para error_log sin los valores citados: MySQL puede citar parte del dato que
- * falló ("Incorrect string value: '...' for column 'nombre'") y los títulos traen nombres de personas.
- */
-function errorSinDatos(Throwable $e): string
-{
-    return get_class($e) . ' ' . $e->getCode() . ': ' . preg_replace("/'[^']*'/u", "'…'", $e->getMessage());
-}
-
 /** Fecha AAAA-MM-DD válida, o null. */
 function fechaValida(string $texto): ?string
 {

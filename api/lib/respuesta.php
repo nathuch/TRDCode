@@ -21,6 +21,16 @@ function exigirMetodo(string $metodo): void
     }
 }
 
+/**
+ * Mensaje de un error para error_log sin los valores citados: MySQL puede citar parte del dato que
+ * falló ("Incorrect string value: '...' for column 'nombre'", "Duplicate entry '...'"), y los títulos
+ * y correos traen datos de personas.
+ */
+function errorSinDatos(Throwable $e): string
+{
+    return get_class($e) . ' ' . $e->getCode() . ': ' . preg_replace("/'[^']*'/u", "'…'", $e->getMessage());
+}
+
 function enviarJson(int $codigoHttp, array $cuerpo): void
 {
     // Comprime la respuesta si el navegador lo acepta (datos.php pesa alrededor de 1 MB).

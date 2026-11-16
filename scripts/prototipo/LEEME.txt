@@ -67,6 +67,21 @@ Pasos de instalación
    Arriba debe decir "Datos al 10 de agosto de 2026".
 
 
+Si ya tenía instalada una versión anterior
+------------------------------------------
+Copie la carpeta TRDCode nueva encima de la anterior (el archivo
+C:\xampp\TRDCode.env se conserva) y actualice la base de datos sin
+perder lo que tiene:
+   a. En http://localhost/phpmyadmin elija la base trdcode a la izquierda.
+   b. Pestaña "Importar", "Seleccionar archivo":
+      C:\xampp\htdocs\TRDCode\database\migraciones\001_usuarios.sql
+   c. Pulse "Importar". Debe terminar con un mensaje en verde.
+Esta migración agrega lo que necesitan "Usuarios" y "Mi cuenta"
+(contraseña temporal, último ingreso y cierre de sesiones). Se puede
+importar más de una vez sin problema. Las instalaciones nuevas no la
+necesitan: schema.sql ya lo trae.
+
+
 Si algo no funciona
 -------------------
 - Dice "No se pudieron cargar los datos": revise que MySQL esté en

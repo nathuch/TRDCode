@@ -45,13 +45,16 @@ try {
 
   await clic(`document.querySelector('.acceso__usuaria')`)
   const opciones = await ev(`[...document.querySelectorAll('.acceso__opcion')].map(b => b.textContent.trim())`)
-  r.comprobar(`el menú tiene ${opciones.join(', ')}`, JSON.stringify(opciones) === '["Actualizar datos","Cambiar contraseña","Salir"]')
+  r.comprobar(`el menú tiene ${opciones.join(', ')}`, JSON.stringify(opciones) === '["Actualizar datos","Usuarios","Mi cuenta","Salir"]')
   await foto('01-menu')
   await tecla('Escape')
   r.comprobar('Esc cierra el menú', await esperarA(`!document.querySelector('.acceso__menu')`))
 
+  // La contraseña se cambia en "Mi cuenta" (RF-17).
   await clic(`document.querySelector('.acceso__usuaria')`)
-  await clic(boton('Cambiar contraseña'))
+  await clic(boton('Mi cuenta'))
+  await esperarA(`location.hash === '#cuenta'`)
+  await clic(boton('Cambiar la contraseña'))
   await esperarA(`document.querySelectorAll('[role=dialog] input').length === 3`)
   const campo = (i) => `document.querySelectorAll('[role=dialog] input')[${i}]`
   await ev(`${campo(0)}.focus()`)
@@ -65,7 +68,7 @@ try {
   await ev(`${campo(2)}.select()`)
   await n.cdp('Input.insertText', { text: nueva })
   await tecla('Enter')
-  r.comprobar('cambio de contraseña correcto', await esperarA(`(document.querySelector('[role=status]')?.textContent ?? '').includes('se cambió')`))
+  r.comprobar('cambio de contraseña correcto', await esperarA(`(document.querySelector('[role=dialog] [role=status]')?.textContent ?? '').includes('se cambió')`))
   await clic(enDialogo('Listo'))
 
   await clic(`document.querySelector('.acceso__usuaria')`)

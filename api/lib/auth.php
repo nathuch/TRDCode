@@ -89,29 +89,43 @@ function cerrarSesion(): void
     session_destroy();
 }
 
-/** Usuaria de la sesión abierta, si sigue activa: [id, correo, nombre]. Renueva la hora de actividad. */
+/**
+ * Usuaria de la sesión abierta, si sigue activa y su sesión sigue vigente: [id, correo, nombre,
+ * debe_cambiar_clave]. Si la cuenta se desactivó o se le puso una contraseña temporal (sesion_version
+ * aumentó), la sesión se cierra. Renueva la hora de actividad.
+ */
 function usuarioActual(): ?array
 {
     if (session_status() !== PHP_SESSION_ACTIVE || empty($_SESSION['usuario_id'])) {
         return null;
     }
-    $consulta = conexion()->prepare('SELECT id, correo, nombre FROM usuarios WHERE id = ? AND activo = 1');
+    $consulta = conexion()->prepare(
+        'SELECT id, correo, nombre, debe_cambiar_clave, sesion_version FROM usuarios WHERE id = ? AND activo = 1'
+    );
     $consulta->execute([(int) $_SESSION['usuario_id']]);
     $usuario = $consulta->fetch();
-    if (!$usuario) {
+    if (!$usuario || (int) $usuario['sesion_version'] !== (int) ($_SESSION['version'] ?? 0)) {
         cerrarSesion();
         return null;
     }
     $_SESSION['ultima_actividad'] = time();
+    $usuario['debe_cambiar_clave'] = (int) $usuario['debe_cambiar_clave'] === 1;
     return $usuario;
 }
 
-/** Responde 401 si no hay una sesión iniciada; si la hay, devuelve la usuaria. */
-function requerirSesion(): array
+/**
+ * Responde 401 si no hay una sesión iniciada; si la hay, devuelve la usuaria. Con una contraseña
+ * temporal responde 403 (debe_cambiar_clave), salvo en los servicios que la permiten: ver la sesión,
+ * cambiar la contraseña y salir.
+ */
+function requerirSesion(bool $permitirClaveTemporal = false): array
 {
     $usuario = abrirSesion(false) ? usuarioActual() : null;
     if ($usuario === null) {
         responderError('Su sesión terminó. Ingrese de nuevo.', 401);
+    }
+    if ($usuario['debe_cambiar_clave'] && !$permitirClaveTemporal) {
+        responderError('Debe cambiar la contraseña temporal antes de continuar.', 403, ['debe_cambiar_clave' => true]);
     }
     return $usuario;
 }
@@ -127,21 +141,32 @@ function requerirCsrf(): void
 }
 
 /** Inicia la sesión de la usuaria con un id de sesión nuevo y un token CSRF nuevo. */
-function iniciarSesionUsuario(int $id): void
+function iniciarSesionUsuario(int $id, int $version): void
 {
     abrirSesion(true);
     session_regenerate_id(true);
     $_SESSION = [
         'usuario_id' => $id,
+        'version' => $version,
         'csrf' => bin2hex(random_bytes(32)),
         'ultima_actividad' => time(),
     ];
 }
 
-/** Lo que el frontend necesita saber de la sesión. Nunca incluye el correo ni el hash. */
-function datosDeSesion(string $nombre): array
+/** Cierra todas las sesiones abiertas de una cuenta (las que tengan la versión anterior). Devuelve la nueva. */
+function cerrarSesionesDe(int $usuarioId): int
 {
-    return ['sesion' => true, 'nombre' => $nombre, 'csrf' => $_SESSION['csrf']];
+    $pdo = conexion();
+    $pdo->prepare('UPDATE usuarios SET sesion_version = sesion_version + 1 WHERE id = ?')->execute([$usuarioId]);
+    $consulta = $pdo->prepare('SELECT sesion_version FROM usuarios WHERE id = ?');
+    $consulta->execute([$usuarioId]);
+    return (int) $consulta->fetchColumn();
+}
+
+/** Lo que el frontend necesita saber de la sesión. Nunca incluye el correo ni el hash. */
+function datosDeSesion(string $nombre, bool $debeCambiarClave = false): array
+{
+    return ['sesion' => true, 'nombre' => $nombre, 'csrf' => $_SESSION['csrf'], 'debe_cambiar_clave' => $debeCambiarClave];
 }
 
 /** Cuerpo JSON de la petición. Exigir JSON obliga a otro sitio a pasar por CORS para enviarlo. */
@@ -214,6 +239,45 @@ function registrarFallo(string $correo, string $ip): void
 function limpiarFallos(string $correo): void
 {
     conexion()->prepare('DELETE FROM intentos_login WHERE correo = ?')->execute([$correo]);
+}
+
+/** Motivo por el que una contraseña nueva no sirve (10 a 72 caracteres), o null. */
+function motivoClaveInvalida(string $clave): ?string
+{
+    if (mb_strlen($clave) < 10) {
+        return 'La contraseña debe tener al menos 10 caracteres.';
+    }
+    if (strlen($clave) > 72) {
+        // bcrypt ignora lo que pase de 72 bytes.
+        return 'La contraseña es demasiado larga (máximo 72 caracteres).';
+    }
+    return null;
+}
+
+/**
+ * Comprueba la contraseña actual de la usuaria de la sesión antes de un cambio sensible (contraseña o
+ * correo). Respeta el bloqueo y los fallos cuentan para él, igual que en el inicio de sesión. Si no es
+ * correcta, responde 400 (o 429 si ya hay bloqueo). Devuelve el hash actual.
+ */
+function verificarClaveActual(array $usuario, string $clave): string
+{
+    $ip = ipCliente();
+    $espera = segundosDeBloqueo($usuario['correo'], $ip);
+    if ($espera > 0) {
+        responderBloqueo($espera);
+    }
+    $consulta = conexion()->prepare('SELECT clave_hash FROM usuarios WHERE id = ?');
+    $consulta->execute([(int) $usuario['id']]);
+    $hash = (string) $consulta->fetchColumn();
+    if (!password_verify($clave, $hash)) {
+        registrarFallo($usuario['correo'], $ip);
+        $espera = segundosDeBloqueo($usuario['correo'], $ip);
+        if ($espera > 0) {
+            responderBloqueo($espera);
+        }
+        responderError('La contraseña actual no es correcta.', 400);
+    }
+    return $hash;
 }
 
 function responderBloqueo(int $segundos): void
