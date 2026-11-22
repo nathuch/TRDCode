@@ -1,0 +1,20 @@
+TRDCode - Consulta de series y subseries documentales (TRD 2020 y 2025)
+SENA, Regional Tolima
+=======================================================================
+
+Contenido del paquete
+---------------------
+app\          Se copia a la carpeta publica del servidor web (por ejemplo
+              C:\xampp\htdocs\TRDCode o /var/www/html/trdcode).
+database\     Scripts SQL de la base de datos y migraciones. No van a la
+              carpeta publica.
+docs\         INSTALACION.md (guia para el area de sistemas) y el manual de
+              usuario en PDF.
+.env.example  Plantilla de la configuracion. El .env real va FUERA de la
+              carpeta publica.
+
+La instalacion completa esta en docs\INSTALACION.md.
+
+El paquete no trae expedientes ni reportes: la base se instala con la TRD y,
+despues de crear la primera cuenta, la persona encargada hace la primera
+carga del Reporte Tolima desde "Actualizar datos".

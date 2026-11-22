@@ -23,6 +23,7 @@ datos-prueba/
 # Paquetes de entrega generados (se adjuntan al Release, no al repositorio)
 TRDCode-v*.zip
 /prototipo/
+/paquete/
 
 # Caché que deja Edge sin ventana al generar el manual en PDF
 docs/DawnCache/

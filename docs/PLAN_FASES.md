@@ -18,8 +18,8 @@ Actualizado el 15 de noviembre de 2026.
 | 5 | Cruce de expedientes con la TRD | [Fase 5](https://github.com/nathuch/TRDCode/milestone/6) | `main` (MVP) | completa en el código; issues abiertos |
 | 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `main` (MVP) y `fase-7-vista` (#39 en celular) | en curso: todo hecho en la rama, falta fusionar |
 | 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | en curso: todo hecho en la rama, falta fusionar |
-| 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | completa en `fase-8-exportar`, en revisión (PR #89) |
-| 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | sin empezar (parte hecha en el MVP) |
+| 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | completa, fusionada a `main` (PR #89) |
+| 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | completa en `fase-9-entrega`, salvo la prueba con un celular real (#62) |
 | 10 | Pruebas con la usuaria y ajustes | [Fase 10](https://github.com/nathuch/TRDCode/milestone/11) | `fase-10-ajustes` | sin empezar |
 | 11 | Guía y entrega al SENA | [Fase 11](https://github.com/nathuch/TRDCode/milestone/12) | `main` | sin empezar |
 
@@ -31,7 +31,7 @@ Las fases 3 a 9 siguen "sin empezar" como fases, pero el MVP (rama `mvp-prototip
   - PHP y Apache son los de **XAMPP 8.2.12** (PHP 8.2.12 en `C:\xampp\php\php.exe`). El `php` del PATH es 8.4 y no se usa.
   - Ojo: el Apache de XAMPP de este equipo **no carga el PHP de XAMPP**, sino el **PHP 8.4.11 de `C:\php`** (`LoadModule php_module "C:/php/php8apache2_4.dll"` en `httpd-xampp.conf`, con `C:\php\php.ini`). No se cambió porque puede servir a otros proyectos de `htdocs`. Así, la aplicación queda probada en PHP 8.2 (`php -S`) y 8.4 (Apache); la prueba con PHP 8.1 sigue pendiente (Fase 9).
   - La base de datos corre en el **MySQL 8.0 del equipo (servicio `MySQL80`, 8.0.41)**, que ocupa el puerto 3306; la MariaDB 10.4 de XAMPP no se usa aquí. El paquete del prototipo, en cambio, se instala con la MariaDB de XAMPP, así que el SQL debe funcionar en MySQL 8.0 y en MariaDB 10.4.
-  - `api/lib/config.php` no lee un puerto (`DB_PORT`): la conexión usa siempre el puerto por defecto.
+  - `api/lib/config.php` lee un puerto opcional (`DB_PORT`, desde la Fase 9); sin él, la conexión usa el puerto por defecto.
   - Node.js es 20.20.0; vitest 5 pide 22.12 o más nuevo y `npm install` lo avisa, pero las pruebas pasan. Actualizar Node queda pendiente.
 - **PHP 8.3 en local, código compatible con PHP 8.1.** Se desarrolló con el PHP 8.3 de XAMPP (en el equipo nuevo es 8.2.12), pero el código no usa nada de PHP 8.2 en adelante, para cumplir el mínimo de PHP 8.1 del plan (RNF-04 y prueba P-29). Intelephense está configurado en 8.1 para avisarlo.
 - **El `.env` nunca va al repositorio ni a la carpeta pública.** En producción queda fuera de la carpeta pública y su ruta se indica con la variable `TRDCODE_ENV`.
@@ -43,13 +43,14 @@ Las fases 3 a 9 siguen "sin empezar" como fases, pero el MVP (rama `mvp-prototip
   2. Junto a la carpeta pública, con el nombre de la carpeta de la aplicación: con la aplicación en `C:\xampp\htdocs\TRDCode`, el archivo es `C:\xampp\TRDCode.env`. Así se instala el prototipo.
   3. La raíz del proyecto, solo en desarrollo.
 - **En local la aplicación se conecta como `root`**: el usuario `trdcode_app` (#4) se cerró sin hacer en el equipo local.
-- **`scripts/crear_usuario.php`** crea la usuaria encargada o cambia su contraseña sin mostrarla y guarda solo el hash. Reemplaza el `php -r` del plan.
+- **`scripts/crear_usuario.php`** creaba la usuaria encargada o cambiaba su contraseña sin mostrarla y guardaba solo el hash; reemplazó el `php -r` del plan. En la Fase 9 lo reemplazó `consola/crear_primera_cuenta.php`, que va en el paquete.
 - **El correo con los requisitos al SENA (#7)** pasó de la Fase 1 a la Fase 11, para hacerlo al final.
 - **Columna `grupo` en `trd_tipos_documentales`**: guarda el subtítulo de la TRD 11 bajo el que aparece cada tipo documental (por ejemplo "Modalidad Licitación Pública" en los contratos).
 - **El "Reporte Tolima" de OnBase es la fuente de expedientes.** No se sube al repositorio.
 - **La propuesta de pantallas** no está en el repositorio; las decisiones de diseño quedaron en los issues #27, #39, #43 y #49.
 - **Prototipo (MVP) antes de terminar las fases.** Se armó una versión de solo consulta para mostrarla a la usuaria; ver la sección siguiente.
-- **RF-17, usuarios editables (nuevo requisito).** Las cuentas se administran desde la aplicación ("Usuarios" y "Mi cuenta"); `scripts/crear_usuario.php` queda solo para la primera cuenta. Ver la sección "RF-17".
+- **RF-17, usuarios editables (nuevo requisito).** Las cuentas se administran desde la aplicación ("Usuarios" y "Mi cuenta"); la primera cuenta se crea por consola (`consola/crear_primera_cuenta.php` desde la Fase 9). Ver la sección "RF-17".
+- **Paquete de entrega sin datos personales (Fase 9).** El zip no trae expedientes, reportes, cuentas ni `.env`: la base se instala con la TRD y la encargada hace la primera carga desde "Actualizar datos". `database/` y `docs/` quedan fuera de la carpeta pública (`app/`).
 
 ---
 
@@ -61,7 +62,7 @@ Versión de **solo consulta** para mostrar a la usuaria e instalar en un equipo 
 - **Etiquetas** (puntos de respaldo, en GitHub):
   - `mvp-v1` (`a6d3955`): MVP antes del rediseño de la interfaz.
   - `mvp-v2` (`77ba212`): MVP con el rediseño de la interfaz y el manual de usuario.
-- **Paquete:** `scripts/armar_prototipo.ps1` arma `prototipo/TRDCode/` (ignorado por git) con los pasos de `scripts/prototipo/LEEME.txt`. El `.env` y `expedientes.sql` se entregan aparte.
+- **Paquete:** `scripts/armar_prototipo.ps1` armaba `prototipo/TRDCode/` (ignorado por git) con los pasos de `scripts/prototipo/LEEME.txt`; el `.env` y `expedientes.sql` se entregaban aparte. En la Fase 9 los reemplazaron `scripts/empaquetar.ps1` y `docs/INSTALACION.md`.
 
 **Qué incluye**
 - `api/datos.php`: un solo JSON público con centros, dependencias, la TRD con sus tipos documentales y los expedientes de la carga activa. Los nombres de los expedientes que no son IPU se reemplazan en el servidor por "Nombre reservado (IPC/IPR)".
@@ -101,8 +102,8 @@ Versión de **solo consulta** para mostrar a la usuaria e instalar en un equipo 
 | 8 | #57 | Probar las exportaciones | parcial: pruebas del Excel |
 | 9 | #58 | Frontend con rutas relativas | hecha |
 | 9 | #60 | `robots.txt` y `.htaccess` de `api/lib` | hecha |
-| 9 | #63 | Script de empaquetado | parcial: `armar_prototipo.ps1` en lugar de `empaquetar.ps1` |
-| 9 | #64 | `docs/INSTALACION.md` | no; el prototipo trae `LEEME.txt` |
+| 9 | #63 | Script de empaquetado | parcial: `armar_prototipo.ps1` en lugar de `empaquetar.ps1` (se hizo en `fase-9-entrega`) |
+| 9 | #64 | `docs/INSTALACION.md` | no; el prototipo trae `LEEME.txt` (se hizo en `fase-9-entrega`) |
 
 De la Fase 11, `docs/GUIA_USO.md` (#72) ya existe como manual del prototipo.
 
@@ -321,7 +322,7 @@ La aplicación ya no abre con todos los resultados a la vista.
 - [x] La ficha de 85.15 muestra retención de 2 + 8 años, cuándo empieza a contar, conservación total y 17 expedientes (P-07). *(navegador: "10 años en total, 2 años en gestión + 8 en archivo central", el texto de inicio de la retención, "CT Conservación total" y "Expedientes (17)" con los 17 reservados; `exportar.test.js` comprueba los 17 al exportar desde la ficha)*
 - [x] La vista se usa sin zoom en un celular. *(navegador a 390 px: sin desplazamiento lateral en ninguna pantalla, resultados en tarjetas con los expedientes a la vista y filtros cerrados al entrar; ver #51)*
 
-## Fase 8 – Exportar e imprimir · completa en `fase-8-exportar` (PR #89, sin fusionar)
+## Fase 8 – Exportar e imprimir · completa, fusionada a `main` (PR #89)
 
 **Objetivo:** que el usuario pueda llevarse exactamente lo que está viendo.
 **Requisitos:** RF-09, RF-10, RF-11 y RNF-09.
@@ -350,30 +351,51 @@ La rama `fase-8-exportar` sale de `main` después de los PR #87 (`fase-7-vista`)
 - [x] El PDF sin ficha trae solo el resumen; con la ficha de 85.15 abierta incluye los 17 expedientes (P-10). *(navegador: el PDF de la consulta tiene los 37 códigos de la tabla y ningún expediente; el de la ficha, los 17 códigos, cada uno con "Nombre reservado (IPC)" y "Clasificado"; `pdf.test.js` lo mismo con el PDF dibujado)*
 - [x] La impresión no muestra filtros ni botones (P-11). *(navegador con la emulación de impresión: ni encabezado interactivo, ni filtros, ni pestañas, ni botones ni menús; la línea de filtros y "Datos al" arriba; desde la ficha, todos sus expedientes)*
 
-## Fase 9 – Instalación local y paquete de entrega · sin empezar
+## Fase 9 – Instalación local y paquete de entrega · completa en `fase-9-entrega`, salvo el celular real (#62)
 
 **Objetivo:** dejar la aplicación funcionando en Apache como en un servidor real y preparar el paquete para que el SENA la instale en cualquier carpeta.
 **Requisitos:** RNF-01, RNF-04, RNF-07 y RNF-10.
 
-| Issue | Tarea | Estado |
-|---|---|---|
-| #58 | Construir el frontend con rutas relativas | sin empezar |
-| #59 | Instalar la aplicación en `htdocs/TRDCode` | sin empezar |
-| #60 | Agregar `robots.txt` y el `.htaccess` de `api/lib` | sin empezar |
-| #61 | Probar la instalación en Apache | sin empezar |
-| #62 | Probar desde un celular en la misma red | sin empezar |
-| #63 | Crear `scripts/empaquetar.ps1` | sin empezar |
-| #64 | Redactar `docs/INSTALACION.md` para el área de sistemas del SENA | sin empezar |
-| — | [MANUAL] Instalar PHP 8.1 (por ejemplo con Laragon) antes de la prueba P-29 | sin empezar |
-| #65 | Probar el paquete en una instalación limpia | sin empezar |
-| — | Probar en MariaDB 10.4 la instalación completa: `schema.sql`, `datos_iniciales.sql`, `trd.sql`, `expedientes.sql` y la migración `001_usuarios.sql` (también aplicada a una base anterior, dos veces). Con la MySQL de XAMPP encendida en otro puerto (por ejemplo 3307) y su propia carpeta de datos, sin tocar MySQL80. Hasta ahora todo se probó en MySQL 8.0.41 | sin empezar (pendiente encontrado en RF-17) |
-| — | Crear la primera cuenta en una instalación nueva del paquete: un script de consola incluido en el paquete, dentro de una carpeta que no se pueda abrir desde la web (bloqueada por `.htaccess`), al que se le indica la ruta del `.env` (por ejemplo `C:\xampp\TRDCode.env`). No una página web de instalación. Hoy `scripts/crear_usuario.php` no va en el paquete y desde la consola solo encuentra el `.env` de la raíz del proyecto o el de `TRDCODE_ENV`. Las demás cuentas ya se crean desde "Usuarios" (RF-17) | sin empezar (pendiente encontrado en RF-17) |
+La rama `fase-9-entrega` sale de `main` después del PR #89 (Fase 8).
+
+| Issue | Tarea | Estado | Prueba |
+|---|---|---|---|
+| #58 | Construir el frontend con rutas relativas | hecha (MVP): `base: './'` y llamadas a la API sin barra inicial | P-28: el mismo build funciona en `htdocs/trd-prueba` sin volver a compilar; `instalacion.mjs` revisa que `index.html` no tenga rutas absolutas |
+| #59 | Instalar la aplicación en `htdocs/TRDCode` | hecha (desde la Fase 3). Desde ahora la copia es el contenido de `app/` del paquete, con `C:\xampp\TRDCode.env` | `inicio` (25), `ingreso` (15), `vista` (27), `menus` (20), `usuarios` (31), `exportar` (44), `probar_auth` (51, con el PHP de Apache) y `probar_usuarios` (62) contra Apache |
+| #60 | Agregar `robots.txt` y el `.htaccess` de `api/lib` | hecha (MVP): `robots.txt` con `Disallow: /`; `.htaccess` en `api/lib/` y en `consola/` con `Require all denied`; el de la raíz niega todo archivo que empiece con punto y el listado de carpetas | `instalacion.mjs`: 14 rutas privadas responden 403 o 404 |
+| #61 | Probar la instalación en Apache (P-25) | hecha | `.env`, `.env.example`, `.htaccess`, `api/lib/config.php` y `consola/…` → 403, en `TRDCode` y en `trd-prueba` |
+| #62 | Probar desde un celular en la misma red (P-26) | **pendiente**: el Firewall de Windows bloquea el puerto 80 y la regla propuesta (solo red privada y subred local) espera la confirmación del usuario y una terminal de administrador. La vista de celular está probada con emulación a 320 y 390 px | — |
+| #63 | Crear `scripts/empaquetar.ps1` | hecha: reemplaza a `armar_prototipo.ps1`. Genera `paquete/TRDCode-v1.0.0.zip` (69 archivos, 1,5 MB): `app/` (frontend, `robots.txt`, `api/`, `consola/` y los `.htaccess`), `database/` (`schema.sql`, `datos_iniciales.sql`, `trd.sql` y `migraciones/`), `docs/` (`INSTALACION.md` y el manual en PDF), `.env.example` y `LEEME.txt`. **Sin datos personales:** se detiene si encuentra un `.env`, un Excel, un JSON, `expedientes.sql`, algo de `datos-prueba`, un `INSERT` en usuarios, cargas, expedientes o intentos, una contraseña en `.env.example` o un `.htaccess` con BOM. El zip usa `/` como separador, para abrirse bien en Linux | P-28 |
+| — | Primera cuenta en una instalación nueva | hecha: `consola/crear_primera_cuenta.php --env=<ruta del .env>`, en `app/consola/` (bloqueada por `.htaccess`; además se niega a correr fuera de la consola). Pide correo, nombre y contraseña dos veces sin mostrarla, con las mismas reglas de la API. Solo funciona si no hay ninguna cuenta activa; si el correo es de una cuenta desactivada, la reactiva (así se recupera el acceso si nadie puede entrar) y cierra sus sesiones. Reemplaza a `scripts/crear_usuario.php`. No hay página web de instalación | `scripts/probar_primera_cuenta.php` (22 comprobaciones en MySQL 8.0 con PHP 8.2 y 8.1; 18 en MariaDB 10.4 con PHP 8.1, sin las de la web) |
+| #64 | Redactar `docs/INSTALACION.md` para el área de sistemas del SENA | hecha, en estilo impersonal y sin fechas: requisitos (PHP 8.1+ con `pdo_mysql`, `mbstring` y `session`; Apache con `AllowOverride` o Nginx; MySQL 5.7+ o MariaDB 10.4+), base `utf8mb4_unicode_ci` y usuario propio con solo `SELECT`, `INSERT`, `UPDATE` y `DELETE` (nunca `root`), los scripts con `--default-character-set=utf8mb4`, el `.env` fuera de la carpeta pública con `TRDCODE_ENV` (`SetEnv` o `fastcgi_param`) o junto a la raíz de documentos, configuración de Apache y de Nginx (con gzip y HTTPS), HTTPS detrás de un proxy, primera cuenta, primera carga, verificaciones, copia de seguridad con `mysqldump`, actualización con las migraciones, cuentas y acceso, y problemas frecuentes | P-28 se hizo siguiendo solo la guía |
+| — | `DB_PORT` opcional en el `.env` | hecha: `config.php` entrega la cadena de conexión (`db_dsn`) y la usan la API y los scripts de prueba | Prueba en MariaDB (puerto 3307) |
+| — | [MANUAL] Instalar PHP 8.1 antes de P-29 | hecha: Laragon solo tenía 8.0 y 8.3; con la confirmación del usuario se descargó PHP 8.1.34 portátil (NTS x64, SHA-256 verificado) en `C:\php81`, sin cambiar el PATH ni el PHP de Apache | — |
+| #65 | Probar el paquete en una instalación limpia (P-28 y P-29) | hecha (ver abajo) | — |
+| — | Probar en MariaDB 10.4 la instalación completa | hecha (ver abajo) | — |
+
+**P-28: instalación limpia siguiendo solo `docs/INSTALACION.md`**
+- El zip se descomprimió en una carpeta temporal. Se creó la base `trdcode_p28` en MySQL80 con el usuario `trdcode_p28@localhost` (solo `SELECT`, `INSERT`, `UPDATE` y `DELETE`); se importaron los tres scripts; el contenido de `app/` se copió a `C:\xampp\htdocs\trd-prueba`; el `.env` quedó en `C:\xampp\trdcode-p28\trdcode.env` con `SetEnv TRDCODE_ENV` en el `.htaccess` de la aplicación (sección 6.1). La primera cuenta se creó con `consola/crear_primera_cuenta.php --env=…`; la segunda vez se negó.
+- `instalacion.mjs` (31 comprobaciones): la instalación empieza sin carga ni expedientes y con los nombres de los centros con tildes; 14 rutas privadas responden 403 o 404; `robots.txt` y rutas relativas; la primera cuenta entra, carga el reporte de agosto desde "Actualizar datos" (7.531 filas; 3.385 expedientes: 1.781 / 1.084 / 520); la consulta da **643** y la ficha de 85.15, **17** expedientes, todos con "Nombre reservado".
+- Contra la misma instalación pasan `exportar.mjs` (44), `probar_auth.php` (51, con el PHP de Apache), `probar_usuarios.php` (60) y `probar_importacion.php` (56).
+- También funciona la forma 2 del `.env` (sin `SetEnv`, en `C:\xampp\trd-prueba.env`). Sin `.env`, la API responde un mensaje genérico y el detalle queda en el registro de Apache.
+- Al terminar se borraron la carpeta, el `.env`, la base y el usuario de MySQL.
+
+**P-29: PHP 8.1 (8.1.34)**
+- `php -l` sin errores en los 30 archivos PHP del repositorio.
+- Con `php -S` de PHP 8.1: `probar_auth` (51), `probar_usuarios` (64) y `probar_importacion` (56) contra MariaDB 10.4; `probar_auth` (51) y `probar_usuarios` (62) contra MySQL80 con el `.env` real; y sobre la instalación de P-28 servida en `/trd-prueba/`, `probar_auth` (51), `probar_usuarios` (60) y `probar_importacion` (56).
+- `exportar.mjs` no se pudo correr directo contra `php -S`: el `fetch` de Node 24 (undici) se cae al leer la respuesta grande de `datos.php` cuando `php -S` cierra la conexión. `curl` y PHP la leen bien, y con Apache o con el proxy de Vite no pasa. No es un problema de la aplicación.
+
+**MariaDB 10.4 (10.4.32 de XAMPP)**
+- Encendida en el puerto 3307 con una carpeta de datos nueva (`mysql_install_db.exe`), sin tocar MySQL80 ni `C:\xampp\mysql\data`; al terminar se apagó y se borró la carpeta.
+- Instalación completa con un usuario propio de cuatro permisos: `schema.sql`, `datos_iniciales.sql`, `trd.sql`, `expedientes.sql` y la migración `001_usuarios.sql` dos veces. Quedan 3.385 expedientes (1.781 / 1.084 / 520) y 109 registros de TRD.
+- La migración sobre una base con el `schema.sql` anterior a RF-17 (con una cuenta), aplicada dos veces: agrega las tres columnas, conserva la cuenta y deja las columnas iguales a las de una base nueva (tipo, nulo y valor por defecto).
+- Las pruebas de la API pasan contra ella (ver P-29) y `probar_primera_cuenta.php` (18).
 
 **Criterios de aceptación**
-- [ ] La aplicación funciona en `http://localhost/TRDCode/` y desde el celular.
-- [ ] Ni `api/lib/config.php` ni el `.env` se pueden abrir desde el navegador.
-- [ ] El paquete se instala con PHP 8.1 en una carpeta con otro nombre siguiendo solo la guía (P-28 y P-29).
-- [ ] `docs/INSTALACION.md` indica crear un usuario de MySQL propio para la aplicación, no `root`, y dejar el `.env` fuera de la carpeta pública.
+- [ ] La aplicación funciona en `http://localhost/TRDCode/` y desde el celular. *(En `localhost/TRDCode` pasan todas las pruebas. Falta el celular real (#62), por el firewall. Falta también reinstalar `htdocs/TRDCode` con el `app/` del paquete nuevo: el permiso automático no dejó borrar la copia anterior y queda para el usuario)*
+- [x] Ni `api/lib/config.php` ni el `.env` se pueden abrir desde el navegador. *(403 en `TRDCode` y en `trd-prueba`; también `consola/`, `.env.example`, `.htaccess` y los listados de carpetas. `database/` ya no va en la carpeta pública)*
+- [x] El paquete se instala con PHP 8.1 en una carpeta con otro nombre siguiendo solo la guía (P-28 y P-29). *(P-28 en `htdocs/trd-prueba` con el PHP 8.4 de Apache. P-29: la misma instalación servida con PHP 8.1 pasa las pruebas de la API, y `php -l` pasa en todo el código)*
+- [x] `docs/INSTALACION.md` indica crear un usuario de MySQL propio para la aplicación, no `root`, y dejar el `.env` fuera de la carpeta pública. *(secciones 3.1 y 5; P-28 se instaló así)*
 
 ## Fase 10 – Pruebas con la usuaria y ajustes · sin empezar
 
@@ -440,6 +462,11 @@ La rama `fase-8-exportar` sale de `main` después de los PR #87 (`fase-7-vista`)
 - Siguen pasando `npm test` (45), `probar_auth.php` (51), `probar_importacion.php` (56) y las demás pruebas en el navegador (`inicio`, `ingreso`, `vista`, `menus` y `actualizar`).
 
 ## Pendientes para la entrega
+
+- Probar desde un celular real (#62, P-26): necesita la regla del Firewall de Windows para el puerto 80 (solo red privada y subred local), que debe aplicar el usuario en una terminal de administrador.
+- Reinstalar `C:\xampp\htdocs\TRDCode` con el contenido de `app/` del paquete nuevo (borrar el contenido anterior, que todavía es el del prototipo con `database/` y `LEEME.txt` dentro), y volver a correr las pruebas contra Apache.
+- Borrar `C:\php81` (PHP 8.1 portátil de la prueba P-29) cuando ya no haga falta.
+- Adjuntar `TRDCode-v1.0.0.zip` al Release cuando se fusione la Fase 9.
 
 - La encargada crea su cuenta desde "Usuarios", con su correo institucional (entra con la contraseña temporal y la cambia), y desde esa cuenta desactiva la cuenta de prueba. Las cuentas no se borran: las cargas guardan quién las hizo.
 - Actualizar el manual de usuario (`docs/GUIA_USO.md`, las capturas de `docs/img/` y el PDF): todavía dice que la aplicación abre con los 2.530 expedientes a la vista y no describe la pantalla de inicio, el ingreso de la encargada ni "Actualizar datos" (la sección 11 todavía dice que la carga de reportes llegará después).

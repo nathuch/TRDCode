@@ -37,9 +37,22 @@ foreach (file($ruta, FILE_IGNORE_NEW_LINES) as $linea) {
     $valores[$clave] = $valor;
 }
 
+$host = $valores['DB_HOST'] ?? 'localhost';
+$nombreBase = $valores['DB_NAME'] ?? 'trdcode';
+// DB_PORT es opcional: sin él se usa el puerto por defecto de MySQL (3306).
+$puerto = $valores['DB_PORT'] ?? '';
+if ($puerto !== '' && !ctype_digit($puerto)) {
+    throw new RuntimeException('DB_PORT del .env debe ser un número.');
+}
+$servidor = 'host=' . $host . ($puerto !== '' ? ';port=' . $puerto : '');
+
 return [
-    'db_host' => $valores['DB_HOST'] ?? 'localhost',
-    'db_name' => $valores['DB_NAME'] ?? 'trdcode',
+    'db_host' => $host,
+    'db_port' => $puerto,
+    'db_name' => $nombreBase,
+    // Cadenas de conexión de PDO, con la base y sin ella (la segunda, para crear bases de prueba).
+    'db_dsn' => "mysql:$servidor;dbname=$nombreBase;charset=utf8mb4",
+    'db_dsn_servidor' => "mysql:$servidor;charset=utf8mb4",
     'db_user' => $valores['DB_USER'] ?? '',
     'db_pass' => $valores['DB_PASS'] ?? '',
     // Solo se desactiva con "false" explícito: ante un valor mal escrito, los nombres siguen ocultos.
