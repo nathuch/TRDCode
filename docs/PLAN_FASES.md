@@ -19,7 +19,7 @@ Actualizado el 15 de noviembre de 2026.
 | 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `main` (MVP) y `fase-7-vista` (#39 en celular) | en curso: todo hecho en la rama, falta fusionar |
 | 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | en curso: todo hecho en la rama, falta fusionar |
 | 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | completa, fusionada a `main` (PR #89) |
-| 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | completa en `fase-9-entrega`, salvo la prueba con un celular real (#62) |
+| 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | completa en `fase-9-entrega`, en revisión; el celular real (#62) pasa a la Fase 10 |
 | 10 | Pruebas con la usuaria y ajustes | [Fase 10](https://github.com/nathuch/TRDCode/milestone/11) | `fase-10-ajustes` | sin empezar |
 | 11 | Guía y entrega al SENA | [Fase 11](https://github.com/nathuch/TRDCode/milestone/12) | `main` | sin empezar |
 
@@ -351,7 +351,7 @@ La rama `fase-8-exportar` sale de `main` después de los PR #87 (`fase-7-vista`)
 - [x] El PDF sin ficha trae solo el resumen; con la ficha de 85.15 abierta incluye los 17 expedientes (P-10). *(navegador: el PDF de la consulta tiene los 37 códigos de la tabla y ningún expediente; el de la ficha, los 17 códigos, cada uno con "Nombre reservado (IPC)" y "Clasificado"; `pdf.test.js` lo mismo con el PDF dibujado)*
 - [x] La impresión no muestra filtros ni botones (P-11). *(navegador con la emulación de impresión: ni encabezado interactivo, ni filtros, ni pestañas, ni botones ni menús; la línea de filtros y "Datos al" arriba; desde la ficha, todos sus expedientes)*
 
-## Fase 9 – Instalación local y paquete de entrega · completa en `fase-9-entrega`, salvo el celular real (#62)
+## Fase 9 – Instalación local y paquete de entrega · completa en `fase-9-entrega` (celular real en la Fase 10)
 
 **Objetivo:** dejar la aplicación funcionando en Apache como en un servidor real y preparar el paquete para que el SENA la instale en cualquier carpeta.
 **Requisitos:** RNF-01, RNF-04, RNF-07 y RNF-10.
@@ -364,7 +364,7 @@ La rama `fase-9-entrega` sale de `main` después del PR #89 (Fase 8).
 | #59 | Instalar la aplicación en `htdocs/TRDCode` | hecha (desde la Fase 3). Desde ahora la copia es el contenido de `app/` del paquete, con `C:\xampp\TRDCode.env` | `inicio` (25), `ingreso` (15), `vista` (27), `menus` (20), `usuarios` (31), `exportar` (44), `probar_auth` (51, con el PHP de Apache) y `probar_usuarios` (62) contra Apache |
 | #60 | Agregar `robots.txt` y el `.htaccess` de `api/lib` | hecha (MVP): `robots.txt` con `Disallow: /`; `.htaccess` en `api/lib/` y en `consola/` con `Require all denied`; el de la raíz niega todo archivo que empiece con punto y el listado de carpetas | `instalacion.mjs`: 14 rutas privadas responden 403 o 404 |
 | #61 | Probar la instalación en Apache (P-25) | hecha | `.env`, `.env.example`, `.htaccess`, `api/lib/config.php` y `consola/…` → 403, en `TRDCode` y en `trd-prueba` |
-| #62 | Probar desde un celular en la misma red (P-26) | **pendiente**: el Firewall de Windows bloquea el puerto 80 y la regla propuesta (solo red privada y subred local) espera la confirmación del usuario y una terminal de administrador. La vista de celular está probada con emulación a 320 y 390 px | — |
+| #62 | Probar desde un celular en la misma red (P-26) | cumplido con las pruebas a 320 y 390 px (emulación de celular en `inicio`, `vista`, `menus`, `usuarios` y `exportar`). **Celular real pendiente para la Fase 10**, en la sesión con la usuaria: en el Wi-Fi del desarrollador el celular no alcanza el computador (`ERR_ADDRESS_UNREACHABLE`, probablemente aislamiento de clientes del router). El issue sigue abierto | Emulación a 320 y 390 px |
 | #63 | Crear `scripts/empaquetar.ps1` | hecha: reemplaza a `armar_prototipo.ps1`. Genera `paquete/TRDCode-v1.0.0.zip` (69 archivos, 1,5 MB): `app/` (frontend, `robots.txt`, `api/`, `consola/` y los `.htaccess`), `database/` (`schema.sql`, `datos_iniciales.sql`, `trd.sql` y `migraciones/`), `docs/` (`INSTALACION.md` y el manual en PDF), `.env.example` y `LEEME.txt`. **Sin datos personales:** se detiene si encuentra un `.env`, un Excel, un JSON, `expedientes.sql`, algo de `datos-prueba`, un `INSERT` en usuarios, cargas, expedientes o intentos, una contraseña en `.env.example` o un `.htaccess` con BOM. El zip usa `/` como separador, para abrirse bien en Linux | P-28 |
 | — | Primera cuenta en una instalación nueva | hecha: `consola/crear_primera_cuenta.php --env=<ruta del .env>`, en `app/consola/` (bloqueada por `.htaccess`; además se niega a correr fuera de la consola). Pide correo, nombre y contraseña dos veces sin mostrarla, con las mismas reglas de la API. Solo funciona si no hay ninguna cuenta activa; si el correo es de una cuenta desactivada, la reactiva (así se recupera el acceso si nadie puede entrar) y cierra sus sesiones. Reemplaza a `scripts/crear_usuario.php`. No hay página web de instalación | `scripts/probar_primera_cuenta.php` (22 comprobaciones en MySQL 8.0 con PHP 8.2 y 8.1; 18 en MariaDB 10.4 con PHP 8.1, sin las de la web) |
 | #64 | Redactar `docs/INSTALACION.md` para el área de sistemas del SENA | hecha, en estilo impersonal y sin fechas: requisitos (PHP 8.1+ con `pdo_mysql`, `mbstring` y `session`; Apache con `AllowOverride` o Nginx; MySQL 5.7+ o MariaDB 10.4+), base `utf8mb4_unicode_ci` y usuario propio con solo `SELECT`, `INSERT`, `UPDATE` y `DELETE` (nunca `root`), los scripts con `--default-character-set=utf8mb4`, el `.env` fuera de la carpeta pública con `TRDCODE_ENV` (`SetEnv` o `fastcgi_param`) o junto a la raíz de documentos, configuración de Apache y de Nginx (con gzip y HTTPS), HTTPS detrás de un proxy, primera cuenta, primera carga, verificaciones, copia de seguridad con `mysqldump`, actualización con las migraciones, cuentas y acceso, y problemas frecuentes | P-28 se hizo siguiendo solo la guía |
@@ -392,7 +392,7 @@ La rama `fase-9-entrega` sale de `main` después del PR #89 (Fase 8).
 - Las pruebas de la API pasan contra ella (ver P-29) y `probar_primera_cuenta.php` (18).
 
 **Criterios de aceptación**
-- [ ] La aplicación funciona en `http://localhost/TRDCode/` y desde el celular. *(En `localhost/TRDCode` pasan todas las pruebas. Falta el celular real (#62), por el firewall. Falta también reinstalar `htdocs/TRDCode` con el `app/` del paquete nuevo: el permiso automático no dejó borrar la copia anterior y queda para el usuario)*
+- [x] La aplicación funciona en `http://localhost/TRDCode/` y desde el celular. *(La copia de Apache se reinstaló con el `app/` del paquete; contra ella pasan `inicio` (25), `ingreso` (15), `vista` (27), `menus` (20), `usuarios` (31), `exportar` (44) y `probar_auth.php` (51, con el PHP de Apache), y `consola/`, `.env`, `.env.example`, `.htaccess` y `api/lib/config.php` responden 403. Celular: cumplido con las pruebas a 320 y 390 px; el celular real queda para la Fase 10 (#62))*
 - [x] Ni `api/lib/config.php` ni el `.env` se pueden abrir desde el navegador. *(403 en `TRDCode` y en `trd-prueba`; también `consola/`, `.env.example`, `.htaccess` y los listados de carpetas. `database/` ya no va en la carpeta pública)*
 - [x] El paquete se instala con PHP 8.1 en una carpeta con otro nombre siguiendo solo la guía (P-28 y P-29). *(P-28 en `htdocs/trd-prueba` con el PHP 8.4 de Apache. P-29: la misma instalación servida con PHP 8.1 pasa las pruebas de la API, y `php -l` pasa en todo el código)*
 - [x] `docs/INSTALACION.md` indica crear un usuario de MySQL propio para la aplicación, no `root`, y dejar el `.env` fuera de la carpeta pública. *(secciones 3.1 y 5; P-28 se instaló así)*
@@ -407,6 +407,7 @@ La rama `fase-9-entrega` sale de `main` después del PR #89 (Fase 8).
 | #66 | Ejecutar el plan de pruebas completo | sin empezar |
 | #67 | Hacer la sesión de prueba guiada con la usuaria | sin empezar |
 | #68 | Probar con la encargada el inicio de sesión y la carga de un reporte real | sin empezar |
+| #62 | Probar desde un celular real en la misma red (P-26), en la sesión con la usuaria (viene de la Fase 9) | sin empezar |
 | #69 | Registrar y corregir los ajustes de la usuaria | sin empezar |
 | #70 | Repetir las pruebas afectadas por los ajustes | sin empezar |
 
@@ -463,8 +464,7 @@ La rama `fase-9-entrega` sale de `main` después del PR #89 (Fase 8).
 
 ## Pendientes para la entrega
 
-- Probar desde un celular real (#62, P-26): necesita la regla del Firewall de Windows para el puerto 80 (solo red privada y subred local), que debe aplicar el usuario en una terminal de administrador.
-- Reinstalar `C:\xampp\htdocs\TRDCode` con el contenido de `app/` del paquete nuevo (borrar el contenido anterior, que todavía es el del prototipo con `database/` y `LEEME.txt` dentro), y volver a correr las pruebas contra Apache.
+- Probar desde un celular real (#62, P-26) en la Fase 10, en la sesión con la usuaria y en una red donde el celular alcance el servidor (en el Wi-Fi del desarrollador hay aislamiento de clientes). Si se usa el computador de desarrollo, falta además la regla del Firewall de Windows para el puerto 80 (solo red privada y subred local), que aplica el usuario como administrador.
 - Borrar `C:\php81` (PHP 8.1 portátil de la prueba P-29) cuando ya no haga falta.
 - Adjuntar `TRDCode-v1.0.0.zip` al Release cuando se fusione la Fase 9.
 
