@@ -494,6 +494,8 @@ Respuestas de la usuaria del 23 de noviembre de 2026. La rama `ajustes-usuaria` 
 - `probar_auth.php`: 58 (7 nuevas): sin sesión ningún nombre real de IPC o IPR sale del servidor (`no-store`); con sesión, los nombres de la base (`private, no-store` y `Vary: Cookie`); con una contraseña temporal pendiente, ocultos; después de salir, con la cookie anterior, otra vez ocultos.
 - `exportar.mjs`: 53 (8 nuevas, sin capturas): con sesión, la API, la ficha de 85.15, su Excel y su PDF con los nombres reales; después de salir, la ficha, el Excel y el PDF otra vez ocultos y ningún nombre real en la página. Ahora usa una cuenta temporal que borra al terminar.
 - En desarrollo, contra la base del equipo: `inicio` (25), `ingreso` (15), `vista` (27), `menus` (20), `usuarios` (31), `exportar` (53), `probar_auth` (58) y `probar_usuarios` (62). En la base temporal (`base_temporal.php`), las que crean cargas: `probar_importacion` (56) y `actualizar` (35), además de `probar_usuarios` (64) y `probar_auth` (58). En la base del equipo no se crearon cargas.
+- En Apache, sobre la copia reinstalada con el `app/` del paquete nuevo: `inicio` (25), `ingreso` (15), `vista` (27), `menus` (20), `usuarios` (31), `exportar` (53), `probar_auth` (58, con el PHP 8.4 de Apache) y `probar_usuarios` (62); `consola/`, `.env`, `.env.example`, `.htaccess` y `api/lib/config.php` responden 403. `probar_importacion` y `actualizar` no se corren contra Apache porque esa copia usa la base del equipo y crearían cargas.
+- Paquete: `empaquetar.ps1` arma `TRDCode-v1.0.0.zip` con 70 archivos (1,48 MB): suma `database/migraciones/002_granja_administracion.sql` y el manual en PDF regenerado.
 
 ## Pendientes para la entrega
 
