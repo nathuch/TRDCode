@@ -13,6 +13,7 @@ No llevan datos reales: las cuentas son temporales (correo `prueba-…@trdcode.l
 | `exportar.mjs` | Menú "Exportar" e "Imprimir": descarga el PDF y el Excel de la consulta y de la ficha de 85.15, los lee y los compara con lo que se ve (los 17 expedientes, ningún nombre reservado, "Página N de M"); la impresión con la emulación de impresión del navegador (también una ficha de más de 50 expedientes); el menú a 320 y 390 px | No |
 | `usuarios.mjs` | "Usuarios" y "Mi cuenta": crear, editar, contraseña temporal (y la ventana que obliga a cambiarla), desactivar y activar; nombre, correo y contraseña propios; celular a 390 px | Solo sus cuentas temporales |
 | `actualizar.mjs` | "Actualizar datos" completo: arrastrar, vista previa, carga, historial y volver a una carga | **Sí: crea cargas.** Solo en una base temporal |
+| `instalacion.mjs` | P-28: una instalación nueva del paquete (`docs/INSTALACION.md`). Que empiece sin expedientes, que no se pueda descargar nada privado (`.env`, `api/lib/`, `consola/`, `.htaccess`, listados de carpetas), rutas relativas; entra con la primera cuenta, hace la primera carga del reporte de agosto y comprueba 643 y la 85.15 con 17 | **Sí: crea la primera carga.** Solo en una instalación nueva
 
 ## Cómo correrlas
 
@@ -46,3 +47,13 @@ Antes de crear cuentas o cargas, `ingreso.mjs`, `vista.mjs`, `menus.mjs`, `usuar
 `exportar.mjs` descarga los archivos en una carpeta temporal que borra al terminar, y lee el PDF con `leer_pdf.mjs` (solo sirve para los PDF de TRDCode: jsPDF sin comprimir). Deja junto a las capturas la hoja impresa por el navegador (`exportar-impresion-*.pdf`), para revisarla a ojo.
 
 Variables opcionales: `NAVEGADOR` (ruta de Edge o Chrome), `PHP` (por defecto `C:\xampp\php\php.exe`) y `CAPTURAS`.
+
+## La prueba de una instalación nueva (`instalacion.mjs`, P-28)
+
+Se corre contra una instalación hecha con el zip de `scripts/empaquetar.ps1` siguiendo `docs/INSTALACION.md` (base nueva, usuario de MySQL propio y la primera cuenta creada con `consola/crear_primera_cuenta.php`). Se niega si la instalación ya tiene una carga. Las credenciales de la primera cuenta llegan por variables de entorno y no se imprimen:
+
+```
+TRDCODE_CORREO=... TRDCODE_CLAVE=... node scripts/pruebas-navegador/instalacion.mjs http://localhost/trd-prueba/
+```
+
+Después, `exportar.mjs` contra la misma dirección revisa el PDF, el Excel y la impresión.

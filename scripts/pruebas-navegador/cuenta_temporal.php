@@ -15,7 +15,7 @@ if (PHP_SAPI !== 'cli') {
 $accion = $argv[1] ?? '';
 $c = require __DIR__ . '/../../api/lib/config.php';
 $pdo = new PDO(
-    "mysql:host={$c['db_host']};dbname={$c['db_name']};charset=utf8mb4",
+    $c['db_dsn'],
     $c['db_user'],
     $c['db_pass'],
     [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]

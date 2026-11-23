@@ -14,7 +14,7 @@ $c = require "$raiz/api/lib/config.php";
 if ($c['db_name'] === 'trdcode_prueba') {
     exit("Corra este ayudante con el .env real (sin TRDCODE_ENV).\n");
 }
-$pdo = new PDO("mysql:host={$c['db_host']};charset=utf8mb4", $c['db_user'], $c['db_pass'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
+$pdo = new PDO($c['db_dsn_servidor'], $c['db_user'], $c['db_pass'], [PDO::ATTR_ERRMODE => PDO::ERRMODE_EXCEPTION]);
 
 if (($argv[1] ?? '') === 'borrar') {
     $pdo->exec('DROP DATABASE IF EXISTS trdcode_prueba');
