@@ -20,7 +20,7 @@ Actualizado el 23 de noviembre de 2026. **Fecha de entrega: 27 de noviembre de 2
 | 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | en curso: todo hecho en la rama, falta fusionar |
 | 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | completa, fusionada a `main` (PR #89) |
 | 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | completa, fusionada a `main` (PR #90); el celular real (#62) pasa a la Fase 10 |
-| — | Ajustes de la usuaria (decisiones #79 a #82) | — | `ajustes-usuaria` | completa en la rama, en revisión |
+| — | Ajustes de la usuaria (decisiones #79 a #82) | — | `ajustes-usuaria` | completa en la rama, PR #91 abierto; issues #79 a #82 cerrados |
 | 10 | Pruebas con la usuaria y ajustes | [Fase 10](https://github.com/nathuch/TRDCode/milestone/11) | `fase-10-ajustes` | sin empezar |
 | 11 | Guía y entrega al SENA | [Fase 11](https://github.com/nathuch/TRDCode/milestone/12) | `main` | sin empezar |
 
@@ -467,7 +467,7 @@ La rama `fase-9-entrega` sale de `main` después del PR #89 (Fase 8).
 
 ## Ajustes de la usuaria (decisiones #79 a #82) · completa en `ajustes-usuaria`
 
-Respuestas de la usuaria del 23 de noviembre de 2026. La rama `ajustes-usuaria` sale de `main` después del PR #90 (Fase 9).
+Respuestas de la usuaria del 23 de noviembre de 2026. La rama `ajustes-usuaria` sale de `main` después del PR #90 (Fase 9). PR #91 abierto (sin fusionar); los issues #79 a #82 se cerraron con la decisión anotada.
 
 **#80: la usuaria es la encargada de Gestión Documental.** Su cuenta se crea en la instalación final, con su correo institucional (ver "Pendientes para la entrega").
 
