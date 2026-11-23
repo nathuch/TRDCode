@@ -145,5 +145,17 @@ describe.skipIf(!hayDatosReales)('PDF con el reporte de agosto (datos-prueba/dat
       expect(pdf.texto).toContain('Tipos documentales')
       expect(pdf.texto).toContain('Cuándo empieza a contar')
     })
+
+    it('#82: con sesión salen los nombres reales, sin el estilo de nombre oculto', () => {
+      // Nombres inventados en lugar de los reales, como llegarían con sesión.
+      const conNombres = { ...ficha, expedientes: ficha.expedientes.map((e) => (e.control_acceso === 'IPU' ? e : { ...e, nombre: `PRUEBA ${e.codigo}` })) }
+      const cs = contenidoPdf([conNombres], estado, contexto, { ficha: conNombres })
+      const reservados = conNombres.expedientes.filter((e) => e.control_acceso !== 'IPU')
+      expect(reservados.length).toBeGreaterThan(0)
+      expect(cs.expedientes.reservados.every((r) => r === false)).toBe(true)
+      const pdf = dibujar(cs)
+      for (const e of reservados) expect(pdf.texto).toContain(`PRUEBA ${e.codigo}`)
+      expect(pdf.texto).not.toContain('Nombre reservado')
+    })
   })
 })

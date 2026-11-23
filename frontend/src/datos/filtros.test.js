@@ -34,11 +34,13 @@ describe.skipIf(!hayDatosReales)('filtros con el reporte de agosto (datos-prueba
   })
 
   it('P-02: con un centro elegido, la serie solo ofrece opciones de ese centro', () => {
-    const estado = { ...ESTADO_INICIAL, centros: ['73.9123'], dependencias: ['00.9000.2'] }
-    // La Granja no tiene Administración Educativa: no hay series que ofrecer.
-    expect(opcionesDisponibles(estado, entradas, datos).series).toEqual([])
+    // Con el centro elegido, las series son las de su plantilla, aunque no tengan expedientes:
+    // La Granja tiene Administración Educativa (#81) y ofrece las mismas series que Industria.
+    const series = (centro) => opcionesDisponibles({ ...ESTADO_INICIAL, centros: [centro], dependencias: ['00.9000.2'] }, entradas, datos).series
+    expect(series('73.9123').length).toBeGreaterThan(0)
+    expect(series('73.9123')).toEqual(series('73.9226'))
     expect(opcionesDisponibles({ ...ESTADO_INICIAL, centros: ['73.9123'] }, entradas, datos).dependencias.map((d) => d.valor))
-      .toEqual(['00.9000', '00.9000.4'])
+      .toEqual(['00.9000', '00.9000.2', '00.9000.4'])
   })
 
   it('P-03: con el año 2023 solo se cuentan expedientes de 2023', () => {

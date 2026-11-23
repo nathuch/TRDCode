@@ -19,6 +19,7 @@ export const DEPENDENCIAS = new Set([
   '73.9310.2',
   '73.9310.4',
   '73.9123',
+  '73.9123.2',
   '73.9123.4',
 ])
 export const COLUMNAS = [

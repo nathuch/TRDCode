@@ -1,9 +1,10 @@
 <?php
 // Respuestas JSON de la API: { "ok": true, "datos": ... } o { "ok": false, "error": "mensaje" }.
 
-function responderOk($datos): void
+/** $cache es la cabecera Cache-Control; datos.php manda 'private, no-store' cuando hay sesión. */
+function responderOk($datos, string $cache = 'no-store'): void
 {
-    enviarJson(200, ['ok' => true, 'datos' => $datos]);
+    enviarJson(200, ['ok' => true, 'datos' => $datos], $cache);
 }
 
 /** $extra agrega campos a la respuesta de error (por ejemplo, los segundos que faltan de un bloqueo). */
@@ -31,7 +32,7 @@ function errorSinDatos(Throwable $e): string
     return get_class($e) . ' ' . $e->getCode() . ': ' . preg_replace("/'[^']*'/u", "'…'", $e->getMessage());
 }
 
-function enviarJson(int $codigoHttp, array $cuerpo): void
+function enviarJson(int $codigoHttp, array $cuerpo, string $cache = 'no-store'): void
 {
     // Comprime la respuesta si el navegador lo acepta (datos.php pesa alrededor de 1 MB).
     if (PHP_SAPI !== 'cli' && extension_loaded('zlib') && !ini_get('zlib.output_compression')) {
@@ -40,7 +41,7 @@ function enviarJson(int $codigoHttp, array $cuerpo): void
     http_response_code($codigoHttp);
     header('Content-Type: application/json; charset=utf-8');
     header('X-Content-Type-Options: nosniff');
-    header('Cache-Control: no-store');
+    header('Cache-Control: ' . $cache);
     echo json_encode($cuerpo, JSON_UNESCAPED_UNICODE | JSON_INVALID_UTF8_SUBSTITUTE);
     exit;
 }

@@ -1,7 +1,7 @@
 /**
  * Exportar a Excel lo que se ve (Fase 8, #53 y #54). Parte de las filas de aplicarFiltros() y de la
- * pestaña elegida (o de la ficha abierta), así que exporta exactamente lo que está en pantalla; los
- * nombres reservados llegan ya ocultos de la API. El archivo se genera en el navegador con SheetJS,
+ * pestaña elegida (o de la ficha abierta), así que exporta exactamente lo que está en pantalla: sin
+ * sesión, los nombres de los IPC e IPR llegan ya ocultos de la API; con sesión, los reales (#82). El archivo se genera en el navegador con SheetJS,
  * que se carga solo al exportar. Los filtros en texto sirven también al PDF y a la impresión.
  */
 import { codigoFila, ETIQUETA_ESTADO, etiquetaAcceso, fechaLarga, textoDisposicion } from './formato.js'

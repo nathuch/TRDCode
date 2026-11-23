@@ -22,7 +22,7 @@ import {
 import { escribirUrl, irAConsulta, irAInicio, irAVista, leerUrl, VISTAS_CON_SESION } from './estadoUrl.js'
 import { exportarExcel, lineaFiltros, textoDatosAl } from './utils/exportar.js'
 import { exportarPdf } from './utils/pdf.js'
-import { codigoFila, disposiciones, fechaLarga, formatoNumero, nombreFila, nombreLegible } from './utils/formato.js'
+import { codigoFila, disposiciones, fechaLarga, formatoNumero, nombreFila, nombreLegible, ocultarNombres } from './utils/formato.js'
 
 const inicial = leerUrl()
 
@@ -59,13 +59,15 @@ export default function App() {
     setDebeCambiarClave(Boolean(s.sesion && s.debeCambiarClave))
   }, [])
 
+  // Solo se aplica la respuesta del último pedido de datos: una que llegue tarde, pedida con la sesión
+  // abierta, no debe dejar nombres reservados en pantalla después de salir.
+  const ultimoPedido = useRef(0)
   const recargarDatos = useCallback(() => {
+    const pedido = ++ultimoPedido.current
     obtenerDatos()
-      .then(setDatos)
-      .catch((e) => setError(e.message))
+      .then((d) => pedido === ultimoPedido.current && setDatos(d))
+      .catch((e) => pedido === ultimoPedido.current && setError(e.message))
   }, [])
-
-  useEffect(recargarDatos, [recargarDatos])
 
   useEffect(() => {
     obtenerSesion()
@@ -73,6 +75,17 @@ export default function App() {
       .catch(() => setNombre(null))
       .finally(() => setSesionLista(true))
   }, [recibirSesion])
+
+  // Con sesión (y sin contraseña temporal pendiente), la API envía los nombres reales de los
+  // expedientes IPC e IPR; sin sesión, ocultos (#82). Los datos se piden cuando ya se sabe si hay
+  // sesión y otra vez al ingresar, al salir o al vencer la sesión. Al quedar sin sesión, los nombres
+  // se ocultan de inmediato en el navegador mientras llegan los datos nuevos.
+  const conSesion = nombre !== null && !debeCambiarClave
+  useEffect(() => {
+    if (!sesionLista) return
+    if (!conSesion) setDatos(ocultarNombres)
+    recargarDatos()
+  }, [sesionLista, conSesion, recargarDatos])
 
   const sesionVencida = useCallback(() => setNombre(null), [])
 

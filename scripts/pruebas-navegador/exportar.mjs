@@ -2,20 +2,25 @@
 // consulta y en la ficha. Descarga de verdad el PDF y el Excel, los lee y compara su contenido con lo
 // que se ve; revisa la impresión con la emulación de medio de impresión del navegador.
 // Uso: node scripts/pruebas-navegador/exportar.mjs [http://localhost:5173/]
-// No crea cuentas ni cargas: solo lee. Los archivos descargados van a una carpeta temporal que se borra
-// al terminar. No imprime títulos de expedientes: solo códigos y cantidades.
+// Con una cuenta temporal (que borra al terminar) revisa que, con sesión, la ficha, el Excel y el PDF
+// lleven los nombres reales de los IPC e IPR y que al salir vuelvan a ocultarse (#82). No crea cargas.
+// Los archivos descargados van a una carpeta temporal que se borra al terminar. No imprime títulos de
+// expedientes: solo códigos y cantidades.
 import { existsSync, mkdtempSync, readdirSync, readFileSync, rmSync, writeFileSync } from 'node:fs'
 import { createRequire } from 'node:module'
 import { tmpdir } from 'node:os'
 import { join } from 'node:path'
 import { armarIndice } from '../../frontend/src/datos/cruce.js'
 import { aplicarFiltros, ESTADO_INICIAL } from '../../frontend/src/datos/filtros.js'
-import { abrirNavegador, boton, CAPTURAS, direccion, espera, RAIZ, registro } from './comun.mjs'
+import { abrirNavegador, boton, CAPTURAS, comprobarMismaBase, cuentaTemporal, direccion, espera, php, RAIZ, registro } from './comun.mjs'
 import { leerPdf } from './leer_pdf.mjs'
 
 const XLSX = createRequire(join(RAIZ, 'frontend', 'package.json'))('xlsx')
 const URL_APP = direccion()
+await comprobarMismaBase(URL_APP)
 const r = registro()
+const cuenta = cuentaTemporal('prueba-ui-exportar')
+let cuentaCreada = false
 const descargas = mkdtempSync(join(tmpdir(), 'trdcode-descargas-'))
 const dos = (x) => String(x).padStart(2, '0')
 const hoy = new Date()
@@ -31,7 +36,7 @@ const fConMas = filas.filter((f) => f.cantidad > 50).sort((a, b) => b.cantidad -
 const totalCon = filas.filter((f) => f.estado === 'con').reduce((s, f) => s + f.cantidad, 0)
 
 const n = await abrirNavegador({ prefijo: 'exportar' })
-const { cdp, ev, esperarA, tecla, clic, ir, tamano, computador, foto } = n
+const { cdp, ev, esperarA, tecla, clic, escribir, ir, tamano, computador, foto } = n
 await cdp('Page.setDownloadBehavior', { behavior: 'allow', downloadPath: descargas })
 
 const conTotal = `!!document.querySelector('.total__numero')`
@@ -220,6 +225,50 @@ try {
   await cdp('Emulation.setEmulatedMedia', { media: '' })
   r.comprobar('en pantalla la línea de impresión no se ve', await ev(`(() => { ${VISIBLE}; return !visible(document.querySelector('.impresion-cabecera')) })()`))
 
+  // #82: con sesión, la ficha, el Excel y el PDF llevan los nombres reales de los IPC e IPR; al salir,
+  // vuelven a ocultarse. Sin capturas en esta sección: tendrían nombres de personas.
+  r.seccion('Nombres de los expedientes IPC e IPR con sesión (#82)')
+  php('cuenta_temporal.php', 'crear', cuenta.correo, cuenta.clave)
+  cuentaCreada = true
+  await clic(`document.querySelector('.acceso__enlace')`)
+  await esperarA(`!!document.querySelector('[role=dialog] input[name=correo]')`)
+  await escribir('input[name=correo]', cuenta.correo)
+  await escribir('input[name=clave]', cuenta.clave)
+  await tecla('Enter')
+  r.comprobar('ingresa con una cuenta temporal', await esperarA(`!!document.querySelector('.acceso__nombre')`))
+  // Los nombres que entrega la API con la sesión de la página (no se imprimen).
+  const conSesion = await ev(`fetch('api/datos.php').then(r => r.json()).then(j => Object.fromEntries(j.datos.expedientes.filter(e => e.control_acceso !== 'IPU').map(e => [e.codigo, e.nombre])))`)
+  const reservados8515 = f8515.expedientes.filter((e) => e.control_acceso !== 'IPU').map((e) => e.codigo)
+  r.comprobar(`  la API envía los nombres reales de los ${reservados8515.length} IPC de 85.15`, reservados8515.length > 0 && reservados8515.every((c) => conSesion[c] && !conSesion[c].startsWith('Nombre reservado')))
+  await clic(filaBoton('85.15'))
+  await esperarA(`!!document.querySelector('.ficha')`)
+  const nombresFicha = () => ev(`Object.fromEntries([...document.querySelectorAll('.ficha .expedientes:not(.solo-impresion) .expediente')].map(li => [li.querySelector('.expediente__codigo').textContent.trim(), { nombre: li.querySelector('.expediente__nombre').firstChild.textContent, oculto: li.querySelector('.expediente__nombre').classList.contains('reservado') }]))`)
+  const recargados = await esperarA(`!document.querySelector('.ficha .expediente__nombre.reservado')`)
+  const enFicha = await nombresFicha()
+  r.comprobar('  la ficha muestra los nombres reales, sin el estilo de nombre oculto', recargados && reservados8515.every((c) => enFicha[c]?.nombre === conSesion[c] && !enFicha[c].oculto))
+  const excelSesion = hojas(await exportar('.ficha', 'Excel (.xlsx)', `TRDCode_ficha_85.15_${FECHA}.xlsx`))
+  r.comprobar('  el Excel de la ficha lleva los nombres reales', excelSesion.expedientes.length === 17 && excelSesion.expedientes.every((e) => !reservados8515.includes(e['Código expediente']) || e['Nombre del expediente'] === conSesion[e['Código expediente']]))
+  const pdfSesion = leerPdf(readFileSync(await exportar('.ficha', 'PDF', `TRDCode_ficha_85.15_${FECHA}.pdf`), 'latin1'))
+  r.comprobar('  el PDF de la ficha no dice "Nombre reservado"', pdfSesion.texto.includes('Expedientes (17)') && !pdfSesion.texto.includes('Nombre reservado'))
+
+  // La ficha es modal: se cierra para llegar al menú de la usuaria.
+  await tecla('Escape')
+  await esperarA(`!document.querySelector('.ficha')`)
+  await clic(`document.querySelector('.acceso__usuaria')`)
+  await clic(boton('Salir'))
+  await esperarA(`!!document.querySelector('.acceso__enlace')`)
+  await clic(filaBoton('85.15'))
+  await esperarA(`!!document.querySelector('.ficha')`)
+  r.comprobar('al salir, la ficha vuelve a mostrar "Nombre reservado" en los 17', await esperarA(`[...document.querySelectorAll('.ficha .expedientes:not(.solo-impresion) .expediente__nombre')].filter(e => e.classList.contains('reservado') && e.firstChild.textContent.startsWith('Nombre reservado (')).length === ${reservados8515.length}`, 5000))
+  const despues = await nombresFicha()
+  r.comprobar('  y ningún nombre real queda en la página', reservados8515.every((c) => despues[c]?.oculto) && !(await ev(`(() => { const t = document.body.innerText; return ${JSON.stringify(reservados8515.map((c) => conSesion[c]))}.some(n => t.includes(n)) })()`)))
+  const excelDespues = hojas(await exportar('.ficha', 'Excel (.xlsx)', `TRDCode_ficha_85.15_${FECHA}.xlsx`))
+  r.comprobar('  el Excel vuelve a salir con los nombres ocultos', excelDespues.expedientes.filter((e) => reservados8515.includes(e['Código expediente'])).every((e) => e['Nombre del expediente'].startsWith('Nombre reservado (')))
+  const pdfDespues = leerPdf(readFileSync(await exportar('.ficha', 'PDF', `TRDCode_ficha_85.15_${FECHA}.pdf`), 'latin1'))
+  r.comprobar('  y el PDF también', sinNombresReservados(pdfDespues, f8515.expedientes))
+  await tecla('Escape')
+  await esperarA(`!document.querySelector('.ficha')`)
+
   r.seccion('Celular: el menú "Exportar" no se sale de la pantalla')
   for (const ancho of [320, 390]) {
     await tamano(ancho)
@@ -242,6 +291,7 @@ try {
   r.error(e)
 } finally {
   await n.cerrar()
+  if (cuentaCreada) php('cuenta_temporal.php', 'borrar', cuenta.correo)
   if (existsSync(descargas)) rmSync(descargas, { recursive: true, force: true })
   r.terminar()
 }

@@ -92,7 +92,7 @@ mysql -u root -p --default-character-set=utf8mb4 trdcode -e "source database/trd
 - `--default-character-set=utf8mb4` es necesario. Sin él, la consola de Windows puede dañar las tildes de los nombres de los centros.
 - La forma `-e "source …"` funciona igual en el Símbolo del sistema, en PowerShell y en Linux. No se recomienda `Get-Content … | mysql` en PowerShell, porque cambia la codificación.
 - También se pueden importar con phpMyAdmin (base `trdcode` → pestaña "Importar"), uno por uno y en el mismo orden.
-- Las bases nuevas **no** necesitan las migraciones de `database/migraciones/`: `schema.sql` ya las incluye. Se usan solo al actualizar (sección 11).
+- Las bases nuevas **no** necesitan las migraciones de `database/migraciones/`: `schema.sql` y `datos_iniciales.sql` ya las incluyen. Se usan solo al actualizar (sección 11).
 
 Para comprobar el resultado:
 
@@ -142,7 +142,7 @@ OCULTAR_NOMBRES_RESERVADOS=true
 ```
 
 - Si la contraseña tiene espacios o el carácter `#`, se escribe entre comillas: `DB_PASS="…"`.
-- `OCULTAR_NOMBRES_RESERVADOS=true` viene activa: la API **no envía** el nombre de los expedientes clasificados (IPC) ni reservados (IPR), y la aplicación los muestra como "Nombre reservado". Solo se cambia a `false` si el SENA lo autoriza por escrito. Cualquier valor distinto de `false` deja los nombres ocultos.
+- `OCULTAR_NOMBRES_RESERVADOS=true` viene activa: **sin sesión**, la API **no envía** el nombre de los expedientes clasificados (IPC) ni reservados (IPR), y la aplicación los muestra como "Nombre reservado". Las personas encargadas, **con sesión iniciada**, sí ven los nombres reales (en pantalla, en el Excel y en el PDF); esa respuesta lleva `Cache-Control: private, no-store` y `Vary: Cookie` para que ningún proxy ni caché compartida la guarde. Con `false`, todos ven los nombres reales, también sin sesión: solo se cambia si el SENA lo autoriza por escrito. Cualquier valor distinto de `false` deja los nombres ocultos para quien no ha ingresado.
 - En Linux, el archivo debe poder leerlo el usuario del servidor web y nadie más. Por ejemplo: `chown root:www-data /etc/trdcode/trdcode.env` y `chmod 640 /etc/trdcode/trdcode.env`.
 
 ### 5.2. Indicar dónde está: TRDCODE_ENV
@@ -288,7 +288,7 @@ Después de instalar, se revisa lo siguiente (cambiando la dirección por la de 
 | No se listan carpetas | `https://servidor/trdcode/assets/` | 403 o 404 |
 | Los buscadores no indexan | `https://servidor/trdcode/robots.txt` | `Disallow: /` |
 | La cookie de sesión es segura | Ingresar y revisar en las herramientas del navegador (F12 → Aplicación → Cookies) la cookie `TRDCODE_SESION` | `HttpOnly`, `SameSite=Strict` y, con HTTPS, `Secure` |
-| Los nombres reservados no salen | En `api/datos.php`, buscar un expediente con `"control_acceso":"IPC"` | Su nombre es "Nombre reservado (IPC)" |
+| Los nombres reservados no salen sin sesión | En `api/datos.php`, sin haber ingresado (o con `curl`, sin cookie), buscar un expediente con `"control_acceso":"IPC"` | Su nombre es "Nombre reservado (IPC)" |
 
 Con `curl`, por ejemplo:
 
@@ -325,7 +325,13 @@ mysql -u root -p --default-character-set=utf8mb4 trdcode -e "source trdcode_resp
 
    ```
    mysql -u root -p --default-character-set=utf8mb4 trdcode -e "source database/migraciones/001_usuarios.sql"
+   mysql -u root -p --default-character-set=utf8mb4 trdcode -e "source database/migraciones/002_granja_administracion.sql"
    ```
+
+   | Migración | Qué hace |
+   |---|---|
+   | `001_usuarios.sql` | Columnas de las cuentas editables (contraseña temporal, último ingreso y cierre de sesiones). |
+   | `002_granja_administracion.sql` | Agrega la dependencia Administración Educativa de Agropecuario La Granja (73.9123.2). |
 
    Las migraciones se pueden repetir sin riesgo: cada una revisa qué falta y solo agrega eso. Si no se sabe cuáles se aplicaron, se aplican todas en orden.
 4. Se recarga la aplicación en el navegador (Ctrl + F5) y se repiten las verificaciones de la sección 9.

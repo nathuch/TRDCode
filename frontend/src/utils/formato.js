@@ -139,3 +139,32 @@ export function retencionCorta(ag, ac) {
   if (ag == null && ac == null) return '—'
   return `${ag ?? '—'} + ${ac ?? '—'} años`
 }
+
+/*
+ * Nombres de los expedientes IPC, IPR y sin clasificar (#82). Sin sesión, la API los envía como
+ * "Nombre reservado (IPC)"; con sesión, envía los nombres reales. Al salir, ocultarNombres() los
+ * reemplaza de la misma forma en el navegador mientras llegan los datos nuevos, para que no queden
+ * en pantalla.
+ */
+const PREFIJO_RESERVADO = 'Nombre reservado ('
+
+/** El nombre que la API envía en lugar del real (igual que en api/datos.php). */
+export function nombreReservado(controlAcceso) {
+  return `${PREFIJO_RESERVADO}${controlAcceso || 'sin clasificar'})`
+}
+
+/** true si el expediente no es público y su nombre llegó oculto. */
+export function nombreOculto(expediente) {
+  return expediente.control_acceso !== 'IPU' && String(expediente.nombre).startsWith(PREFIJO_RESERVADO)
+}
+
+/** Copia de los datos de la API con los nombres de los expedientes que no son IPU ocultos. */
+export function ocultarNombres(datos) {
+  if (!datos) return datos
+  return {
+    ...datos,
+    expedientes: datos.expedientes.map((e) =>
+      e.control_acceso === 'IPU' || nombreOculto(e) ? e : { ...e, nombre: nombreReservado(e.control_acceso) },
+    ),
+  }
+}

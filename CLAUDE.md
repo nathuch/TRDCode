@@ -18,7 +18,7 @@ Aplicación de consulta de series y subseries documentales (TRD 2020 y 2025) de 
 - Contraseñas con `password_hash()` y `password_verify()`; nunca se guardan ni se escriben en claro.
 - Los servicios que cambian datos exigen sesión y el token CSRF en la cabecera `X-CSRF-Token`.
 - La cookie de sesión es `HttpOnly` y `SameSite=Strict`, y lleva `Secure` solo cuando la petición llega por HTTPS (así funciona por http en local).
-- `ocultar_nombres_reservados` está activo por defecto: la API no envía el nombre de los expedientes IPC e IPR. Solo se desactiva si el SENA lo autoriza.
+- `ocultar_nombres_reservados` está activo por defecto: sin sesión, la API no envía el nombre de los expedientes IPC e IPR (los reemplaza en el servidor). Con sesión iniciada (y sin contraseña temporal pendiente), `datos.php` envía los nombres reales con `Cache-Control: private, no-store` y `Vary: Cookie`, y el frontend vuelve a pedir los datos al ingresar, al salir y al vencer la sesión (#82). Solo se desactiva si el SENA lo autoriza.
 
 ## Rutas
 - Rutas relativas para que la aplicación funcione en cualquier carpeta del servidor sin volver a compilar: `base: './'` en `frontend/vite.config.js` y llamadas a la API sin barra inicial (`fetch('api/datos.php')`, no `'/api/datos.php'`).
