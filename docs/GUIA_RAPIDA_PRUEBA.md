@@ -41,6 +41,8 @@ Descomprima el zip en una carpeta de trabajo, por ejemplo `C:\TRDCode-instalador
    C:\xampp\mysql\bin\mysql.exe -u root -p --default-character-set=utf8mb4 trdcode -e "source database/instalacion_completa.sql"
    ```
 
+   Si la base de datos es un **MySQL 8** instalado aparte (no la de XAMPP), el `mysql.exe` de XAMPP no se conecta (error `caching_sha2_password`): use phpMyAdmin o el cliente de MySQL 8, por ejemplo `"C:\Program Files\MySQL\MySQL Server 8.0\bin\mysql.exe"`, con las mismas opciones.
+
 4. Compruebe que quedaron **3 centros** y **9 dependencias** (en phpMyAdmin, las tablas `centros` y `dependencias`).
 
 ## 4. Copiar la aplicación

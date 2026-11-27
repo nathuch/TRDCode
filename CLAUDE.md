@@ -31,7 +31,7 @@ Aplicación de consulta de series y subseries documentales (TRD 2020 y 2025) de 
 - `codigo_subserie` vale `''` (cadena vacía) cuando la serie no tiene subseries, nunca `NULL`: la llave única admite varios `NULL` y dejaría pasar duplicados. Vale igual en la base, en la API y en el frontend.
 
 ## Cifras esperadas con el reporte de prueba (10 de agosto)
-Sirven para las pruebas; no se cambian.
+Sirven para las pruebas; no se cambian. Desde el 23 de noviembre de 2026 la base del equipo tiene activa la carga del reporte del 8 de octubre (4.367 expedientes), que no se toca: las pruebas que esperan estas cifras se corren contra la base temporal de `base_temporal.php` (o una instalación nueva), no contra la del equipo.
 
 | Dato | Cifra |
 |---|---|
@@ -56,5 +56,7 @@ Sirven para las pruebas; no se cambian.
 - Copia en Apache: `C:\xampp\htdocs\TRDCode` (el contenido de `app/` del paquete) con `C:\xampp\TRDCode.env`. Se enciende solo Apache, nunca la MySQL de XAMPP (choca con MySQL80 en el puerto 3306).
 - Frontend: `npm run dev` y `npm test` en `frontend/`. Las pruebas con cifras reales leen `datos-prueba/datos.json` (`C:\xampp\php\php.exe api/datos.php > datos-prueba/datos.json`) y se saltan si no existe.
 - Expedientes del reporte: `.venv/Scripts/python scripts/generar_expedientes_sql.py` escribe `datos-prueba/expedientes.sql` (no va al repositorio).
+- Capturas del manual (`docs/img/`): `node scripts/capturas_manual.mjs [url]`, solo contra la base temporal y con `TRDCODE_ENV` en ruta completa; usa cuentas inventadas y captura fichas solo sin sesión. Revisar cada imagen antes de usarla.
 - Documentos en PDF: se edita el `.md` de `docs/` y se genera con `node scripts/generar_manual_pdf.mjs [GUIA_USO|INSTALACION|GUIA_RAPIDA_PRUEBA|FICHA_TECNICA|ACTA_ENTREGA]` o `--todos` (usa Edge sin ventana; sin argumento, el manual). Las capturas de `docs/img/` no deben mostrar nombres de personas.
+- Carpeta `entrega/` (ignorada por git): lo que se lleva a la entrega (zip, PDF y `CORREO_SISTEMAS.md`).
 - Paquete de entrega: `powershell -ExecutionPolicy Bypass -File <raíz>\scripts\empaquetar.ps1 [-Version 1.0.0]` arma `paquete/TRDCode-v1.0.0.zip` (ignorado por git) con `app/`, `database/`, `docs/` y `.env.example`, sin datos personales (se detiene si encuentra un `.env`, un Excel, `expedientes.sql` o un `INSERT` de cuentas, cargas o expedientes). La instalación está en `docs/INSTALACION.md`; el `LEEME.txt` del paquete sale de `scripts/paquete/`.

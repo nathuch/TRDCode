@@ -108,11 +108,17 @@ function bloques(lineas) {
       html.push(`<blockquote>${bloques(cita)}</blockquote>`)
     } else if (/^(- |\d+\. )/.test(linea)) {
       const ordenada = /^\d+\. /.test(linea)
+      const marca = ordenada ? /^\d+\. / : /^- /
+      // Una lista numerada puede empezar en otro número (por ejemplo, después de un bloque de código).
+      const inicio = ordenada ? Number(linea.match(/^(\d+)\./)[1]) : 1
       const items = []
       while (i < lineas.length) {
         const l = lineas[i]
         if (/^(- |\d+\. )/.test(l)) {
           items.push([l.replace(/^(- |\d+\. )/, '')])
+          i++
+        } else if (!l.trim() && marca.test(lineas[i + 1] ?? '')) {
+          // Línea en blanco entre dos ítems de la misma lista.
           i++
         } else if (/^ {2,}\S/.test(l) || (!l.trim() && /^ {2,}\S/.test(lineas[i + 1] ?? ''))) {
           // Continuación del ítem (texto o código indentado).
@@ -122,7 +128,7 @@ function bloques(lineas) {
       }
       const etiqueta = ordenada ? 'ol' : 'ul'
       html.push(
-        `<${etiqueta}>` +
+        `<${etiqueta}${inicio > 1 ? ` start="${inicio}"` : ''}>` +
           items
             .map(([primera, ...resto]) => {
               const adentro = resto.length ? bloques(resto) : ''
