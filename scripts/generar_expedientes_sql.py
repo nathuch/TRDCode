@@ -30,7 +30,7 @@ SALIDA = RAIZ / "datos-prueba" / "expedientes.sql"
 NS = "{http://schemas.openxmlformats.org/spreadsheetml/2006/main}"
 
 # Las mismas de database/datos_iniciales.sql.
-DEPENDENCIAS = {"73.9226", "73.9226.2", "73.9226.4", "73.9310", "73.9310.2", "73.9310.4", "73.9123", "73.9123.4"}
+DEPENDENCIAS = {"73.9226", "73.9226.2", "73.9226.4", "73.9310", "73.9310.2", "73.9310.4", "73.9123", "73.9123.2", "73.9123.4"}
 COLUMNAS = ["Código", "Título", "TRD", "Serie Código", "Subserie Serie Nombre", "Subserie Código", "Subserie",
             "Fecha Creación", "Control de Acceso"]
 CONTROL = {"PUBLICO": "IPU", "PUBLICO CLASIFICADO": "IPC", "PUBLICO RESERVADO": "IPR"}

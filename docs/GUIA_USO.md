@@ -36,7 +36,7 @@ Cubre los tres centros de formación de la Regional Tolima y sus dependencias:
 |---|---|
 | Industria y Construcción | Subdirección, Administración Educativa y Formación Profesional Integral |
 | Comercio y Servicios | Subdirección, Administración Educativa y Formación Profesional Integral |
-| Agropecuario La Granja | Subdirección y Formación Profesional Integral |
+| Agropecuario La Granja | Subdirección, Administración Educativa y Formación Profesional Integral |
 
 Y las dos versiones de la TRD:
 
@@ -116,7 +116,7 @@ Cuando hay una opción marcada, la lista muestra su nombre (por ejemplo, "Indust
 | Dependencia | Serie y Subserie |
 | Serie | Subserie |
 
-La lista **Dependencia** muestra el tipo de dependencia ("Formación Profesional Integral"), que vale para todos los centros elegidos. **Agropecuario La Granja no tiene Administración Educativa**, por eso esa opción no aparece cuando solo está elegido ese centro.
+La lista **Dependencia** muestra el tipo de dependencia ("Formación Profesional Integral"), que vale para todos los centros elegidos. Los tres centros tienen las tres dependencias; en **Agropecuario La Granja**, las series de **Administración Educativa** aparecen "Sin expedientes" mientras el reporte no traiga expedientes suyos.
 
 En **Serie** y **Subserie** cada opción lleva su código: "37 · Historias Académicas", "85.15 · Programas de Emprendimiento".
 
@@ -258,7 +258,9 @@ La clasificación es la que define la TRD para toda la subserie. Cada expediente
 
 Muestra cada expediente con su **código**, su **nombre** y su **fecha de creación**, del más reciente al más antiguo, en páginas de 50 (botones **Anteriores** y **Siguientes**). Si la consulta tiene varios centros, debajo del nombre aparece el centro.
 
-**Nombres reservados.** Los expedientes con información pública **clasificada (IPC)** o **reservada (IPR)** muestran un candado y el texto **"Nombre reservado (IPC)"** o **"Nombre reservado (IPR)"** en lugar del nombre. Es una protección de datos personales: el nombre real no sale del servidor, así que tampoco aparece en el Excel ni se puede encontrar con el buscador. El código y la fecha sí se ven.
+**Nombres reservados.** Los expedientes con información pública **clasificada (IPC)** o **reservada (IPR)** muestran un candado. Quien consulta **sin haber ingresado** ve el texto **"Nombre reservado (IPC)"** o **"Nombre reservado (IPR)"** en lugar del nombre: es una protección de datos personales, y el nombre real no sale del servidor, así que tampoco aparece en el Excel ni en el PDF. El código y la fecha sí se ven.
+
+Las personas encargadas, **con la sesión iniciada**, ven los nombres reales, y así salen también en el Excel y en el PDF. Al **salir**, los nombres vuelven a ocultarse en la pantalla. Si nadie usa la aplicación durante **29 minutos**, la sesión se cierra sola, los nombres se ocultan y aparece un aviso; para verlos de nuevo, vuelva a ingresar. Aun así, no deje la sesión abierta en un computador compartido.
 
 ### 6.5 Cerrar la ficha
 
@@ -291,7 +293,7 @@ El archivo se guarda en la carpeta **Descargas** con el nombre **`TRDCode_consul
 | **Expedientes** | Centro, Dependencia, Código serie, Código subserie, Código expediente, Nombre del expediente, Fecha de creación y Control de acceso. |
 | **Filtros** | La versión de la TRD, los centros, dependencias, series, subseries y años elegidos, la búsqueda, la fecha de los datos y la fecha y hora de descarga. |
 
-Los nombres reservados también salen como "Nombre reservado (IPC)" o "(IPR)" en el Excel.
+El Excel lleva lo mismo que se ve: sin sesión, los nombres reservados salen como "Nombre reservado (IPC)" o "(IPR)"; con la sesión iniciada, los nombres reales.
 
 ---
 
@@ -327,7 +329,7 @@ Sirven para practicar. Antes de cada uno, pulse **Limpiar filtros**.
 1. Con la consulta del ejercicio 1, haga clic en la fila **85.15 Programas de Emprendimiento**.
 2. Lea las tarjetas de la ficha.
 
-**Respuesta:** **10 años en total** (2 en gestión + 8 en archivo central) y luego **Conservación total**. Tiene **17 expedientes**, todos con el nombre reservado (información pública clasificada).
+**Respuesta:** **10 años en total** (2 en gestión + 8 en archivo central) y luego **Conservación total**. Tiene **17 expedientes**, todos de información pública clasificada: sin sesión, con el nombre reservado.
 
 3. Pulse **Exportar a Excel** dentro de la ficha: el archivo trae esa subserie y sus 17 expedientes.
 
@@ -362,7 +364,7 @@ Sirven para practicar. Antes de cada uno, pulse **Limpiar filtros**.
 | La página sale en blanco | Revise que **Apache** esté encendido y que la dirección termine en `/TRDCode/`. |
 | Se ven las series, pero **0 expedientes** | Falta cargar los expedientes en la base de datos. Avise a la persona que instaló la aplicación. |
 | No encuentro una serie o subserie | Revise: la **versión de la TRD** (los códigos cambian entre la 10 y la 11), los **filtros activos** en la fila "Consultando:" y la **pestaña** elegida. Si quiere empezar de cero, pulse **Limpiar filtros**. |
-| Busco el nombre de un expediente y no aparece | Si el expediente es clasificado o reservado, su nombre no se puede buscar (sección 6.4). Busque por su **código**. |
+| Busco el nombre de un expediente y no aparece | Sin sesión, el nombre de un expediente clasificado o reservado está oculto (sección 6.4). Busque por su **código**, o ingrese con su cuenta. |
 | El Excel no se descarga | Revise la carpeta **Descargas** y si el navegador muestra un aviso de descarga bloqueada arriba a la derecha. |
 | Los expedientes más recientes no aparecen | La aplicación muestra el reporte del **10 de agosto de 2026**. Los expedientes creados después aparecerán cuando se cargue un reporte nuevo. |
 

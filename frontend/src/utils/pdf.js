@@ -2,8 +2,8 @@
  * Exportar a PDF lo que se ve (Fase 8, #55). Sin ficha abierta, el resumen de la consulta: título,
  * fecha de los datos, filtros, total y la tabla agrupada como en pantalla. Desde la ficha, lo mismo de
  * esa serie o subserie más su detalle (retención, disposición, tipos documentales) y todos sus
- * expedientes con su control de acceso. Los nombres reservados llegan ya ocultos de la API, igual
- * que en pantalla.
+ * expedientes con su control de acceso. Los nombres de los IPC e IPR salen como en pantalla: sin
+ * sesión llegan ya ocultos de la API ("Nombre reservado (IPC)"); con sesión, los nombres reales (#82).
  *
  * contenidoPdf() arma el contenido como datos simples (se prueba sin jsPDF); dibujarPdf() lo
  * dibuja con jsPDF y jspdf-autotable, que se cargan solo al exportar.
@@ -17,6 +17,7 @@ import {
   etiquetaAcceso,
   fechaCorta,
   formatoNumero,
+  nombreOculto,
   nombreFila,
   nombreLegible,
   retencionCorta,
@@ -117,7 +118,7 @@ function expedientesFicha(ficha, nombreCentroDeDependencia) {
     fechaCorta(e.fecha_creacion),
     etiquetaAcceso(e.control_acceso),
   ])
-  return { columnas, filas, reservados: lista.map((e) => e.control_acceso !== 'IPU') }
+  return { columnas, filas, reservados: lista.map(nombreOculto) }
 }
 
 /**

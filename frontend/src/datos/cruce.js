@@ -1,9 +1,9 @@
 /**
  * Cruce de los expedientes del reporte con la TRD (Fase 5).
  *
- * Cada dependencia recibe las series y subseries de la TRD de su plantilla, en cada
- * versión; así La Granja, que no tiene la dependencia .2, no recibe las series de
- * Administración Educativa. Los expedientes se agregan a la entrada de su llave
+ * Cada dependencia recibe las series y subseries de la TRD de su plantilla, en cada versión; las que
+ * no tienen expedientes aparecen "Sin expedientes" (por ejemplo, las de Administración Educativa en
+ * La Granja, que el reporte de agosto no trae). Los expedientes se agregan a la entrada de su llave
  * dependencia|versión|serie|subserie; si su código no existe en esa versión de la TRD,
  * se crea una entrada "fuera de la TRD" con el nombre que trae el reporte.
  */

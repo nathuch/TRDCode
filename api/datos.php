@@ -1,11 +1,15 @@
 <?php
 // Entrega en un solo JSON lo que necesita la consulta: centros, dependencias, la TRD con sus
 // tipos documentales y los expedientes de la carga activa. Es público y solo acepta GET.
-// Con ocultar_nombres_reservados activo, el nombre de los expedientes que no son de información
-// pública (IPC, IPR o sin clasificar) se reemplaza en la consulta: el nombre real no sale del servidor.
+// Nombres de los expedientes que no son de información pública (IPC, IPR o sin clasificar), con
+// ocultar_nombres_reservados activo (decisión de la usuaria, #82):
+//   - Sin sesión, el nombre se reemplaza en la consulta por "Nombre reservado (IPC)": el nombre real
+//     no sale del servidor.
+//   - Con una sesión iniciada (y sin contraseña temporal pendiente), se envían los nombres reales, con
+//     Cache-Control: private, no-store y Vary: Cookie, para que ninguna caché compartida los guarde.
+// Con ocultar_nombres_reservados en false, todos ven los nombres reales.
 
-require __DIR__ . '/lib/db.php';
-require __DIR__ . '/lib/respuesta.php';
+require __DIR__ . '/lib/auth.php';
 
 exigirMetodo('GET');
 
@@ -16,6 +20,12 @@ function lista(?string $valor): array
 }
 
 try {
+    $usuario = abrirSesion(false) ? usuarioActual() : null;
+    $conSesion = $usuario !== null && !$usuario['debe_cambiar_clave'];
+    if (session_status() === PHP_SESSION_ACTIVE) {
+        session_write_close(); // libera la sesión mientras se arma la respuesta
+    }
+    $ocultar = config()['ocultar_nombres_reservados'] && !$conSesion;
     $pdo = conexion();
 
     $centros = $pdo->query('SELECT codigo, nombre FROM centros ORDER BY nombre')->fetchAll();
@@ -64,7 +74,7 @@ try {
 
     $expedientes = [];
     if ($carga !== null) {
-        $nombre = config()['ocultar_nombres_reservados']
+        $nombre = $ocultar
             ? "CASE WHEN e.control_acceso = 'IPU' THEN e.nombre
                     ELSE CONCAT('Nombre reservado (', COALESCE(NULLIF(e.control_acceso, ''), 'sin clasificar'), ')') END"
             : 'e.nombre';
@@ -85,13 +95,14 @@ try {
         ];
     }
 
+    header('Vary: Cookie');
     responderOk([
         'carga' => $carga,
         'centros' => $centros,
         'dependencias' => $dependencias,
         'trd' => array_values($registros),
         'expedientes' => $expedientes,
-    ]);
+    ], $conSesion ? 'private, no-store' : 'no-store');
 } catch (Throwable $e) {
     error_log('TRDCode datos.php: ' . $e->getMessage());
     responderError('No se pudieron leer los datos. Revise la conexión a la base de datos.');

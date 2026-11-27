@@ -224,6 +224,42 @@ try {
     $r = pedir('POST', 'cambiar_clave.php', ['json' => [], 'cookie' => $sesion, 'csrf' => $csrf]);
     comprobar('con la cookie anterior, cambiar_clave.php responde 401', $r['codigo'] === 401);
 
+    echo "\nNombres de los expedientes IPC e IPR (#82)\n";
+    // Sin sesión van ocultos; con sesión, los reales y sin quedar en cachés compartidas. No se imprimen.
+    $resumenNombres = function (array $r): array {
+        $todos = $r['json']['datos']['expedientes'] ?? [];
+        $reservados = array_filter($todos, fn($e) => $e['control_acceso'] !== 'IPU');
+        $ocultos = array_filter($reservados, fn($e) => str_starts_with($e['nombre'], 'Nombre reservado ('));
+        return [count($todos), count($reservados), count($ocultos)];
+    };
+    $cabecera = function (array $r, string $nombre): string {
+        return preg_match('/^' . preg_quote($nombre, '/') . ':\s*(.*?)\s*$/mi', $r['encabezados'], $m) ? strtolower($m[1]) : '';
+    };
+    $r = pedir('GET', 'datos.php');
+    [$cuantos, $reservados, $ocultos] = $resumenNombres($r);
+    comprobar("sin sesión: los $reservados nombres IPC, IPR y sin clasificar van ocultos", $cuantos === 3385 && $reservados > 0 && $ocultos === $reservados);
+    comprobar('  con Cache-Control: no-store y Vary: Cookie', $cabecera($r, 'Cache-Control') === 'no-store' && str_contains($cabecera($r, 'Vary'), 'cookie'));
+    $r = entrar($activa['correo'], $activa['clave']);
+    $sesion = $r['cookie'];
+    $csrf = $r['json']['datos']['csrf'] ?? '';
+    $r = pedir('GET', 'datos.php', ['cookie' => $sesion]);
+    [$cuantos, $reservadosSesion, $ocultos] = $resumenNombres($r);
+    comprobar('con sesión: los 3.385 expedientes y ningún nombre oculto', $r['codigo'] === 200 && $cuantos === 3385 && $reservadosSesion === $reservados && $ocultos === 0);
+    $reales = $pdo->query(
+        "SELECT e.codigo, e.nombre FROM expedientes e JOIN cargas c ON c.id = e.carga_id
+         WHERE c.estado = 'activa' AND e.control_acceso <> 'IPU'"
+    )->fetchAll(PDO::FETCH_KEY_PAIR);
+    $iguales = array_filter($r['json']['datos']['expedientes'] ?? [], fn($e) => $e['control_acceso'] !== 'IPU' && ($reales[$e['codigo']] ?? null) === $e['nombre']);
+    comprobar('  son los nombres de la base', count($reales) === $reservados && count($iguales) === $reservados);
+    comprobar('  con Cache-Control: private, no-store y Vary: Cookie', $cabecera($r, 'Cache-Control') === 'private, no-store' && str_contains($cabecera($r, 'Vary'), 'cookie'));
+    $pdo->prepare('UPDATE usuarios SET debe_cambiar_clave = 1 WHERE correo = ?')->execute([$activa['correo']]);
+    $r = pedir('GET', 'datos.php', ['cookie' => $sesion]);
+    comprobar('con una contraseña temporal pendiente, van ocultos', $resumenNombres($r)[2] === $reservados && $cabecera($r, 'Cache-Control') === 'no-store');
+    $pdo->prepare('UPDATE usuarios SET debe_cambiar_clave = 0 WHERE correo = ?')->execute([$activa['correo']]);
+    pedir('POST', 'logout.php', ['json' => [], 'cookie' => $sesion, 'csrf' => $csrf]);
+    $r = pedir('GET', 'datos.php', ['cookie' => $sesion]);
+    comprobar('después de salir, con la cookie anterior, otra vez ocultos', $r['codigo'] === 200 && $resumenNombres($r)[2] === $reservados && $cabecera($r, 'Cache-Control') === 'no-store');
+
     echo "\nUsuaria desactivada con la sesión abierta\n";
     $r = entrar($activa['correo'], $activa['clave']);
     $sesion = $r['cookie'];

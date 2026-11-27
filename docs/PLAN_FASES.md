@@ -2,7 +2,7 @@
 
 Resumen del plan de desarrollo v3 ("Plan_de_desarrollo_TRDCode.pdf") con los hitos e issues de GitHub y las decisiones tomadas después de escribir el plan. El detalle de cada tarea está en su issue.
 
-Actualizado el 15 de noviembre de 2026.
+Actualizado el 23 de noviembre de 2026. **Fecha de entrega: 27 de noviembre de 2026** (#79).
 
 **Estados:** completa · en curso · sin empezar. Las tareas de una fase se cierran en GitHub cuando su rama se fusiona a `main`; una tarea "completa" de una fase en curso ya está hecha en la rama, pero su issue sigue abierto.
 
@@ -19,7 +19,8 @@ Actualizado el 15 de noviembre de 2026.
 | 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `main` (MVP) y `fase-7-vista` (#39 en celular) | en curso: todo hecho en la rama, falta fusionar |
 | 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | en curso: todo hecho en la rama, falta fusionar |
 | 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | completa, fusionada a `main` (PR #89) |
-| 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | completa en `fase-9-entrega`, en revisión; el celular real (#62) pasa a la Fase 10 |
+| 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | completa, fusionada a `main` (PR #90); el celular real (#62) pasa a la Fase 10 |
+| — | Ajustes de la usuaria (decisiones #79 a #82) | — | `ajustes-usuaria` | completa en la rama, PR #91 abierto; issues #79 a #82 cerrados |
 | 10 | Pruebas con la usuaria y ajustes | [Fase 10](https://github.com/nathuch/TRDCode/milestone/11) | `fase-10-ajustes` | sin empezar |
 | 11 | Guía y entrega al SENA | [Fase 11](https://github.com/nathuch/TRDCode/milestone/12) | `main` | sin empezar |
 
@@ -50,6 +51,7 @@ Las fases 3 a 9 siguen "sin empezar" como fases, pero el MVP (rama `mvp-prototip
 - **La propuesta de pantallas** no está en el repositorio; las decisiones de diseño quedaron en los issues #27, #39, #43 y #49.
 - **Prototipo (MVP) antes de terminar las fases.** Se armó una versión de solo consulta para mostrarla a la usuaria; ver la sección siguiente.
 - **RF-17, usuarios editables (nuevo requisito).** Las cuentas se administran desde la aplicación ("Usuarios" y "Mi cuenta"); la primera cuenta se crea por consola (`consola/crear_primera_cuenta.php` desde la Fase 9). Ver la sección "RF-17".
+- **Decisiones de la usuaria (23 de noviembre de 2026, rama `ajustes-usuaria`).** La usuaria es la encargada de Gestión Documental (#80); La Granja sí tiene Grupo de Administración Educativa (#81); con sesión se ven los nombres reales de los expedientes IPC e IPR (#82); la entrega es el 27 de noviembre (#79). Ver la sección "Ajustes de la usuaria".
 - **Paquete de entrega sin datos personales (Fase 9).** El zip no trae expedientes, reportes, cuentas ni `.env`: la base se instala con la TRD y la encargada hace la primera carga desde "Actualizar datos". `database/` y `docs/` quedan fuera de la carpeta pública (`app/`).
 
 ---
@@ -143,7 +145,7 @@ De la Fase 11, `docs/GUIA_USO.md` (#72) ya existe como manual del prototipo.
 
 **Criterios de aceptación**
 - [x] Las ocho tablas existen con `utf8mb4_unicode_ci`, y la base también.
-- [x] Los 3 centros y las 8 dependencias están cargados (La Granja sin Administración Educativa).
+- [x] Los 3 centros y las 8 dependencias están cargados (La Granja sin Administración Educativa). *(Desde los ajustes de la usuaria son 9: La Granja sí tiene Administración Educativa, #81; `datos_iniciales.sql` y la migración 002)*
 - [x] La usuaria encargada existe con su contraseña guardada como hash.
 - [x] El `.env` no está en el repositorio.
 
@@ -168,6 +170,7 @@ De la Fase 11, `docs/GUIA_USO.md` (#72) ya existe como manual del prototipo.
 - [x] Los códigos de serie y subserie coinciden con un conteo independiente hecho sobre cada PDF.
 - [x] En la TRD 11, los tipos documentales coinciden con las viñetas del PDF (salvo dos viñetas sin texto en la TRD de la Subdirección, págs. 45 y 47).
 - [x] Del reporte de agosto, solo la subserie 85.18 queda fuera de la TRD.
+  - Nota (23 de noviembre de 2026): los 119 expedientes de 85.18 del reporte están marcados como TRD 11 en OnBase y se crearon entre octubre y noviembre de 2025. Probablemente la subserie se agregó en una actualización de la TRD posterior a la versión 04, que es la que tiene el proyecto. El código no cambia: siguen como "No está en la TRD". **Pendiente: conseguir esa versión de la TRD.**
 - [x] La revisión manual de al menos diez registros por PDF no tiene errores (`docs/revision_trd.md`: 55 registros; los 2 errores, títulos en cursiva pegados a un tipo, se corrigieron en el extractor).
 
 ## Fase 3 – API en PHP · en curso
@@ -280,7 +283,7 @@ La aplicación ya no abre con todos los resultados a la vista.
 - [x] El Grupo de Formación Profesional de Industria y Construcción con TRD 11 suma 643 expedientes. *(A-06)*
 - [x] La serie 37 Historias académicas tiene 308. *(A-06)*
 - [x] La subserie 85.18 aparece como "No está en la TRD" con 39. *(A-06)*
-- [x] La Granja no muestra series de la plantilla 00.9000.2. *(A-07, con datos de ejemplo y con el reporte real)*
+- [x] ~~La Granja no muestra series de la plantilla 00.9000.2.~~ Cambió con #81: **La Granja muestra las series de la plantilla 00.9000.2, sin expedientes** (las mismas que Industria y Construcción). Las cifras 3.385, 643, 308, 39 y 17 no cambian. *(A-07, con datos de ejemplo y con el reporte real; P-02 en `filtros.test.js`)*
 
 ## Fase 6 – Filtros y buscador · en curso (todo hecho; #39 en `fase-7-vista`)
 
@@ -351,7 +354,7 @@ La rama `fase-8-exportar` sale de `main` después de los PR #87 (`fase-7-vista`)
 - [x] El PDF sin ficha trae solo el resumen; con la ficha de 85.15 abierta incluye los 17 expedientes (P-10). *(navegador: el PDF de la consulta tiene los 37 códigos de la tabla y ningún expediente; el de la ficha, los 17 códigos, cada uno con "Nombre reservado (IPC)" y "Clasificado"; `pdf.test.js` lo mismo con el PDF dibujado)*
 - [x] La impresión no muestra filtros ni botones (P-11). *(navegador con la emulación de impresión: ni encabezado interactivo, ni filtros, ni pestañas, ni botones ni menús; la línea de filtros y "Datos al" arriba; desde la ficha, todos sus expedientes)*
 
-## Fase 9 – Instalación local y paquete de entrega · completa en `fase-9-entrega` (celular real en la Fase 10)
+## Fase 9 – Instalación local y paquete de entrega · completa, fusionada a `main` (PR #90; celular real en la Fase 10)
 
 **Objetivo:** dejar la aplicación funcionando en Apache como en un servidor real y preparar el paquete para que el SENA la instale en cualquier carpeta.
 **Requisitos:** RNF-01, RNF-04, RNF-07 y RNF-10.
@@ -462,14 +465,62 @@ La rama `fase-9-entrega` sale de `main` después del PR #89 (Fase 8).
 - `scripts/pruebas-navegador/usuarios.mjs`: 31 comprobaciones, también a 390 px.
 - Siguen pasando `npm test` (45), `probar_auth.php` (51), `probar_importacion.php` (56) y las demás pruebas en el navegador (`inicio`, `ingreso`, `vista`, `menus` y `actualizar`).
 
+## Ajustes de la usuaria (decisiones #79 a #82) · completa en `ajustes-usuaria`
+
+Respuestas de la usuaria del 23 de noviembre de 2026. La rama `ajustes-usuaria` sale de `main` después del PR #90 (Fase 9). PR #91 abierto (sin fusionar); los issues #79 a #82 se cerraron con la decisión anotada.
+
+**#80: la usuaria es la encargada de Gestión Documental.** Su cuenta se crea en la instalación final, con su correo institucional (ver "Pendientes para la entrega").
+
+**#79: entrega el 27 de noviembre de 2026.**
+
+**#81: La Granja sí tiene Grupo de Administración Educativa.**
+- `datos_iniciales.sql` agrega la dependencia `73.9123.2` con la plantilla `00.9000.2` (quedan 9 dependencias).
+- `database/migraciones/002_granja_administracion.sql` la agrega a una base existente sin duplicarla (`INSERT … SELECT … WHERE NOT EXISTS`; si el centro 73.9123 no está, no hace nada). Probada dos veces en MariaDB 10.4.32 (puerto 3307, carpeta de datos temporal) sobre una base con los datos iniciales anteriores, sobre una con los nuevos y sobre una sin centros; aplicada dos veces a la base del equipo (MySQL 8.0.41).
+- La importación también acepta 73.9123.2 (`normalizar.js` y `scripts/generar_expedientes_sql.py`, además de la tabla `dependencias` que revisa la API). El reporte de agosto no trae expedientes suyos: las cifras no cambian (7.531 filas, 3.385 expedientes, 1.781 / 1.084 / 520, 643, 308, 39 y 17).
+- En la consulta, La Granja muestra las series de la plantilla 00.9000.2, "Sin expedientes". El criterio de la Fase 5 y las pruebas A-07 (`cruce.test.js`) y P-02 (`filtros.test.js`) se invirtieron.
+
+**#82: nombres de los expedientes IPC e IPR.**
+- **Sin sesión** siguen ocultos: `datos.php` los reemplaza en la consulta por "Nombre reservado (IPC)", "(IPR)" o "(sin clasificar)", como antes; el nombre real no sale del servidor.
+- **Con sesión iniciada** (y sin contraseña temporal pendiente), `datos.php` envía los nombres reales de todos, con `Cache-Control: private, no-store` y `Vary: Cookie`, para que nunca queden en una caché compartida. La sesión se libera (`session_write_close`) antes de armar la respuesta.
+- `OCULTAR_NOMBRES_RESERVADOS=false` sigue mostrando los nombres reales a todos; solo se usa si el SENA lo autoriza.
+- El frontend pide los datos cuando ya sabe si hay sesión, y otra vez al ingresar, al salir, al vencer la sesión y al cambiar la contraseña temporal. Al quedar sin sesión, oculta los nombres en el navegador de inmediato (`ocultarNombres()` en `utils/formato.js`) mientras llegan los datos nuevos, y descarta una respuesta que llegue tarde.
+- El Excel y el PDF exportan lo que se ve: con sesión, los nombres reales; sin sesión, ocultos. El estilo de nombre oculto (gris y cursiva) solo se aplica a los nombres ocultos (`nombreOculto()`).
+- Si la sesión vence por inactividad sin que la página haga ninguna petición, los nombres siguen en esa pestaña hasta la siguiente acción; el manual pide no dejar la sesión abierta en un computador compartido.
+
+**Cierre de la sesión por inactividad (#82, 26 de noviembre).** Si la página queda quieta, los nombres reales ya no quedan a la vista hasta la siguiente petición:
+- `frontend/src/utils/inactividad.js`: a los **29 minutos** sin actividad (mouse, teclado, toques o desplazamiento) en ninguna pestaña de la aplicación, la página oculta los nombres, cierra la sesión (`logout.php`) y muestra el aviso "Su sesión se cerró por inactividad…". Son 29 y no 30 para adelantarse al servidor.
+- La última actividad se comparte entre pestañas (`localStorage`, con respaldo en memoria si el navegador no lo permite), para que una pestaña quieta no cierre la sesión de otra en uso.
+- Mientras hay actividad, la página consulta `sesion.php` a lo sumo una vez por minuto, para que el servidor no cierre la sesión de alguien que la está usando sin hacer peticiones. Al volver a la pestaña (`visibilitychange`) se revisa enseguida; si no, cada 15 segundos.
+
+**Instalación en un solo archivo y guía rápida (26 de noviembre).**
+- `database/instalacion_completa.sql`: `schema.sql`, `datos_iniciales.sql` y `trd.sql` en un solo archivo, para importarlo de una vez (phpMyAdmin o consola). Lo arma `scripts/armar_instalacion_completa.mjs`; `empaquetar.ps1` se detiene si no está al día. Probado en una base nueva de MySQL 8.0.41 y de MariaDB 10.4.32 (3 centros, 9 dependencias, 109 registros de TRD, 4.281 tipos documentales, sin cuentas ni expedientes).
+- `docs/GUIA_RAPIDA_PRUEBA.md` y su PDF: instalar, probar y quitar TRDCode en un computador con XAMPP, con `instalacion_completa.sql` y el `.env` junto a `htdocs`.
+- `scripts/generar_manual_pdf.mjs` genera el PDF de cualquier documento de `docs/` (`GUIA_USO`, `INSTALACION`, `GUIA_RAPIDA_PRUEBA`, `FICHA_TECNICA`, `ACTA_ENTREGA` o `--todos`). El paquete lleva en `docs/` la guía de instalación, la guía rápida y el manual en PDF; `empaquetar.ps1` se detiene si un PDF falta o es más viejo que su `.md`.
+- Correcciones: `INSTALACION.md` y `instalacion.mjs` esperaban 8 dependencias; con La Granja son 9.
+
+**Base del equipo:** desde el 23 de noviembre (19:05) tiene activa la carga del reporte del **8 de octubre** (4.367 expedientes), además de las dos del 10 de agosto, ya reemplazadas. Las pruebas con las cifras del 10 de agosto (3.385, 643…) fallan contra ella por eso, no por el código. Desde ahora se corren contra la base temporal de `base_temporal.php`, que se arma con los expedientes de agosto. La base del equipo no se toca.
+
+**Pruebas (26 de noviembre), en la base temporal:** `npm test` 71, `probar_auth` 58, `probar_usuarios` 64, `probar_importacion` 56, `probar_primera_cuenta` 19, `inicio` 25, `ingreso` 15, `vista` 27, `menus` 20, `usuarios` 31, `exportar` 60 (7 nuevas: inactividad a los 28 y a los 30 minutos, con la ficha abierta) y `actualizar` 35. Contra la base del equipo (sin cifras fijas) pasan `probar_usuarios`, `ingreso`, `vista`, `menus` y `usuarios`.
+
+**85.18:** no cambia el código. Ver la nota en los criterios de la Fase 2.
+
+**Pruebas**
+- `npm test`: 67 (6 nuevas: `formato.test.js` con `ocultarNombres()` y `nombreOculto()`, el Excel y el PDF con nombres de prueba, y el cruce sin la dependencia).
+- `probar_auth.php`: 58 (7 nuevas): sin sesión ningún nombre real de IPC o IPR sale del servidor (`no-store`); con sesión, los nombres de la base (`private, no-store` y `Vary: Cookie`); con una contraseña temporal pendiente, ocultos; después de salir, con la cookie anterior, otra vez ocultos.
+- `exportar.mjs`: 53 (8 nuevas, sin capturas): con sesión, la API, la ficha de 85.15, su Excel y su PDF con los nombres reales; después de salir, la ficha, el Excel y el PDF otra vez ocultos y ningún nombre real en la página. Ahora usa una cuenta temporal que borra al terminar.
+- En desarrollo, contra la base del equipo: `inicio` (25), `ingreso` (15), `vista` (27), `menus` (20), `usuarios` (31), `exportar` (53), `probar_auth` (58) y `probar_usuarios` (62). En la base temporal (`base_temporal.php`), las que crean cargas: `probar_importacion` (56) y `actualizar` (35), además de `probar_usuarios` (64) y `probar_auth` (58). En la base del equipo no se crearon cargas.
+- En Apache, sobre la copia reinstalada con el `app/` del paquete nuevo: `inicio` (25), `ingreso` (15), `vista` (27), `menus` (20), `usuarios` (31), `exportar` (53), `probar_auth` (58, con el PHP 8.4 de Apache) y `probar_usuarios` (62); `consola/`, `.env`, `.env.example`, `.htaccess` y `api/lib/config.php` responden 403. `probar_importacion` y `actualizar` no se corren contra Apache porque esa copia usa la base del equipo y crearían cargas.
+- Paquete: `empaquetar.ps1` arma `TRDCode-v1.0.0.zip` con 70 archivos (1,48 MB): suma `database/migraciones/002_granja_administracion.sql` y el manual en PDF regenerado.
+
 ## Pendientes para la entrega
 
 - Probar desde un celular real (#62, P-26) en la Fase 10, en la sesión con la usuaria y en una red donde el celular alcance el servidor (en el Wi-Fi del desarrollador hay aislamiento de clientes). Si se usa el computador de desarrollo, falta además la regla del Firewall de Windows para el puerto 80 (solo red privada y subred local), que aplica el usuario como administrador.
 - Borrar `C:\php81` (PHP 8.1 portátil de la prueba P-29) cuando ya no haga falta.
-- Adjuntar `TRDCode-v1.0.0.zip` al Release cuando se fusione la Fase 9.
-
-- La encargada crea su cuenta desde "Usuarios", con su correo institucional (entra con la contraseña temporal y la cambia), y desde esa cuenta desactiva la cuenta de prueba. Las cuentas no se borran: las cargas guardan quién las hizo.
-- Actualizar el manual de usuario (`docs/GUIA_USO.md`, las capturas de `docs/img/` y el PDF): todavía dice que la aplicación abre con los 2.530 expedientes a la vista y no describe la pantalla de inicio, el ingreso de la encargada ni "Actualizar datos" (la sección 11 todavía dice que la carga de reportes llegará después).
+- Adjuntar `TRDCode-v1.0.0.zip` al Release (Fase 11, #71). La Fase 9 ya se fusionó.
+- Entrega el **27 de noviembre de 2026** (#79).
+- La cuenta de la usuaria (la encargada de Gestión Documental, #80) se crea en la **instalación final**, con su correo institucional: con `consola/crear_primera_cuenta.php` si es la primera cuenta, o desde "Usuarios" (entra con la contraseña temporal y la cambia). Si hay una cuenta de prueba, desde su cuenta la desactiva. Las cuentas no se borran: las cargas guardan quién las hizo.
+- Conseguir la versión de la TRD posterior a la 04 que trae la subserie 85.18 (ver la nota de la Fase 2).
+- Actualizar el manual de usuario (`docs/GUIA_USO.md`, las capturas de `docs/img/` y el PDF). Con los ajustes de la usuaria ya dice que La Granja tiene Administración Educativa y que con sesión se ven los nombres reales, pero todavía dice que la aplicación abre con los 2.530 expedientes a la vista y no describe la pantalla de inicio, el ingreso de la encargada ni "Actualizar datos" (la sección 11 todavía dice que la carga de reportes llegará después).
 
 ## Decisiones pendientes
 
@@ -479,7 +530,12 @@ No dependen del desarrollo; tienen la etiqueta `decision-pendiente` y no pertene
 |---|---|---|---|
 | #77 | A nombre de quién queda el repositorio de GitHub | Desarrollador y usuaria | — |
 | #78 | Quién revisa los Pull Requests | Desarrollador | — |
-| #79 | Fecha de sustentación o de entrega | Usuaria | — |
-| #80 | Si la usuaria y la encargada de Gestión Documental son la misma persona | Usuaria | Fase 4 |
-| #81 | Si La Granja tiene Grupo de Administración Educativa (.2) | Usuaria | Fase 5 |
-| #82 | Si en producción se muestran los nombres de los expedientes IPC e IPR | Usuaria y SENA | Instalación en el SENA |
+
+Resueltas el 23 de noviembre de 2026 (ver la sección "Ajustes de la usuaria"):
+
+| Issue | Decisión | Respuesta |
+|---|---|---|
+| #79 | Fecha de sustentación o de entrega | 27 de noviembre de 2026 |
+| #80 | Si la usuaria y la encargada de Gestión Documental son la misma persona | Sí: la usuaria es la encargada de Gestión Documental. Su cuenta se crea en la instalación final con su correo institucional |
+| #81 | Si La Granja tiene Grupo de Administración Educativa (.2) | Sí: se agregó 73.9123.2 con la plantilla 00.9000.2 |
+| #82 | Si en producción se muestran los nombres de los expedientes IPC e IPR | Sin sesión, ocultos; con sesión, los nombres reales |

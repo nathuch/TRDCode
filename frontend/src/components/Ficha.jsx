@@ -6,6 +6,7 @@ import {
   etiquetaAcceso,
   fechaCorta,
   formatoNumero,
+  nombreOculto,
   nombreFila,
   nombreLegible,
   textoClasificacion,
@@ -194,7 +195,7 @@ function Expedientes({ expedientes, centroDe }) {
         return (
           <li key={e.codigo} className="expediente">
             <span className="expediente__codigo">{e.codigo}</span>
-            <span className={reservado ? 'expediente__nombre reservado' : 'expediente__nombre'}>
+            <span className={nombreOculto(e) ? 'expediente__nombre reservado' : 'expediente__nombre'}>
               {e.nombre}
               {variosCentros && <span className="expediente__centro">{centroDe(e.codigo_dependencia)}</span>}
             </span>

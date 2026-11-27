@@ -5,6 +5,7 @@ import { aplicarFiltros, ESTADO_INICIAL } from './filtros.js'
 
 const dependencias = [
   { codigo: '73.9226.2', codigo_centro: '73.9226', plantilla: '00.9000.2', nombre: 'Administración Educativa' },
+  { codigo: '73.9123.2', codigo_centro: '73.9123', plantilla: '00.9000.2', nombre: 'Administración Educativa' },
   { codigo: '73.9123.4', codigo_centro: '73.9123', plantilla: '00.9000.4', nombre: 'Formación Profesional Integral' },
 ]
 const trd = [
@@ -33,10 +34,17 @@ describe('cruce con datos de ejemplo', () => {
   ]
   const entradas = armarIndice(trd, dependencias, expedientes)
 
-  it('A-07: La Granja no recibe series de la plantilla 00.9000.2', () => {
-    const granja = entradas.filter((e) => e.centro === '73.9123')
-    expect(granja.length).toBeGreaterThan(0)
-    expect(granja.some((e) => e.plantilla === '00.9000.2')).toBe(false)
+  it('A-07: La Granja recibe las series de la plantilla 00.9000.2, sin expedientes (#81)', () => {
+    const granja = entradas.filter((e) => e.centro === '73.9123' && e.plantilla === '00.9000.2')
+    expect(granja.map((e) => e.codigo_serie)).toEqual(['27'])
+    expect(granja.every((e) => e.expedientes.length === 0)).toBe(true)
+    const fila = aplicarFiltros({ ...ESTADO_INICIAL, centros: ['73.9123'], dependencias: ['00.9000.2'] }, entradas)
+    expect(fila.map((f) => [f.codigo_serie, f.estado, f.cantidad])).toEqual([['27', ESTADOS.SIN, 0]])
+  })
+
+  it('un centro sin una dependencia no recibe las series de su plantilla', () => {
+    const sinGranja2 = armarIndice(trd, dependencias.filter((d) => d.codigo !== '73.9123.2'), expedientes)
+    expect(sinGranja2.some((e) => e.centro === '73.9123' && e.plantilla === '00.9000.2')).toBe(false)
   })
 
   it('A-08: con el año 2023, una subserie que solo tiene expedientes de 2025 queda "sin expedientes en el período" con 0', () => {
@@ -80,8 +88,12 @@ describe.skipIf(!hayDatosReales)('cruce con el reporte de agosto (datos-prueba/d
     expect(fila('85.15').cantidad).toBe(17)
   })
 
-  it('A-07: La Granja no tiene series de la plantilla 00.9000.2', () => {
-    expect(entradas.some((e) => e.centro === '73.9123' && e.plantilla === '00.9000.2')).toBe(false)
+  it('A-07: La Granja muestra las series de la plantilla 00.9000.2, todas sin expedientes (#81)', () => {
+    const granja = entradas.filter((e) => e.centro === '73.9123' && e.plantilla === '00.9000.2')
+    const deIndustria = entradas.filter((e) => e.centro === '73.9226' && e.plantilla === '00.9000.2')
+    expect(granja.length).toBeGreaterThan(0)
+    expect(granja.length).toBe(deIndustria.length)
+    expect(granja.every((e) => e.expedientes.length === 0)).toBe(true)
   })
 
   it('los tres centros suman 3.385 expedientes (1.781 / 1.084 / 520)', () => {

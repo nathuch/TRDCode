@@ -3,6 +3,7 @@ import { armarIndice } from '../datos/cruce.js'
 import { cargarDatosReales, hayDatosReales } from '../datos/datosPrueba.js'
 import { aplicarFiltros, ESTADO_INICIAL } from '../datos/filtros.js'
 import { datosLibro, nombreArchivo } from './exportar.js'
+import { ocultarNombres } from './formato.js'
 
 describe('nombre del archivo, igual para el Excel y el PDF', () => {
   it('desde la consulta: TRDCode_consulta_AAAA-MM-DD, con la fecha de descarga', () => {
@@ -59,5 +60,16 @@ describe.skipIf(!hayDatosReales)('exportar con el reporte de agosto (datos-prueb
     const reservados = datosLibro(filas, estado, contexto).expedientes.filter((e) => e['Control de acceso'] !== 'Público')
     expect(reservados.length).toBeGreaterThan(0)
     expect(reservados.every((e) => e['Nombre del expediente'].startsWith('Nombre reservado ('))).toBe(true)
+  })
+
+  it('#82: con sesión el Excel lleva los nombres reales, y después de salir otra vez ocultos', () => {
+    // Simula la respuesta con sesión poniendo nombres inventados a los expedientes que no son IPU.
+    const conSesion = { ...datos, expedientes: datos.expedientes.map((e) => (e.control_acceso === 'IPU' ? e : { ...e, nombre: `PRUEBA ${e.codigo}` })) }
+    const libroDe = (d) => datosLibro(aplicarFiltros(estado, armarIndice(d.trd, d.dependencias, d.expedientes)), estado, contexto).expedientes
+      .filter((e) => e['Control de acceso'] !== 'Público')
+    const conNombres = libroDe(conSesion)
+    expect(conNombres.length).toBeGreaterThan(0)
+    expect(conNombres.every((e) => e['Nombre del expediente'] === `PRUEBA ${e['Código expediente']}`)).toBe(true)
+    expect(libroDe(ocultarNombres(conSesion)).every((e) => e['Nombre del expediente'].startsWith('Nombre reservado ('))).toBe(true)
   })
 })

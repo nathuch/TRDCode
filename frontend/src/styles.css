@@ -1004,6 +1004,20 @@ summary {
   font-size: 0.87rem;
 }
 
+.aviso-inactividad {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px 16px;
+  margin-top: 12px;
+}
+
+.aviso-inactividad p {
+  margin: 0;
+  flex: 1 1 280px;
+}
+
 .aviso-fuera {
   display: flex;
   gap: 12px;
