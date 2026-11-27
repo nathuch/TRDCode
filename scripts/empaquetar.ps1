@@ -81,7 +81,8 @@ Copy-Item -Path (Join-Path $raiz 'docs\INSTALACION.md') -Destination $docs
 $pdfs = [ordered]@{
     'INSTALACION'        = 'INSTALACION.pdf'
     'GUIA_RAPIDA_PRUEBA' = 'GUIA_RAPIDA_PRUEBA.pdf'
-    'GUIA_USO'           = 'Manual_de_usuario_TRDCode.pdf'
+    'GUIA_USO'           = 'GUIA_USO.pdf'
+    'FICHA_TECNICA'      = 'FICHA_TECNICA.pdf'
 }
 foreach ($doc in $pdfs.Keys) {
     $md = Join-Path $raiz "docs\$doc.md"

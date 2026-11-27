@@ -2,7 +2,7 @@
 
 Resumen del plan de desarrollo v3 ("Plan_de_desarrollo_TRDCode.pdf") con los hitos e issues de GitHub y las decisiones tomadas después de escribir el plan. El detalle de cada tarea está en su issue.
 
-Actualizado el 23 de noviembre de 2026. **Fecha de entrega: 27 de noviembre de 2026** (#79).
+Actualizado el 26 de noviembre de 2026. **Versión 1.0.0. Entrega en persona el 27 de noviembre de 2026** (#79). La usuaria aprobó la aplicación sin cambios.
 
 **Estados:** completa · en curso · sin empezar. Las tareas de una fase se cierran en GitHub cuando su rama se fusiona a `main`; una tarea "completa" de una fase en curso ya está hecha en la rama, pero su issue sigue abierto.
 
@@ -12,19 +12,19 @@ Actualizado el 23 de noviembre de 2026. **Fecha de entrega: 27 de noviembre de 2
 |---|---|---|---|---|
 | 0 | Entorno de desarrollo | [Fase 0](https://github.com/nathuch/TRDCode/milestone/1) | `main` | completa |
 | 1 | Base de datos | [Fase 1](https://github.com/nathuch/TRDCode/milestone/2) | `fase-1-base-datos` (PR #83, fusionada) | completa |
-| 2 | Extracción de las TRD | [Fase 2](https://github.com/nathuch/TRDCode/milestone/3) | `fase-2-trd` | en curso |
-| 3 | API en PHP | [Fase 3](https://github.com/nathuch/TRDCode/milestone/4) | `fase-3-login` (sale de `mvp-prototipo`) | en curso: todo hecho en la rama, falta fusionar |
-| 4 | Importación del Excel | [Fase 4](https://github.com/nathuch/TRDCode/milestone/5) | `fase-4-importacion` | en curso: todo hecho en la rama, falta fusionar |
-| 5 | Cruce de expedientes con la TRD | [Fase 5](https://github.com/nathuch/TRDCode/milestone/6) | `main` (MVP) | completa en el código; issues abiertos |
-| 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `main` (MVP) y `fase-7-vista` (#39 en celular) | en curso: todo hecho en la rama, falta fusionar |
-| 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | en curso: todo hecho en la rama, falta fusionar |
+| 2 | Extracción de las TRD | [Fase 2](https://github.com/nathuch/TRDCode/milestone/3) | `fase-2-trd` | completa, fusionada a `main` |
+| 3 | API en PHP | [Fase 3](https://github.com/nathuch/TRDCode/milestone/4) | `fase-3-login` (sale de `mvp-prototipo`) | completa, fusionada a `main` (PR #85) |
+| 4 | Importación del Excel | [Fase 4](https://github.com/nathuch/TRDCode/milestone/5) | `fase-4-importacion` | completa, fusionada a `main` (PR #86) |
+| 5 | Cruce de expedientes con la TRD | [Fase 5](https://github.com/nathuch/TRDCode/milestone/6) | `main` (MVP, PR #84) | completa |
+| 6 | Filtros y buscador | [Fase 6](https://github.com/nathuch/TRDCode/milestone/7) | `main` (MVP) y `fase-7-vista` (#39 en celular) | completa, fusionada a `main` (PR #87) |
+| 7 | Vista de resultados y ficha | [Fase 7](https://github.com/nathuch/TRDCode/milestone/8) | `fase-7-vista` | completa, fusionada a `main` (PR #87) |
 | 8 | Exportar e imprimir | [Fase 8](https://github.com/nathuch/TRDCode/milestone/9) | `fase-8-exportar` | completa, fusionada a `main` (PR #89) |
 | 9 | Instalación local y paquete de entrega | [Fase 9](https://github.com/nathuch/TRDCode/milestone/10) | `fase-9-entrega` | completa, fusionada a `main` (PR #90); el celular real (#62) pasa a la Fase 10 |
-| — | Ajustes de la usuaria (decisiones #79 a #82) | — | `ajustes-usuaria` | completa en la rama, PR #91 abierto; issues #79 a #82 cerrados |
-| 10 | Pruebas con la usuaria y ajustes | [Fase 10](https://github.com/nathuch/TRDCode/milestone/11) | `fase-10-ajustes` | sin empezar |
-| 11 | Guía y entrega al SENA | [Fase 11](https://github.com/nathuch/TRDCode/milestone/12) | `main` | sin empezar |
+| — | Ajustes de la usuaria (decisiones #79 a #82) | — | `ajustes-usuaria` | completa, fusionada a `main` (PR #91) |
+| 10 | Pruebas con la usuaria y ajustes | [Fase 10](https://github.com/nathuch/TRDCode/milestone/11) | `ajustes-usuaria` (no hizo falta `fase-10-ajustes`) | completa: la usuaria aprobó sin cambios |
+| 11 | Guía y entrega al SENA | [Fase 11](https://github.com/nathuch/TRDCode/milestone/12) | `fase-11-entrega` | documentación, paquete y Release v1.0.0 hechos; falta la entrega en persona del 27 de noviembre (#7, #74, #75 y #76) |
 
-Las fases 3 a 9 siguen "sin empezar" como fases, pero el MVP (rama `mvp-prototipo`) ya adelantó parte de sus tareas: el detalle está en la sección [MVP del prototipo](#mvp-del-prototipo).
+El MVP (rama `mvp-prototipo`) adelantó parte de las tareas de las fases 3 a 9: el detalle está en la sección [MVP del prototipo](#mvp-del-prototipo). Todas las ramas de fase están fusionadas a `main`.
 
 ## Cambios respecto al plan v3
 
@@ -149,7 +149,7 @@ De la Fase 11, `docs/GUIA_USO.md` (#72) ya existe como manual del prototipo.
 - [x] La usuaria encargada existe con su contraseña guardada como hash.
 - [x] El `.env` no está en el repositorio.
 
-## Fase 2 – Extracción de las TRD · en curso
+## Fase 2 – Extracción de las TRD · completa
 
 **Objetivo:** pasar los seis PDF de las TRD a la base de datos.
 **Requisitos:** RF-01, RF-06, RF-07 y RNF-08.
@@ -173,7 +173,7 @@ De la Fase 11, `docs/GUIA_USO.md` (#72) ya existe como manual del prototipo.
   - Nota (23 de noviembre de 2026): los 119 expedientes de 85.18 del reporte están marcados como TRD 11 en OnBase y se crearon entre octubre y noviembre de 2025. Probablemente la subserie se agregó en una actualización de la TRD posterior a la versión 04, que es la que tiene el proyecto. El código no cambia: siguen como "No está en la TRD". **Pendiente: conseguir esa versión de la TRD.**
 - [x] La revisión manual de al menos diez registros por PDF no tiene errores (`docs/revision_trd.md`: 55 registros; los 2 errores, títulos en cursiva pegados a un tipo, se corrigieron en el extractor).
 
-## Fase 3 – API en PHP · en curso
+## Fase 3 – API en PHP · completa (PR #85)
 
 **Objetivo:** construir los servicios de consulta, sesión y contraseña, y probarlos desde ya en Apache.
 **Requisitos:** RF-12, RF-13, RF-15, RNF-04, RNF-06 y RNF-09.
@@ -227,7 +227,7 @@ La aplicación ya no abre con todos los resultados a la vista.
 - **Direcciones:** `estadoUrl.js` decide la vista (`leerUrl()` devuelve `vista`: inicio o consulta). Una dirección con filtros, búsqueda o ficha abre directo la consulta, así que los enlaces compartidos siguen funcionando. La consulta completa sin filtros se guarda como `#consulta`, para no volver al inicio al recargar.
 - **Pruebas:** `estadoUrl.test.js` (10 pruebas de la decisión inicio/consulta y del hash; `npm test` pasa con 31). En el navegador (Edge sin ventana), 35 comprobaciones en desarrollo y en la copia de Apache: tarjetas en orden, enlaces reales, atrás/adelante, título del encabezado, búsqueda con Enter y con el botón, TRD 10, enlace compartido con la ficha de 85.15 (643), teclado y celular sin desplazamiento horizontal.
 
-## Fase 4 – Importación del Excel · en curso
+## Fase 4 – Importación del Excel · completa (PR #86)
 
 **Objetivo:** que la encargada cargue el reporte de OnBase, vea antes qué filas tienen problemas y pueda volver a una carga anterior.
 **Requisitos:** RF-12, RF-13, RF-14, RF-16, RNF-05 y RNF-06.
@@ -285,7 +285,7 @@ La aplicación ya no abre con todos los resultados a la vista.
 - [x] La subserie 85.18 aparece como "No está en la TRD" con 39. *(A-06)*
 - [x] ~~La Granja no muestra series de la plantilla 00.9000.2.~~ Cambió con #81: **La Granja muestra las series de la plantilla 00.9000.2, sin expedientes** (las mismas que Industria y Construcción). Las cifras 3.385, 643, 308, 39 y 17 no cambian. *(A-07, con datos de ejemplo y con el reporte real; P-02 en `filtros.test.js`)*
 
-## Fase 6 – Filtros y buscador · en curso (todo hecho; #39 en `fase-7-vista`)
+## Fase 6 – Filtros y buscador · completa (#39 en `fase-7-vista`, PR #87)
 
 **Objetivo:** construir el panel de filtros en cascada y el buscador.
 **Requisitos:** RF-01 a RF-05 y RNF-03.
@@ -305,7 +305,7 @@ La aplicación ya no abre con todos los resultados a la vista.
 - [x] El buscador encuentra por código y nombre, y avisa si hay resultados en la otra versión de la TRD. *(A-10, P-04)*
 - [x] Con los 3.385 expedientes, cada cambio de filtro responde en menos de un segundo. *(RNF-03)*
 
-## Fase 7 – Vista de resultados y ficha · en curso (todo hecho en `fase-7-vista`)
+## Fase 7 – Vista de resultados y ficha · completa (PR #87)
 
 **Objetivo:** mostrar las series y subseries filtradas y la ficha de cada subserie con su listado de expedientes.
 **Requisitos:** RF-06, RF-07, RF-08, RF-13 y RNF-02.
@@ -400,42 +400,75 @@ La rama `fase-9-entrega` sale de `main` después del PR #89 (Fase 8).
 - [x] El paquete se instala con PHP 8.1 en una carpeta con otro nombre siguiendo solo la guía (P-28 y P-29). *(P-28 en `htdocs/trd-prueba` con el PHP 8.4 de Apache. P-29: la misma instalación servida con PHP 8.1 pasa las pruebas de la API, y `php -l` pasa en todo el código)*
 - [x] `docs/INSTALACION.md` indica crear un usuario de MySQL propio para la aplicación, no `root`, y dejar el `.env` fuera de la carpeta pública. *(secciones 3.1 y 5; P-28 se instaló así)*
 
-## Fase 10 – Pruebas con la usuaria y ajustes · sin empezar
+## Fase 10 – Pruebas con la usuaria y ajustes · completa
 
 **Objetivo:** validar la aplicación con quien la va a usar y corregir lo necesario.
 **Requisitos:** todos.
 
+La usuaria (la encargada de Gestión Documental) revisó la aplicación y pidió los ajustes de las decisiones #79 a #82 (23 de noviembre), hechos en `ajustes-usuaria` (PR #91). Después **aprobó TRDCode sin cambios** (26 de noviembre) y estuvo de acuerdo con que los nombres IPC e IPR solo se vean con la sesión iniciada. No hizo falta la rama `fase-10-ajustes`.
+
 | Issue | Tarea | Estado |
 |---|---|---|
-| #66 | Ejecutar el plan de pruebas completo | sin empezar |
-| #67 | Hacer la sesión de prueba guiada con la usuaria | sin empezar |
-| #68 | Probar con la encargada el inicio de sesión y la carga de un reporte real | sin empezar |
-| #62 | Probar desde un celular real en la misma red (P-26), en la sesión con la usuaria (viene de la Fase 9) | sin empezar |
-| #69 | Registrar y corregir los ajustes de la usuaria | sin empezar |
-| #70 | Repetir las pruebas afectadas por los ajustes | sin empezar |
+| #66 | Ejecutar el plan de pruebas completo | hecha: las pruebas automáticas y en el navegador (que cubren los casos A-01 a A-10 y los P-01 a P-29 que se pueden automatizar) pasan en desarrollo, en la base temporal y en una instalación desde cero en Apache (ver la Fase 11) |
+| #67 | Hacer la sesión de prueba guiada con la usuaria | hecha: la usuaria revisó la aplicación; sus decisiones son las de #79 a #82 |
+| #68 | Probar con la encargada el inicio de sesión y la carga de un reporte real | hecha: la base del equipo tiene desde el 23 de noviembre la carga del reporte del 8 de octubre (4.367 expedientes), hecha desde "Actualizar datos" |
+| #62 | Probar desde un celular en la misma red (P-26) | cerrada sin celular real: se comprobó con la emulación de celular a 320 y 390 px (`inicio`, `vista`, `menus`, `usuarios`, `exportar`) y la usuaria aprobó la aplicación. **No se probó en un celular real**: en el Wi-Fi del desarrollador el celular no alcanzaba el computador (aislamiento de clientes) |
+| #69 | Registrar y corregir los ajustes de la usuaria | hecha: los ajustes fueron las decisiones #79 a #82 (PR #91); en la aprobación final no pidió cambios |
+| #70 | Repetir las pruebas afectadas por los ajustes | hecha (ver "Ajustes de la usuaria" y la Fase 11) |
 
 **Criterios de aceptación**
-- [ ] Pasan las pruebas automáticas A-01 a A-10 y las manuales P-01 a P-29.
-- [ ] La usuaria aprueba la aplicación.
+- [x] Pasan las pruebas automáticas A-01 a A-10 y las manuales P-01 a P-29. *(Las manuales están automatizadas en `scripts/pruebas-navegador/` y en las pruebas de la API; P-26 se cubrió con la emulación de celular, sin un celular real)*
+- [x] La usuaria aprueba la aplicación. *(26 de noviembre, sin cambios)*
 
-## Fase 11 – Guía y entrega al SENA · sin empezar
+## Fase 11 – Guía y entrega al SENA · documentación y Release hechos; entrega el 27 de noviembre
 
 **Objetivo:** entregar la aplicación con su documentación para que el SENA la revise y la instale.
 **Requisitos:** RNF-01 y RNF-08.
 
+La rama `fase-11-entrega` sale de `main` después del PR #91.
+
 | Issue | Tarea | Estado |
 |---|---|---|
-| #7 | Enviar al área de sistemas del SENA los requisitos del servidor (movida desde la Fase 1) | sin empezar |
-| #71 | Publicar el Release v1.0.0 | sin empezar |
-| #72 | Redactar `docs/GUIA_USO.md` | sin empezar |
-| #73 | Completar el README del repositorio | sin empezar |
-| #74 | Hacer la demostración a la usuaria | sin empezar |
-| #75 | Entregar el paquete y las guías al SENA | sin empezar |
-| #76 | Revisar la lista de verificación de entrega | sin empezar |
+| #72 | Redactar `docs/GUIA_USO.md` | hecha: el manual completo en lenguaje sencillo (inicio, búsqueda, filtros, pestañas, ficha, exportar a Excel y PDF, imprimir, compartir, celular, ingresar, Mi cuenta, Usuarios, Actualizar datos con el historial, nombres reservados con y sin sesión, cierre por inactividad, el aviso de la 85.18, ejercicios, problemas y glosario) y su PDF. Las 20 capturas de `docs/img/` son nuevas, se toman con `scripts/capturas_manual.mjs` sobre la base temporal y se revisaron una por una: sin nombres de expedientes (la ficha capturada es la 85.15 sin sesión, con sus 17 nombres enmascarados) y solo con cuentas inventadas de `@trdcode.local` |
+| #73 | Completar el README del repositorio | hecha: qué es, documentación (con enlaces a la guía de instalación, la guía rápida, la ficha técnica, el manual y el acta), tecnologías, estructura, instalación, desarrollo, pruebas y datos personales |
+| — | Ficha técnica | hecha: `docs/FICHA_TECNICA.md` y su PDF, para el área de sistemas: objetivo, arquitectura (con el diagrama `docs/img/arquitectura.svg`), tecnologías y versiones, requisitos, modelo de datos, servicios de la API, seguridad, pruebas, estructura del repositorio y del paquete, y mantenimiento (carga mensual, copias, migraciones y cómo actualizar la TRD) |
+| — | Guía de instalación en PDF | hecha: `docs/INSTALACION.pdf` |
+| #7 | Enviar al área de sistemas del SENA los requisitos del servidor | redactado en `docs/CORREO_SISTEMAS.md`, dirigido al "Área de sistemas, SENA Regional Tolima" (no se definió un contacto), con los requisitos, lo que se entrega, los pasos generales y la recomendación de HTTPS. **Lo envía el desarrollador**; el issue queda abierto hasta que se envíe |
+| — | Acta de entrega | hecha: `docs/ACTA_ENTREGA.md` y su PDF, una plantilla con lo que se entrega, la versión y espacios para la fecha, los nombres y las firmas, sin llenar |
+| #71 | Publicar el Release v1.0.0 | se publica al fusionar el PR de `fase-11-entrega`: etiqueta `v1.0.0`, con el zip y los PDF adjuntos (https://github.com/nathuch/TRDCode/releases/tag/v1.0.0) |
+| #74 | Hacer la demostración a la usuaria | en la entrega del 27 de noviembre |
+| #75 | Entregar el paquete y las guías al SENA | en persona, el 27 de noviembre. Lo que se lleva está en `entrega/` (ignorada por git) |
+| #76 | Revisar la lista de verificación de entrega | revisada (abajo); queda abierta hasta la entrega |
+
+**Paquete final** (`TRDCode-v1.0.0.zip`, 74 archivos, 2,47 MB): `app/`, `database/` (con `instalacion_completa.sql` y las migraciones 001 y 002), `docs/` (`INSTALACION.md` y, en PDF, la guía de instalación, la guía rápida, el manual y la ficha técnica), `.env.example` y `LEEME.txt`. Revisado: sin `.env`, Excel, JSON, expedientes, `INSERT` de cuentas, cargas o expedientes; el único correo es el de la cuenta técnica `carga-inicial@trdcode.local`, que está en el código.
+
+**Instalación desde cero siguiendo solo la guía rápida (26 de noviembre).**
+- El zip se descomprimió en una carpeta de trabajo; se creó la base `trdcode_rapida` con su usuario de cuatro permisos y se importó `instalacion_completa.sql` (3 centros, 9 dependencias, 109 registros de TRD, sin cuentas ni expedientes); `app` se copió con `robocopy` a `htdocs\trd-rapida` y el `.env` quedó en `C:\xampp\trd-rapida.env`. La primera cuenta se creó por consola (la segunda vez se negó).
+- Hallazgo, ya anotado en la guía: con un MySQL 8 instalado aparte, el `mysql.exe` de XAMPP (MariaDB) no se conecta (`caching_sha2_password`); se usa el cliente de MySQL 8 o phpMyAdmin.
+- Contra esa instalación, en Apache con PHP 8.4.11: `instalacion` (P-28, 32: primera carga del reporte de agosto desde "Actualizar datos", 643, 85.15 con 17, nombres reales con sesión y "Nombre reservado" al salir), `probar_auth` (58), `probar_usuarios` (60), `probar_importacion` (56), `probar_primera_cuenta` (22), `inicio` (25), `ingreso` (15), `vista` (27), `menus` (20), `usuarios` (31), `exportar` (60) y `actualizar` (35). Al terminar se borraron la carpeta, el `.env`, la base y el usuario.
+- Después solo cambió un PDF de la guía: `app/` y `database/` del paquete final son idénticos byte a byte a los probados.
+- `npm test`: 71.
+- La copia de Apache (`htdocs\TRDCode`) se reinstaló con el `app/` del paquete final; con la base del equipo pasan `ingreso` (15), `vista` (27), `menus` (20), `usuarios` (31) y `probar_usuarios` (62), y las rutas privadas responden 403.
+
+**Lista de verificación de la entrega (#76)**
+- [x] Las seis TRD están en MySQL y una muestra de cada una fue revisada contra el PDF. *(Fase 2; `docs/revision_trd.md`)*
+- [x] Los filtros en cascada solo muestran opciones válidas. *(A-09, P-02)*
+- [x] Los conteos coinciden con el Excel de prueba. *(3.385; 1.781 / 1.084 / 520; 643; 308; 39; 17)*
+- [x] La ficha muestra retención, disposición final, tipos documentales y el listado de expedientes.
+- [x] Exportar a Excel, a PDF e imprimir entregan lo mismo que se ve. *(`exportar.mjs`)*
+- [x] La aplicación se ve bien en celular. *(Emulación a 320 y 390 px; sin celular real, #62)*
+- [x] La encargada puede iniciar sesión e importar; los demás ven los datos nuevos con su fecha.
+- [x] Cada carga queda registrada en `cargas`.
+- [x] Todos los casos del plan de pruebas están aprobados. *(Fase 10)*
+- [x] `api/lib/` no se puede abrir desde el navegador. *(403)*
+- [x] El repositorio no tiene archivos .xlsx ni .env.
+- [x] El paquete se instala en un equipo limpio siguiendo solo la guía. *(Guía rápida, en otra carpeta y con una base nueva)*
+- [x] El Release v1.0.0 está publicado con el paquete. *(Al fusionar `fase-11-entrega`)*
+- [ ] La usuaria aprobó la aplicación y el SENA recibió el paquete y las guías. *(La usuaria aprobó el 26 de noviembre; el SENA los recibe el 27)*
 
 **Criterios de aceptación**
-- [ ] Se cumple la lista de verificación de la sección 15 del plan (#76).
-- [ ] El SENA recibió el correo de requisitos, el paquete, la guía de instalación y la guía de uso.
+- [ ] Se cumple la lista de verificación de la entrega (#76). *(Falta solo la recepción del SENA)*
+- [ ] El SENA recibió el correo de requisitos, el paquete, la guía de instalación y la guía de uso. *(27 de noviembre)*
 
 ---
 
@@ -465,7 +498,7 @@ La rama `fase-9-entrega` sale de `main` después del PR #89 (Fase 8).
 - `scripts/pruebas-navegador/usuarios.mjs`: 31 comprobaciones, también a 390 px.
 - Siguen pasando `npm test` (45), `probar_auth.php` (51), `probar_importacion.php` (56) y las demás pruebas en el navegador (`inicio`, `ingreso`, `vista`, `menus` y `actualizar`).
 
-## Ajustes de la usuaria (decisiones #79 a #82) · completa en `ajustes-usuaria`
+## Ajustes de la usuaria (decisiones #79 a #82) · completa, fusionada a `main` (PR #91)
 
 Respuestas de la usuaria del 23 de noviembre de 2026. La rama `ajustes-usuaria` sale de `main` después del PR #90 (Fase 9). PR #91 abierto (sin fusionar); los issues #79 a #82 se cerraron con la decisión anotada.
 
@@ -514,13 +547,13 @@ Respuestas de la usuaria del 23 de noviembre de 2026. La rama `ajustes-usuaria` 
 
 ## Pendientes para la entrega
 
-- Probar desde un celular real (#62, P-26) en la Fase 10, en la sesión con la usuaria y en una red donde el celular alcance el servidor (en el Wi-Fi del desarrollador hay aislamiento de clientes). Si se usa el computador de desarrollo, falta además la regla del Firewall de Windows para el puerto 80 (solo red privada y subred local), que aplica el usuario como administrador.
+- **27 de noviembre de 2026**, en persona: entregar lo de `entrega/` (el zip, `INSTALACION.pdf`, `GUIA_RAPIDA_PRUEBA.pdf`, `GUIA_USO.pdf`, `FICHA_TECNICA.pdf`, `ACTA_ENTREGA.pdf` y `CORREO_SISTEMAS.md`), hacer la demostración (#74), firmar el acta y cerrar #74, #75 y #76.
+- Enviar el correo de `docs/CORREO_SISTEMAS.md` al área de sistemas (lo envía el desarrollador) y cerrar #7.
+- La cuenta de la usuaria (la encargada de Gestión Documental, #80) se crea en la **instalación final**, con su correo institucional, con `consola/crear_primera_cuenta.php`. Los datos de acceso se entregan por un canal privado, nunca en el paquete (#75).
+- Conseguir la versión de la TRD posterior a la 04 que trae la subserie 85.18 (ver la nota de la Fase 2 y "Actualizar la TRD" en la ficha técnica).
+- No se probó en un celular real (#62): conviene hacerlo en la instalación del SENA, que ya estará en la red institucional.
 - Borrar `C:\php81` (PHP 8.1 portátil de la prueba P-29) cuando ya no haga falta.
-- Adjuntar `TRDCode-v1.0.0.zip` al Release (Fase 11, #71). La Fase 9 ya se fusionó.
-- Entrega el **27 de noviembre de 2026** (#79).
-- La cuenta de la usuaria (la encargada de Gestión Documental, #80) se crea en la **instalación final**, con su correo institucional: con `consola/crear_primera_cuenta.php` si es la primera cuenta, o desde "Usuarios" (entra con la contraseña temporal y la cambia). Si hay una cuenta de prueba, desde su cuenta la desactiva. Las cuentas no se borran: las cargas guardan quién las hizo.
-- Conseguir la versión de la TRD posterior a la 04 que trae la subserie 85.18 (ver la nota de la Fase 2).
-- Actualizar el manual de usuario (`docs/GUIA_USO.md`, las capturas de `docs/img/` y el PDF). Con los ajustes de la usuaria ya dice que La Granja tiene Administración Educativa y que con sesión se ven los nombres reales, pero todavía dice que la aplicación abre con los 2.530 expedientes a la vista y no describe la pantalla de inicio, el ingreso de la encargada ni "Actualizar datos" (la sección 11 todavía dice que la carga de reportes llegará después).
+- Node.js del equipo: ahora es 24.22.3 (vitest ya no avisa).
 
 ## Decisiones pendientes
 

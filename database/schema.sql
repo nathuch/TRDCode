@@ -35,7 +35,7 @@ CREATE TABLE centros (
   nombre VARCHAR(80) NOT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
--- Combinaciones reales de centro y plantilla de TRD (La Granja no tiene 00.9000.2).
+-- Combinaciones reales de centro y plantilla de TRD: los tres centros tienen las tres plantillas (9 dependencias).
 CREATE TABLE dependencias (
   codigo VARCHAR(12) PRIMARY KEY,
   codigo_centro VARCHAR(10) NOT NULL,

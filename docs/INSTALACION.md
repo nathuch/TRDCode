@@ -276,7 +276,7 @@ La base queda instalada sin expedientes. Para cargarlos:
 4. La aplicación lee el archivo en el navegador y muestra una vista previa: cuántos expedientes trae por centro y si hay filas con problemas. Si todo está bien, se confirma la carga.
 5. Al terminar, la consulta muestra "Datos al …" con la fecha del reporte y los expedientes de los tres centros.
 
-Cada carga reemplaza a la anterior, pero las anteriores se guardan: desde "Actualizar datos" → "Cargas guardadas" se puede volver a una carga anterior. El manual de usuario (`docs/Manual_de_usuario_TRDCode.pdf`) explica estas pantallas.
+Cada carga reemplaza a la anterior, pero las anteriores se guardan: desde "Actualizar datos" → "Cargas guardadas" se puede volver a una carga anterior. El manual de usuario (`docs/GUIA_USO.pdf`) explica estas pantallas.
 
 El reporte trae nombres de personas. No debe quedar en la carpeta pública ni en carpetas compartidas del servidor.
 

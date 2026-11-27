@@ -77,7 +77,15 @@ try {
   r.comprobar('arriba dice "Datos al 10 de agosto de 2026"', await esperarA(`document.body.textContent.includes('Datos al 10 de agosto de 2026')`))
   await clic(`[...document.querySelectorAll('tr.tabla__fila')].find(tr => tr.querySelector('.col-codigo').textContent.trim() === '85.15').querySelector('.fila__boton')`)
   r.comprobar('la ficha de 85.15 tiene 17 expedientes', await esperarA(`(document.querySelector('.ficha__cantidad')?.textContent ?? '').trim().startsWith('17 expedientes')`))
-  r.comprobar('  y los 17 salen como "Nombre reservado"', await esperarA(`(() => { const t = document.querySelector('.ficha').textContent; return (t.match(/Nombre reservado/g) ?? []).length >= 17 })()`))
+  // Con la sesión de la primera cuenta se ven los nombres reales (#82): sin captura.
+  r.comprobar('  con sesión, sus 17 nombres reales (ninguno "Nombre reservado")', await esperarA(`document.querySelectorAll('.ficha .expedientes:not(.solo-impresion) .expediente').length === 17 && !document.querySelector('.ficha').textContent.includes('Nombre reservado')`))
+  await tecla('Escape')
+  await esperarA(`!document.querySelector('.ficha')`)
+  await clic(`document.querySelector('.acceso__usuaria')`)
+  await clic(boton('Salir'))
+  await esperarA(`!!document.querySelector('.acceso__enlace')`)
+  await clic(`[...document.querySelectorAll('tr.tabla__fila')].find(tr => tr.querySelector('.col-codigo').textContent.trim() === '85.15').querySelector('.fila__boton')`)
+  r.comprobar('  al salir, los 17 salen como "Nombre reservado"', await esperarA(`(() => { const t = document.querySelector('.ficha')?.textContent ?? ''; return (t.match(/Nombre reservado/g) ?? []).length >= 17 })()`))
   await foto('02-ficha-85.15')
 } catch (e) {
   r.error(e)
