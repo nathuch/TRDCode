@@ -260,7 +260,7 @@ Muestra cada expediente con su **código**, su **nombre** y su **fecha de creaci
 
 **Nombres reservados.** Los expedientes con información pública **clasificada (IPC)** o **reservada (IPR)** muestran un candado. Quien consulta **sin haber ingresado** ve el texto **"Nombre reservado (IPC)"** o **"Nombre reservado (IPR)"** en lugar del nombre: es una protección de datos personales, y el nombre real no sale del servidor, así que tampoco aparece en el Excel ni en el PDF. El código y la fecha sí se ven.
 
-Las personas encargadas, **con la sesión iniciada**, ven los nombres reales, y así salen también en el Excel y en el PDF. Al **salir**, los nombres vuelven a ocultarse en la pantalla. No deje la sesión abierta en un computador compartido.
+Las personas encargadas, **con la sesión iniciada**, ven los nombres reales, y así salen también en el Excel y en el PDF. Al **salir**, los nombres vuelven a ocultarse en la pantalla. Si nadie usa la aplicación durante **29 minutos**, la sesión se cierra sola, los nombres se ocultan y aparece un aviso; para verlos de nuevo, vuelva a ingresar. Aun así, no deje la sesión abierta en un computador compartido.
 
 ### 6.5 Cerrar la ficha
 

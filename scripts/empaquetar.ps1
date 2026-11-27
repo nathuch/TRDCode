@@ -7,8 +7,11 @@
   Contenido del zip (carpeta TRDCode-v<version>\):
     app\        lo que se copia a la carpeta publica del servidor: el frontend compilado,
                 robots.txt, api\ y consola\ (script de la primera cuenta), con sus .htaccess.
-    database\   schema.sql, datos_iniciales.sql, trd.sql y migraciones\.
-    docs\       INSTALACION.md y el manual de usuario en PDF.
+    database\   instalacion_completa.sql (todo en un archivo), schema.sql, datos_iniciales.sql,
+                trd.sql y migraciones\.
+    docs\       INSTALACION.md y, en PDF: la guia de instalacion, la guia rapida de prueba, el
+                manual de usuario y la ficha tecnica (se generan con
+                node scripts\generar_manual_pdf.mjs --todos).
     .env.example y LEEME.txt.
 
   SIN datos personales: no lleva expedientes ni reportes (la primera carga se hace desde
@@ -25,6 +28,10 @@ $nombre = "TRDCode-v$Version"
 $salida = Join-Path $raiz 'paquete'
 $destino = Join-Path $salida $nombre
 $zip = Join-Path $salida "$nombre.zip"
+
+# instalacion_completa.sql debe estar armado con los SQL actuales.
+node (Join-Path $raiz 'scripts\armar_instalacion_completa.mjs') --revisar
+if ($LASTEXITCODE -ne 0) { throw 'database\instalacion_completa.sql no esta al dia: node scripts\armar_instalacion_completa.mjs' }
 
 Write-Host 'Compilando el frontend (npm run build)...'
 Push-Location (Join-Path $raiz 'frontend')
@@ -61,20 +68,27 @@ Set-Content -Path (Join-Path $app '.htaccess') -Value $raizHtaccess -Encoding as
 # database\: scripts de instalacion y migraciones. Fuera de app\: no van a la carpeta publica.
 $database = Join-Path $destino 'database'
 New-Item -ItemType Directory -Path $database -Force | Out-Null
-foreach ($archivo in 'schema.sql', 'datos_iniciales.sql', 'trd.sql') {
+foreach ($archivo in 'instalacion_completa.sql', 'schema.sql', 'datos_iniciales.sql', 'trd.sql') {
     Copy-Item -Path (Join-Path $raiz "database\$archivo") -Destination $database
 }
 Copy-Item -Path (Join-Path $raiz 'database\migraciones') -Destination (Join-Path $database 'migraciones') -Recurse
 
-# docs\: guia de instalacion y manual de usuario (se genera con: node scripts\generar_manual_pdf.mjs).
+# docs\: guias en PDF (se generan con: node scripts\generar_manual_pdf.mjs --todos) y INSTALACION.md.
+# Cada PDF debe ser mas nuevo que su Markdown, para no entregar una version vieja.
 $docs = Join-Path $destino 'docs'
 New-Item -ItemType Directory -Path $docs -Force | Out-Null
 Copy-Item -Path (Join-Path $raiz 'docs\INSTALACION.md') -Destination $docs
-$manual = Join-Path $raiz 'docs\GUIA_USO.pdf'
-if (Test-Path $manual) {
-    Copy-Item -Path $manual -Destination (Join-Path $docs 'Manual_de_usuario_TRDCode.pdf')
-} else {
-    Write-Warning 'No se encontro docs\GUIA_USO.pdf: el paquete va sin manual de usuario.'
+$pdfs = [ordered]@{
+    'INSTALACION'        = 'INSTALACION.pdf'
+    'GUIA_RAPIDA_PRUEBA' = 'GUIA_RAPIDA_PRUEBA.pdf'
+    'GUIA_USO'           = 'Manual_de_usuario_TRDCode.pdf'
+}
+foreach ($doc in $pdfs.Keys) {
+    $md = Join-Path $raiz "docs\$doc.md"
+    $pdf = Join-Path $raiz "docs\$doc.pdf"
+    if (-not (Test-Path $pdf)) { throw "Falta docs\$doc.pdf: node scripts\generar_manual_pdf.mjs $doc" }
+    if ((Get-Item $pdf).LastWriteTime -lt (Get-Item $md).LastWriteTime) { throw "docs\$doc.pdf es mas viejo que su .md: node scripts\generar_manual_pdf.mjs $doc" }
+    Copy-Item -Path $pdf -Destination (Join-Path $docs $pdfs[$doc])
 }
 
 Copy-Item -Path (Join-Path $raiz '.env.example') -Destination $destino
@@ -107,7 +121,7 @@ foreach ($h in $todos | Where-Object { $_.Name -eq '.htaccess' }) {
     if ($b.Length -ge 3 -and $b[0] -eq 0xEF -and $b[1] -eq 0xBB -and $b[2] -eq 0xBF) { throw "$($h.FullName) tiene BOM." }
 }
 foreach ($necesario in 'app\index.html', 'app\robots.txt', 'app\.htaccess', 'app\api\lib\.htaccess',
-    'app\consola\.htaccess', 'app\consola\crear_primera_cuenta.php', 'database\schema.sql',
+    'app\consola\.htaccess', 'app\consola\crear_primera_cuenta.php', 'database\instalacion_completa.sql', 'database\schema.sql',
     'database\datos_iniciales.sql', 'database\trd.sql', 'docs\INSTALACION.md', '.env.example') {
     if (-not (Test-Path -LiteralPath (Join-Path $destino $necesario))) { throw "Falta $necesario en el paquete." }
 }

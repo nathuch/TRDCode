@@ -269,6 +269,31 @@ try {
   await tecla('Escape')
   await esperarA(`!document.querySelector('.ficha')`)
 
+  // Cierre por inactividad: con la ficha abierta y los nombres a la vista, se simulan 30 minutos sin
+  // actividad (la última actividad se adelanta en localStorage) y la página revisa al volver a verse.
+  r.seccion('Cierre de la sesión por inactividad (29 minutos)')
+  await clic(`document.querySelector('.acceso__enlace')`)
+  await esperarA(`!!document.querySelector('[role=dialog] input[name=correo]')`)
+  await escribir('input[name=correo]', cuenta.correo)
+  await escribir('input[name=clave]', cuenta.clave)
+  await tecla('Enter')
+  await esperarA(`!!document.querySelector('.acceso__nombre')`)
+  await clic(filaBoton('85.15'))
+  await esperarA(`!!document.querySelector('.ficha')`)
+  r.comprobar('con sesión, la ficha vuelve a mostrar los nombres reales', await esperarA(`!document.querySelector('.ficha .expediente__nombre.reservado')`))
+  await ev(`localStorage.setItem('trdcode-ultima-actividad', String(Date.now() - 28 * 60 * 1000)); document.dispatchEvent(new Event('visibilitychange'))`)
+  await espera(1500)
+  r.comprobar('  a los 28 minutos sin actividad, la sesión sigue', !(await ev(`!!document.querySelector('.ficha .expediente__nombre.reservado')`)) && (await ev(`!!document.querySelector('.acceso__nombre')`)))
+  await ev(`localStorage.setItem('trdcode-ultima-actividad', String(Date.now() - 30 * 60 * 1000)); document.dispatchEvent(new Event('visibilitychange'))`)
+  r.comprobar('  a los 30 minutos, la ficha abierta oculta los 17 nombres', await esperarA(`[...document.querySelectorAll('.ficha .expedientes:not(.solo-impresion) .expediente__nombre')].filter(e => e.classList.contains('reservado') && e.firstChild.textContent.startsWith('Nombre reservado (')).length === ${reservados8515.length}`, 5000))
+  r.comprobar('  ningún nombre real queda en la página', !(await ev(`(() => { const t = document.body.innerText; return ${JSON.stringify(reservados8515.map((c) => conSesion[c]))}.some(n => t.includes(n)) })()`)))
+  r.comprobar('  el encabezado vuelve a "Ingresar", con el aviso de inactividad', (await esperarA(`!!document.querySelector('.acceso__enlace')`)) && (await ev(`(document.querySelector('.aviso-inactividad')?.textContent ?? '').includes('inactividad')`)))
+  r.comprobar('  y el servidor ya no tiene la sesión', await esperarA(`fetch('api/sesion.php').then(r => r.json()).then(j => j.datos.sesion === false)`, 5000))
+  await tecla('Escape')
+  await esperarA(`!document.querySelector('.ficha')`)
+  await clic(`[...document.querySelectorAll('.aviso-inactividad button')][0]`)
+  r.comprobar('  "Entendido" cierra el aviso', await esperarA(`!document.querySelector('.aviso-inactividad')`))
+
   r.seccion('Celular: el menú "Exportar" no se sale de la pantalla')
   for (const ancho of [320, 390]) {
     await tamano(ancho)

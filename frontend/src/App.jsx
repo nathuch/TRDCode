@@ -21,6 +21,7 @@ import {
 } from './datos/filtros.js'
 import { escribirUrl, irAConsulta, irAInicio, irAVista, leerUrl, VISTAS_CON_SESION } from './estadoUrl.js'
 import { exportarExcel, lineaFiltros, textoDatosAl } from './utils/exportar.js'
+import { AVISO_SERVIDOR_MS, EVENTOS_ACTIVIDAD, inactiva, registrarActividad, ultimaActividad } from './utils/inactividad.js'
 import { exportarPdf } from './utils/pdf.js'
 import { codigoFila, disposiciones, fechaLarga, formatoNumero, nombreFila, nombreLegible, ocultarNombres } from './utils/formato.js'
 
@@ -52,11 +53,14 @@ export default function App() {
   const [sesionLista, setSesionLista] = useState(false)
   // Con una contraseña temporal, una ventana obliga a cambiarla antes de hacer cualquier otra cosa.
   const [debeCambiarClave, setDebeCambiarClave] = useState(false)
+  // La sesión se cerró por inactividad: se muestra un aviso hasta que se cierra o se vuelve a ingresar.
+  const [cerradaPorInactividad, setCerradaPorInactividad] = useState(false)
 
   /** Guarda la sesión que entrega la API ({ sesion, nombre, debeCambiarClave }). */
   const recibirSesion = useCallback((s) => {
     setNombre(s.sesion ? s.nombre : null)
     setDebeCambiarClave(Boolean(s.sesion && s.debeCambiarClave))
+    if (s.sesion) setCerradaPorInactividad(false)
   }, [])
 
   // Solo se aplica la respuesta del último pedido de datos: una que llegue tarde, pedida con la sesión
@@ -86,6 +90,45 @@ export default function App() {
     if (!conSesion) setDatos(ocultarNombres)
     recargarDatos()
   }, [sesionLista, conSesion, recargarDatos])
+
+  // Cierre por inactividad (utils/inactividad.js): a los 29 minutos sin actividad en ninguna pestaña,
+  // se ocultan los nombres y se cierra la sesión, con un aviso. Mientras hay actividad, se avisa al
+  // servidor a lo sumo una vez por minuto para que no cierre la sesión de quien la está usando.
+  useEffect(() => {
+    if (!conSesion) return undefined
+    registrarActividad()
+    let ultimoAviso = Date.now()
+    let ultimaEscritura = 0
+    const alActuar = () => {
+      const ahora = Date.now()
+      if (ahora - ultimaEscritura > 5000) {
+        ultimaEscritura = ahora
+        registrarActividad(ahora)
+      }
+      if (ahora - ultimoAviso > AVISO_SERVIDOR_MS) {
+        ultimoAviso = ahora
+        obtenerSesion()
+          .then((s) => !s.sesion && recibirSesion(s))
+          .catch(() => {})
+      }
+    }
+    const revisar = () => {
+      if (!inactiva(Date.now(), ultimaActividad())) return
+      setDatos(ocultarNombres)
+      setNombre(null)
+      setDebeCambiarClave(false)
+      setCerradaPorInactividad(true)
+      cerrarSesion().catch(() => {})
+    }
+    for (const evento of EVENTOS_ACTIVIDAD) window.addEventListener(evento, alActuar, { capture: true, passive: true })
+    document.addEventListener('visibilitychange', revisar)
+    const reloj = window.setInterval(revisar, 15000)
+    return () => {
+      for (const evento of EVENTOS_ACTIVIDAD) window.removeEventListener(evento, alActuar, { capture: true })
+      document.removeEventListener('visibilitychange', revisar)
+      window.clearInterval(reloj)
+    }
+  }, [conSesion, recibirSesion])
 
   const sesionVencida = useCallback(() => setNombre(null), [])
 
@@ -257,6 +300,20 @@ export default function App() {
             <Acceso nombre={nombre} onSesion={recibirSesion} onIr={abrirVista} onSalir={salir} />
           </div>
         </header>
+
+        {cerradaPorInactividad && nombre === null && (
+          <div className="contenedor">
+            <div className="aviso-ambar aviso-inactividad" role="status">
+              <p>
+                Su sesión se cerró por inactividad y los nombres de los expedientes clasificados y reservados se
+                ocultaron. Para verlos de nuevo, use <strong>Ingresar</strong>.
+              </p>
+              <button type="button" className="boton boton--chico boton--contorno-gris" onClick={() => setCerradaPorInactividad(false)}>
+                Entendido
+              </button>
+            </div>
+          </div>
+        )}
 
         {datos && vista === 'consulta' && (
           <div className="contenedor">

@@ -1,5 +1,8 @@
-// Genera docs/GUIA_USO.pdf a partir de docs/GUIA_USO.md.
-// Uso, desde la raíz del proyecto:  node scripts/generar_manual_pdf.mjs
+// Genera el PDF de un documento de docs/ a partir de su Markdown (docs/<NOMBRE>.md -> docs/<NOMBRE>.pdf).
+// Uso, desde la raíz del proyecto:
+//   node scripts/generar_manual_pdf.mjs                 el manual de usuario (GUIA_USO)
+//   node scripts/generar_manual_pdf.mjs INSTALACION     otro documento de la lista DOCUMENTOS
+//   node scripts/generar_manual_pdf.mjs --todos         todos los de la lista
 //
 // Convierte el Markdown a HTML (solo lo que usa el manual: títulos, párrafos, listas, tablas,
 // imágenes, citas, código, negritas y enlaces), le da la línea visual de la aplicación con la
@@ -12,8 +15,20 @@ import { dirname, join, resolve } from 'node:path'
 import { fileURLToPath, pathToFileURL } from 'node:url'
 
 const raiz = resolve(dirname(fileURLToPath(import.meta.url)), '..')
-const origen = join(raiz, 'docs', 'GUIA_USO.md')
-const destino = join(raiz, 'docs', 'GUIA_USO.pdf')
+// Documento -> texto del pie de página.
+const DOCUMENTOS = {
+  GUIA_USO: 'Manual de usuario',
+  INSTALACION: 'Guía de instalación',
+  GUIA_RAPIDA_PRUEBA: 'Guía rápida de prueba',
+  FICHA_TECNICA: 'Ficha técnica',
+  ACTA_ENTREGA: 'Acta de entrega',
+}
+const pedidos = process.argv.includes('--todos') ? Object.keys(DOCUMENTOS) : [process.argv[2] ?? 'GUIA_USO']
+for (const nombre of pedidos) {
+  if (!DOCUMENTOS[nombre]) throw new Error(`Documento desconocido: ${nombre}. Opciones: ${Object.keys(DOCUMENTOS).join(', ')} o --todos.`)
+}
+// Markdown del documento que se está generando (las imágenes se buscan junto a él).
+let origen = ''
 const fuentes = join(raiz, 'frontend', 'node_modules', '@fontsource', 'work-sans', 'files')
 const EDGE = [
   'C:\\Program Files (x86)\\Microsoft\\Edge\\Application\\msedge.exe',
@@ -127,6 +142,11 @@ function bloques(lineas) {
   return html.join('\n')
 }
 
+for (const nombre of pedidos) await generar(nombre)
+
+async function generar(nombre) {
+origen = join(raiz, 'docs', `${nombre}.md`)
+const destino = join(raiz, 'docs', `${nombre}.pdf`)
 const markdown = readFileSync(origen, 'utf8').replace(/\r\n/g, '\n')
 const [titulo] = markdown.match(/^# .+$/m)
 const cuerpo = bloques(markdown.split('\n'))
@@ -175,7 +195,7 @@ ${cuerpo}
 // ---------- HTML a PDF con Edge ----------
 
 const trabajo = mkdtempSync(join(tmpdir(), 'trdcode-manual-'))
-const html = join(trabajo, 'GUIA_USO.html')
+const html = join(trabajo, `${nombre}.html`)
 writeFileSync(html, documento, 'utf8')
 
 const puerto = 9400 + Math.floor(Math.random() * 400)
@@ -217,7 +237,7 @@ try {
     await espera(250)
   }
   const pie = `<div style="width:100%; font-family:'Segoe UI',Arial,sans-serif; font-size:8px; color:#5b6459; padding:0 0.6in; display:flex; justify-content:space-between;">
-    <span>TRDCode · Manual de usuario · SENA, Regional Tolima</span>
+    <span>TRDCode · ${DOCUMENTOS[nombre]} · SENA, Regional Tolima</span>
     <span>Página <span class="pageNumber"></span> de <span class="totalPages"></span></span></div>`
   const r = await enviar('Page.printToPDF', {
     paperWidth: 8.5,
@@ -240,4 +260,5 @@ try {
   edge.kill()
   await espera(500)
   rmSync(trabajo, { recursive: true, force: true })
+}
 }

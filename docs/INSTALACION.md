@@ -50,8 +50,8 @@ El archivo `TRDCode-vX.Y.Z.zip` trae una carpeta `TRDCode-vX.Y.Z` con:
 | Carpeta o archivo | Qué es | ¿Va en la carpeta pública? |
 |---|---|---|
 | `app/` | La aplicación: `index.html`, `assets/`, `robots.txt`, `api/` (servicios en PHP) y `consola/` (script de la primera cuenta), con sus `.htaccess` | **Sí**, su contenido |
-| `database/` | `schema.sql`, `datos_iniciales.sql`, `trd.sql` y `migraciones/` | No |
-| `docs/` | Esta guía y el manual de usuario en PDF | No |
+| `database/` | `instalacion_completa.sql` (todo en un archivo), o por separado `schema.sql`, `datos_iniciales.sql` y `trd.sql`; y `migraciones/` | No |
+| `docs/` | Esta guía (en Markdown y en PDF), la guía rápida de prueba, el manual de usuario y la ficha técnica, en PDF | No |
 | `.env.example` | Plantilla de la configuración | No |
 | `LEEME.txt` | Resumen del paquete | No |
 
@@ -81,7 +81,13 @@ FLUSH PRIVILEGES;
 
 ### 3.2. Crear las tablas y cargar la TRD
 
-Se ejecutan los tres scripts **en este orden**, con un usuario administrador, desde la carpeta descomprimida del paquete:
+Con un usuario administrador, desde la carpeta descomprimida del paquete, se importa **un solo archivo**, `database/instalacion_completa.sql`, que trae la estructura, los centros, las dependencias y la TRD:
+
+```
+mysql -u root -p --default-character-set=utf8mb4 trdcode -e "source database/instalacion_completa.sql"
+```
+
+O, si se prefiere, los tres scripts por separado, **en este orden** (el resultado es el mismo):
 
 ```
 mysql -u root -p --default-character-set=utf8mb4 trdcode -e "source database/schema.sql"
@@ -91,14 +97,14 @@ mysql -u root -p --default-character-set=utf8mb4 trdcode -e "source database/trd
 
 - `--default-character-set=utf8mb4` es necesario. Sin él, la consola de Windows puede dañar las tildes de los nombres de los centros.
 - La forma `-e "source …"` funciona igual en el Símbolo del sistema, en PowerShell y en Linux. No se recomienda `Get-Content … | mysql` en PowerShell, porque cambia la codificación.
-- También se pueden importar con phpMyAdmin (base `trdcode` → pestaña "Importar"), uno por uno y en el mismo orden.
+- También se pueden importar con phpMyAdmin (base `trdcode` → pestaña "Importar"): `instalacion_completa.sql` solo, o los tres uno por uno y en el mismo orden.
 - Las bases nuevas **no** necesitan las migraciones de `database/migraciones/`: `schema.sql` y `datos_iniciales.sql` ya las incluyen. Se usan solo al actualizar (sección 11).
 
 Para comprobar el resultado:
 
 ```sql
 SELECT COUNT(*) FROM centros;        -- 3
-SELECT COUNT(*) FROM dependencias;   -- 8
+SELECT COUNT(*) FROM dependencias;   -- 9
 SELECT version, COUNT(*) FROM trd_registros GROUP BY version;   -- versiones 10 y 11
 SELECT COUNT(*) FROM usuarios;       -- 0
 SELECT COUNT(*) FROM expedientes;    -- 0

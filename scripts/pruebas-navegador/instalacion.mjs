@@ -31,7 +31,7 @@ if (antes.carga !== null || antes.expedientes.length > 0) {
   process.exit(1)
 }
 r.comprobar('la API responde sin carga y sin expedientes', antes.carga === null && antes.expedientes.length === 0)
-r.comprobar(`trae los 3 centros, las 8 dependencias y la TRD (${antes.trd.length} registros)`, antes.centros.length === 3 && antes.dependencias.length === 8 && antes.trd.length > 0)
+r.comprobar(`trae los 3 centros, las 9 dependencias y la TRD (${antes.trd.length} registros)`, antes.centros.length === 3 && antes.dependencias.length === 9 && antes.trd.length > 0)
 r.comprobar('los nombres de los centros llegan con tildes', antes.centros.some((c) => c.nombre === 'Industria y Construcción'))
 
 r.seccion('Nada privado se puede descargar')

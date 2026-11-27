@@ -487,6 +487,21 @@ Respuestas de la usuaria del 23 de noviembre de 2026. La rama `ajustes-usuaria` 
 - El Excel y el PDF exportan lo que se ve: con sesión, los nombres reales; sin sesión, ocultos. El estilo de nombre oculto (gris y cursiva) solo se aplica a los nombres ocultos (`nombreOculto()`).
 - Si la sesión vence por inactividad sin que la página haga ninguna petición, los nombres siguen en esa pestaña hasta la siguiente acción; el manual pide no dejar la sesión abierta en un computador compartido.
 
+**Cierre de la sesión por inactividad (#82, 26 de noviembre).** Si la página queda quieta, los nombres reales ya no quedan a la vista hasta la siguiente petición:
+- `frontend/src/utils/inactividad.js`: a los **29 minutos** sin actividad (mouse, teclado, toques o desplazamiento) en ninguna pestaña de la aplicación, la página oculta los nombres, cierra la sesión (`logout.php`) y muestra el aviso "Su sesión se cerró por inactividad…". Son 29 y no 30 para adelantarse al servidor.
+- La última actividad se comparte entre pestañas (`localStorage`, con respaldo en memoria si el navegador no lo permite), para que una pestaña quieta no cierre la sesión de otra en uso.
+- Mientras hay actividad, la página consulta `sesion.php` a lo sumo una vez por minuto, para que el servidor no cierre la sesión de alguien que la está usando sin hacer peticiones. Al volver a la pestaña (`visibilitychange`) se revisa enseguida; si no, cada 15 segundos.
+
+**Instalación en un solo archivo y guía rápida (26 de noviembre).**
+- `database/instalacion_completa.sql`: `schema.sql`, `datos_iniciales.sql` y `trd.sql` en un solo archivo, para importarlo de una vez (phpMyAdmin o consola). Lo arma `scripts/armar_instalacion_completa.mjs`; `empaquetar.ps1` se detiene si no está al día. Probado en una base nueva de MySQL 8.0.41 y de MariaDB 10.4.32 (3 centros, 9 dependencias, 109 registros de TRD, 4.281 tipos documentales, sin cuentas ni expedientes).
+- `docs/GUIA_RAPIDA_PRUEBA.md` y su PDF: instalar, probar y quitar TRDCode en un computador con XAMPP, con `instalacion_completa.sql` y el `.env` junto a `htdocs`.
+- `scripts/generar_manual_pdf.mjs` genera el PDF de cualquier documento de `docs/` (`GUIA_USO`, `INSTALACION`, `GUIA_RAPIDA_PRUEBA`, `FICHA_TECNICA`, `ACTA_ENTREGA` o `--todos`). El paquete lleva en `docs/` la guía de instalación, la guía rápida y el manual en PDF; `empaquetar.ps1` se detiene si un PDF falta o es más viejo que su `.md`.
+- Correcciones: `INSTALACION.md` y `instalacion.mjs` esperaban 8 dependencias; con La Granja son 9.
+
+**Base del equipo:** desde el 23 de noviembre (19:05) tiene activa la carga del reporte del **8 de octubre** (4.367 expedientes), además de las dos del 10 de agosto, ya reemplazadas. Las pruebas con las cifras del 10 de agosto (3.385, 643…) fallan contra ella por eso, no por el código. Desde ahora se corren contra la base temporal de `base_temporal.php`, que se arma con los expedientes de agosto. La base del equipo no se toca.
+
+**Pruebas (26 de noviembre), en la base temporal:** `npm test` 71, `probar_auth` 58, `probar_usuarios` 64, `probar_importacion` 56, `probar_primera_cuenta` 19, `inicio` 25, `ingreso` 15, `vista` 27, `menus` 20, `usuarios` 31, `exportar` 60 (7 nuevas: inactividad a los 28 y a los 30 minutos, con la ficha abierta) y `actualizar` 35. Contra la base del equipo (sin cifras fijas) pasan `probar_usuarios`, `ingreso`, `vista`, `menus` y `usuarios`.
+
 **85.18:** no cambia el código. Ver la nota en los criterios de la Fase 2.
 
 **Pruebas**
